@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
 import uuid
 
@@ -405,30 +406,37 @@ def model_tmdl() -> str:
 def reconciliation_dax() -> str:
     return """// Réconciliation DAX vs SQL (rpt_kpi_monthly) : exécuter dans la vue Requête DAX de Power BI Desktop,
 // sans rôle actif, et comparer avec docs/kpi-reconciliation.md.
+// Le mois est capturé dans une variable : une colonne de la table externe (ADDCOLUMNS / GENERATE) n'est pas
+// utilisable dans le filtre booléen de CALCULATE, que DAX réécrit en FILTER ( ALL ( dim_date[month_start] ), ... ).
 EVALUATE
-VAR _months = { DATE ( 2025, 9, 1 ), DATE ( 2026, 3, 1 ), DATE ( 2026, 9, 1 ) }
-RETURN
-    ADDCOLUMNS (
-        SELECTCOLUMNS ( _months, "month_start", [Value] ),
-        "headcount", CALCULATE ( [Headcount EoP], dim_date[month_start] = [month_start] ),
-        "fte", CALCULATE ( [FTE EoP], dim_date[month_start] = [month_start] ),
-        "hires", CALCULATE ( [Hires], dim_date[month_start] = [month_start] ),
-        "exits", CALCULATE ( [Exits], dim_date[month_start] = [month_start] ),
-        "cdi_turnover_12m", CALCULATE ( [Turnover CDI 12M %], dim_date[month_start] = [month_start] ),
-        "resignation_rate_12m", CALCULATE ( [Resignation Rate 12M %], dim_date[month_start] = [month_start] ),
-        "total_exit_rate_12m", CALCULATE ( [Total Exit Rate 12M %], dim_date[month_start] = [month_start] ),
-        "absenteeism_rate", CALCULATE ( [Absenteeism %], dim_date[month_start] = [month_start] ),
-        "total_absence_rate", CALCULATE ( [Total Absence incl. Leave %], dim_date[month_start] = [month_start] ),
-        "absenteeism_rate_12m", CALCULATE ( [Absenteeism 12M %], dim_date[month_start] = [month_start] ),
-        "female_share", CALCULATE ( [Female Share %], dim_date[month_start] = [month_start] ),
-        "avg_tenure_years", CALCULATE ( [Avg Tenure (years)], dim_date[month_start] = [month_start] ),
-        "avg_age_years", CALCULATE ( [Avg Age], dim_date[month_start] = [month_start] ),
-        "total_absence_rate_12m", CALCULATE ( [Total Absence incl. Leave 12M %], dim_date[month_start] = [month_start] ),
-        "part_time_share", CALCULATE ( [Part-Time Share %], dim_date[month_start] = [month_start] ),
-        "headcount_min_12m", CALCULATE ( [Headcount Min 12M], dim_date[month_start] = [month_start] ),
-        "headcount_max_12m", CALCULATE ( [Headcount Max 12M], dim_date[month_start] = [month_start] )
-    )
-ORDER BY [month_start]
+GENERATE (
+    SELECTCOLUMNS ( { DATE ( 2025, 9, 1 ), DATE ( 2026, 3, 1 ), DATE ( 2026, 9, 1 ) }, "@month", [Value] ),
+    VAR _month = [@month]
+    RETURN
+        CALCULATETABLE (
+            ROW (
+                "headcount", [Headcount EoP],
+                "fte", [FTE EoP],
+                "hires", [Hires],
+                "exits", [Exits],
+                "cdi_turnover_12m", [Turnover CDI 12M %],
+                "resignation_rate_12m", [Resignation Rate 12M %],
+                "total_exit_rate_12m", [Total Exit Rate 12M %],
+                "absenteeism_rate", [Absenteeism %],
+                "total_absence_rate", [Total Absence incl. Leave %],
+                "absenteeism_rate_12m", [Absenteeism 12M %],
+                "total_absence_rate_12m", [Total Absence incl. Leave 12M %],
+                "female_share", [Female Share %],
+                "avg_tenure_years", [Avg Tenure (years)],
+                "avg_age_years", [Avg Age],
+                "part_time_share", [Part-Time Share %],
+                "headcount_min_12m", [Headcount Min 12M],
+                "headcount_max_12m", [Headcount Max 12M]
+            ),
+            dim_date[month_start] = _month
+        )
+)
+ORDER BY [@month]
 
 // Contrôle RLS (2026-09). Sans rôle : modèle complet, 820 / 1250 / 4 / 12. Valeurs attendues par
 // utilisateur simulé : docs/reference-values.md et docs/rls-tests.md.
@@ -677,12 +685,40 @@ def check_fields(manifest: dict) -> None:
                     raise SystemExit(f"{page}: unknown field {table}[{prop}]")
 
 
+QUALIFIED = re.compile(r"\b([A-Za-z_]\w*)\[([^\]]+)\]")
+UNQUALIFIED = re.compile(r"(?<![\w\]'])\[([^\]]+)\]")
+
+
+def check_dax(manifest: dict) -> None:
+    """Static check of every DAX expression (measures, RLS filters, reconciliation query).
+
+    table[column] must exist in the model; an unqualified [name] must be a measure, the {} constructor's
+    [Value] or a local column whose name starts with @ (a local column named like a model column, such as
+    [month_start], is ambiguous and cannot be used in a CALCULATE boolean filter).
+    """
+    measures = {m[1] for m in MEASURES}
+    sources = [(f"measure [{m[1]}]", m[5]) for m in MEASURES] + [(f"RLS {t}", d) for t, d in RLS.items()]
+    sources.append(("Reconciliation.dax", reconciliation_dax()))
+    errors = []
+    for where, dax in sources:
+        code = re.sub(r'"[^"]*"', '""', re.sub(r"//[^\n]*", "", dax))  # comments, then string literals
+        for table, column in QUALIFIED.findall(code):
+            if table not in TABLES or column not in manifest[table]["columns"]:
+                errors.append(f"{where}: unknown column {table}[{column}]")
+        for name in UNQUALIFIED.findall(code):
+            if name not in measures and name != "Value" and not name.startswith("@"):
+                errors.append(f"{where}: [{name}] is neither a measure nor an @ local column")
+    if errors:
+        raise SystemExit("DAX check failed:\n  " + "\n  ".join(errors))
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--no-visuals", action="store_true", help="empty pages (fallback if Desktop rejects the visuals)")
     with_visuals = not parser.parse_args().no_visuals
     manifest = json.loads((ROOT / "data" / "sample" / "manifest.json").read_text(encoding="utf-8"))
     check_fields(manifest)
+    check_dax(manifest)
     definition = SEMANTIC / "definition"
     write(definition / "database.tmdl", "database\n\tcompatibilityLevel: 1567\n")
     write(definition / "model.tmdl", model_tmdl())
