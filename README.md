@@ -6,7 +6,9 @@
 > A Power BI star schema (PBIP/TMDL) exposes HR KPIs with DAX measures and dynamic row-level security.
 > All data is synthetic; this is a portfolio project, not client work.
 
-**Statut : en construction (phase 1 sur 5).** Ce README sera complété à chaque phase ; voir [MISSION.md](MISSION.md) pour le cadrage complet et [SETUP.md](SETUP.md) pour les prérequis.
+**Statut : en construction.** Ce README sera complété à chaque phase ; voir [MISSION.md](MISSION.md) pour le cadrage complet et [SETUP.md](SETUP.md) pour les prérequis.
+
+> **Coût nul : bac à sable BigQuery.** Le projet tourne dans le [bac à sable BigQuery](https://docs.cloud.google.com/bigquery/docs/sandbox), sans compte de facturation. Conséquences assumées : aucune instruction DML (chargements par remplacement de table) ; le modèle incrémental est écrit et compilé mais exécuté en `--full-refresh` ([SQL compilé et explication](docs/incremental.md)) ; pas de partitionnement par date ; les tables BigQuery expirent après 60 jours, d'où les exports CSV de [`data/sample/`](data/sample/), source par défaut du rapport Power BI.
 
 > **Données entièrement fictives.** La structure des tables brutes est *inspirée de* celle des infotypes SAP HCM. Aucune donnée d'un employeur, d'une entreprise, d'un site ou d'une personne réels. Les salariés sont des pseudonymes (« Salarié 000123 ») et les utilisateurs de la RLS des adresses `@example.com`.
 
@@ -45,9 +47,20 @@ Le générateur écrit 15 tables Parquet (ou CSV avec `--format csv`) et un `man
 
 Définitions des indicateurs, dont la distinction absentéisme / absences totales (congés inclus) : [docs/kpi-definitions.md](docs/kpi-definitions.md).
 
-### Chargement BigQuery, Dataform, Power BI
+### Chargement BigQuery (disponible)
 
-*À venir (phases 1 à 4).*
+Prérequis : `gcloud auth application-default login`, puis `.env` copié depuis `.env.example` avec `GCP_PROJECT_ID`.
+
+```bash
+.venv/Scripts/python loader/load_raw.py      # crée les datasets en europe-west1 (contrôle de région), charge hr_raw
+.venv/Scripts/python loader/check_raw.py     # effectif par site : SQL BigQuery vs générateur
+```
+
+Résultat du contrôle : [docs/load-check.md](docs/load-check.md).
+
+### Dataform, Power BI
+
+*À venir (phases 2 à 4).*
 
 ## Structure du dépôt
 

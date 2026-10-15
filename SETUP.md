@@ -4,6 +4,23 @@ Complément de [MISSION.md](MISSION.md). Liste ce qu'Axel fait lui-même (✋) e
 
 **Règle** : aucun mot de passe, aucune clé, aucun fichier JSON de compte de service n'est transmis à Claude. Toute authentification se fait dans le navigateur, par Axel.
 
+## État au 2026-10-15 — plan B (bac à sable BigQuery)
+
+| Étape | Résultat |
+|---|---|
+| 1. Essai gratuit | **Refusé** : prépaiement de 25 € exigé. Bascule sur le **bac à sable BigQuery**, sans compte de facturation |
+| 2. Projet | `people-analytics-ac26`, sans facturation |
+| 3. Alerte budgétaire | **Sans objet** : pas de compte de facturation, donc aucune dépense possible |
+| 4–5. gcloud et ADC | Compte `axel.corral.pro@gmail.com`, ADC créés par `gcloud auth login --update-adc` (type `authorized_user`, sans *quota project* ; la bibliothèque BigQuery n'en a pas réclamé). Le dossier `bin` du Cloud SDK (`%LOCALAPPDATA%\Google\Cloud SDK\google-cloud-sdk\bin`) n'apparaît dans le PATH que des terminaux ouverts après l'installation |
+| API | BigQuery utilisable sans activation supplémentaire ; aucune autre API activée |
+| Datasets | `hr_raw`, `hr_staging`, `hr_intermediate`, `hr_marts`, `hr_assertions` en `europe-west1`, expiration par défaut de 60 jours (tables et partitions) |
+| 7. Dépôt GitHub | Privé, créé par Claude |
+| 6. Power BI Desktop | À vérifier en phase 4 |
+
+Conséquences (détail dans MISSION.md §9) : aucune instruction DML, modèle incrémental exécuté en `--full-refresh`, pas de partitionnement par date, `data/sample/` source par défaut du rapport. Les tables expirent vers le **2026-12-14** : produire captures, exports et vidéo avant. **Arrêt et signalement** si une étape bute sur une limite du bac à sable, ou si une API demande la facturation ou un *quota project*.
+
+Les étapes ci-dessous décrivent le chemin d'origine (essai gratuit) ; les étapes 1 et 3 ne s'appliquent plus.
+
 ---
 
 ## 1. Déjà en place sur la machine

@@ -6,7 +6,7 @@ Document de cadrage de référence pour toutes les sessions de travail. Toute d�
 
 ## 0. Contraintes absolues
 
-1. **Aucun coût.** Essai gratuit Google Cloud uniquement, jamais de passage en compte payant ; alerte budgétaire à 1 €. Plan B : bac à sable BigQuery (§9).
+1. **Aucun coût.** **Plan B actif depuis le 2026-10-15** : bac à sable BigQuery, sans compte de facturation (l'essai gratuit exigeait un prépaiement de 25 €, refusé). Aucune facturation n'est activée, aucun contournement payant n'est recherché ; une étape bloquée par une limite du bac à sable est arrêtée et signalée (§9).
 2. **Livrable unique : le lien vers le dépôt GitHub public `people-analytics-gcp`.** Tout ce qui doit être montré (code, captures, vidéo, graphe de dépendances, résultats d'assertions, définitions, tests RLS) est **dans le dépôt** et reste visible après la fin de l'essai GCP, quand les ressources cloud auront disparu.
 3. Aucun secret, aucune clé, aucun fichier JSON de compte de service, ni dans le dépôt ni dans son historique.
 4. **Aucune donnée postérieure à la date du jour**, ni dans les tables chargées ni dans le rapport. Les dates d'extraction (`--as-of-date`) sont passées (le générateur refuse une date qui n'est pas strictement antérieure au jour même) ; rien n'est extrait au-delà : une absence en cours est coupée à la date d'extraction, le calendrier s'arrête à cette date. Seules exceptions, qui ne sont pas des faits futurs : la date sentinelle de fin ouverte `9999-12-31` (convertie en fin ouverte dès le staging, jamais affichée) et le début d'un enregistrement de sortie, au plus le lendemain de la date d'extraction.
@@ -69,6 +69,10 @@ Document de cadrage de référence pour toutes les sessions de travail. Toute d�
 | Réalisme production | moindre | zone d'atterrissage classique |
 
 Le README précisera qu'en production on placerait une zone d'atterrissage Cloud Storage entre l'extraction SAP et BigQuery.
+
+**Aucune instruction DML, nulle part** (le bac à sable ne les accepte pas) : les chargements remplacent la table (`WRITE_TRUNCATE`), Dataform ne produit que des `CREATE OR REPLACE` (vues et tables) et des `SELECT` (assertions, contrôles).
+
+**Pas de partitionnement par date** : dans le bac à sable, les datasets reçoivent une expiration de partition de 60 jours (`defaultPartitionExpirationMs = 5184000000`, constaté à la création). Une table partitionnée par date historique perdrait donc immédiatement ses partitions de 2023 à 2026. Le snapshot est **regroupé** (`cluster by`) par date et unité organisationnelle à la place.
 
 ---
 
@@ -137,14 +141,14 @@ Tags : `staging`, `intermediate`, `marts`, `pii`, `security`, `incremental`, `da
 | intermediate | `int_calendar` | Jours ouvrés, fériés de métropole | table |
 | intermediate | `int_absence_days` | Salarié × jour ouvré d'absence ; absences à cheval sur deux mois découpées | table |
 | marts | `dim_date`, `dim_employee`, `dim_org_unit`, `dim_absence_type`, `dim_action_type` | Dimensions | table |
-| marts | `fct_headcount_daily` | Instantané quotidien des effectifs, partitionné par date, regroupé par `org_unit_id` | **incremental** (plan B : table) |
+| marts | `fct_headcount_daily` | Instantané quotidien des effectifs, regroupé par date et `org_unit_id` (pas de partition, voir §2) | **incremental**, exécuté en `--full-refresh` (plan B) |
 | marts | `fct_headcount_monthly` | Instantané au dernier jour du mois, importé dans Power BI | table |
 | marts | `fct_movements` | Entrées, sorties, mutations, `exit_category`, groupe de contrat | table |
 | marts | `fct_absence_monthly` | Salarié × mois × type : heures théoriques, heures d'absence | table |
 | marts | `sec_user_scope` | Table de sécurité pour la RLS | table |
 | marts | `rpt_kpi_monthly` | KPI calculés en SQL, référence de **réconciliation** des mesures DAX | table |
 
-**Incrémental** : `fct_headcount_daily` ne recalcule que les dates postérieures au maximum déjà chargé, moins une **fenêtre de relecture** (31 jours) pour absorber les corrections rétroactives. Démonstration : exécution complète sur l'extraction du 2026-08-31, rechargement de `hr_raw` avec celle du 2026-09-30, exécution incrémentale, puis comparaison avec un `--full-refresh`. Le snapshot s'arrête à la date d'extraction, jamais au-delà. Une table incrémentale exige des instructions DML (`MERGE` ou `INSERT`). **Plan B** si le projet tourne en bac à sable, où le DML n'est pas pris en charge ([BigQuery sandbox](https://docs.cloud.google.com/bigquery/docs/sandbox)) : `fct_headcount_daily` devient une `table` reconstruite à chaque exécution, par une variable de compilation, et le README l'explique. Le code incrémental reste dans le dépôt.
+**Incrémental** : `fct_headcount_daily` ne recalcule que les dates postérieures au maximum déjà chargé, moins une **fenêtre de relecture** (31 jours) pour absorber les corrections rétroactives. Le snapshot s'arrête à la date d'extraction, jamais au-delà. Une exécution incrémentale exige des instructions DML (`MERGE` ou `INSERT`), que le bac à sable refuse ([BigQuery sandbox](https://docs.cloud.google.com/bigquery/docs/sandbox)). **Plan B appliqué** : le modèle reste déclaré `type: "incremental"` (clé unique, filtre `when(incremental(), …)` avec fenêtre de relecture), mais **toutes les exécutions se font en `--full-refresh`**, qui le reconstruit par `CREATE OR REPLACE TABLE`. `docs/incremental.md` montre le SQL compilé des deux chemins (reconstruction et incrémental) et explique la limite : le chemin incrémental est écrit et compilé, il n'est pas exécuté. Les deux extractions passées (2026-08-31 puis 2026-09-30) servent à montrer, par deux reconstructions complètes, quelles lignes la fenêtre de relecture aurait dû retraiter.
 
 **Assertions** :
 
@@ -233,7 +237,7 @@ Résultats dans `docs/rls-tests.md`, captures dans `docs/img/`. Les trois premie
 - **Modèle en étoile** : faits `fct_headcount_monthly`, `fct_movements`, `fct_absence_monthly` ; dimensions `dim_date` (table de dates), `dim_org_unit`, `dim_employee`, `dim_absence_type`, `dim_action_type` ; relations un-à-plusieurs à sens unique, sauf exception justifiée par la RLS ; `sec_user_scope` déconnectée.
 - **Mesures DAX** (dossiers d'affichage par thème) : `Headcount EoP`, `FTE EoP`, `Avg Headcount 12M`, `Avg Headcount CDI 12M`, `Hires`, `Exits`, `Exits CDI`, `Resignations CDI`, `Turnover CDI 12M %` (principal), `Resignation Rate 12M %`, `Total Exit Rate 12M %`, `Theoretical Hours`, `Absence Hours (counted)`, `Absence Hours (all incl. leave)`, `Absenteeism %`, `Total Absence incl. Leave %` (libellé du rapport : « Absences totales, congés inclus »), `Avg Tenure (years)`, `Avg Age`, `Female Share %`, `Headcount PY`, `Headcount Δ`. Libellés d'affichage en français dans le rapport.
 - **Pages** : **Vue globale**, **Absentéisme**, **Mouvements**, **Effectifs détaillés** (pyramide, F/H par niveau, ancienneté, table nominative soumise à la RLS).
-- **Mode hors ligne** : un paramètre Power Query `DataSource` (`"BigQuery"` ou `"Local"`) bascule toutes les requêtes entre BigQuery et les CSV versionnés de `data/sample/` (exports des tables marts importées, quelques Mo, fictifs). Après l'essai GCP, n'importe qui peut ouvrir le PBIP et l'actualiser en mode `Local` ; le cache `.pbi/cache.abf` n'est pas versionné.
+- **Mode hors ligne, source prioritaire** : un paramètre Power Query `DataSource` (`"Local"` ou `"BigQuery"`) bascule toutes les requêtes entre les CSV versionnés de `data/sample/` (exports des tables marts importées, quelques Mo, fictifs) et BigQuery. **Valeur par défaut : `Local`**, car les tables du bac à sable expirent 60 jours après leur création ; `BigQuery` ne sert qu'à la démonstration de la chaîne en direct. Le cache `.pbi/cache.abf` n'est pas versionné.
 
 ---
 
@@ -274,9 +278,15 @@ Vérifié dans la documentation Google le 2026-10-15 (à revérifier au démarra
 - **Budget** : une alerte ne plafonne pas les dépenses et peut arriver avec plusieurs heures de retard ([Budgets](https://docs.cloud.google.com/billing/docs/how-to/budgets)).
 - **À vérifier** : tarification de l'API BigQuery Storage Read utilisée par défaut par le connecteur Power BI (repli : `UseStorageApi = false`).
 
-Garde-fous : jamais d'« activation du compte complet » ; alerte budgétaire à 1 € (seuils 50 / 90 / 100 %) ; limite d'octets facturés par requête dans le chargeur ; snapshot partitionné, pas de `SELECT *` dans les marts ; localisation explicite partout.
+**Plan B — bac à sable BigQuery, actif** : l'essai gratuit exigeait un prépaiement de 25 €, refusé. Le projet n'a **aucun compte de facturation**, donc ni facture possible ni alerte budgétaire à configurer. Limites ([BigQuery sandbox](https://docs.cloud.google.com/bigquery/docs/sandbox)) : tables, vues et partitions expirées après 60 jours, 10 Gio de stockage à vie, 1 Tio de requêtes par mois, pas de DML, pas de streaming. Conséquences appliquées :
 
-**Plan B — bac à sable BigQuery** (si l'essai est refusé ou épuisé) : sans carte, mais tables expirées après 60 jours, 10 Gio de stockage à vie, pas de DML, pas de streaming ([BigQuery sandbox](https://docs.cloud.google.com/bigquery/docs/sandbox)). Conséquences : incrémental remplacé par une table (§4), chargement par jobs de chargement (pas de streaming), captures et exports faits dans les 60 jours.
+- chargements par jobs de chargement en remplacement de table, aucune instruction DML (§2) ;
+- modèle incrémental exécuté en `--full-refresh`, SQL incrémental documenté (§4) ;
+- pas de partitionnement par date (§2) ;
+- **expiration** : les tables créées le 2026-10-15 expirent vers le 2026-12-14. Les exports CSV de `data/sample/`, les captures et la vidéo sont produits avant, et `data/sample/` est la source par défaut du rapport (§7). Une réexécution complète (générateur, chargement, Dataform) recrée tout en quelques minutes si besoin ;
+- règle d'arrêt : si une étape échoue à cause d'une limite du bac à sable, ou si une API demande la facturation ou un *quota project*, l'exécution s'arrête et le point est signalé, sans activation de facturation ni contournement payant.
+
+Garde-fous restants : limite d'octets facturés par requête (`BQ_MAX_BYTES_BILLED`) dans les scripts ; pas de `SELECT *` dans les marts ; localisation explicite partout.
 
 **Nettoyage de fin de projet** : suppression des datasets `hr_*`, puis du projet GCP ; `gcloud auth application-default revoke`. Le dépôt reste la seule trace, et il se suffit à lui-même.
 
@@ -286,7 +296,7 @@ Garde-fous : jamais d'« activation du compte complet » ; alerte budgétaire à
 
 Phases enchaînées sans délai. Les actions marquées ✋ sont manuelles et sont les seuls points d'arrêt ; le détail des prérequis est dans SETUP.md.
 
-**Phase 0 — Prérequis (✋, voir SETUP.md)** : compte et essai Google Cloud, projet, alerte budgétaire, API, gcloud et ADC, Power BI Desktop, dépôt GitHub privé.
+**Phase 0 — Prérequis (✋, voir SETUP.md)** : fait le 2026-10-15 : projet `people-analytics-ac26` en bac à sable, gcloud et ADC, dépôt GitHub privé. Power BI Desktop : à vérifier en phase 4.
 
 **Phase 1 — Dépôt, générateur, chargement raw**
 - Livrables : arborescence, `.gitignore`, `.gitattributes`, `.env.example`, squelette du README ; générateur ; tests pytest (déterminisme, volumes, invariants BEGDA ≤ ENDDA, absence de chevauchement, cohérence PA0000/PA0001, turnover CDI dans la fourchette, fériés corrects) ; chargeur BigQuery.
@@ -300,7 +310,7 @@ Phases enchaînées sans délai. Les actions marquées ✋ sont manuelles et son
 
 **Phase 3 — Marts, incrémental, documentation, exécution complète**
 - Livrables : dimensions, faits, `fct_headcount_daily` incrémental (ou plan B), `sec_user_scope`, `rpt_kpi_monthly`, descriptions de colonnes, `docs/lineage.md`, export CSV des marts importés dans `data/sample/`.
-- Terminé quand : exécution complète sur l'extraction du 2026-08-31, puis exécution incrémentale après rechargement de l'extraction du 2026-09-30, identique à un `--full-refresh` ; aucune date de fait postérieure au 2026-09-30 dans les marts.
+- Terminé quand : exécution complète en `--full-refresh`, assertions passantes, `docs/incremental.md` avec le SQL compilé des deux chemins et la comparaison des deux extractions passées ; aucune date de fait postérieure au 2026-09-30 dans les marts ; exports `data/sample/` produits.
 - Contrôle : différence nulle entre incrémental et reconstruction, octets traités relevés.
 
 **Phase 4 — Modèle Power BI en PBIP/TMDL**
@@ -329,7 +339,7 @@ Phases enchaînées sans délai. Les actions marquées ✋ sont manuelles et son
 
 | Sujet | Décision |
 |---|---|
-| Environnement | Essai gratuit Google Cloud, jamais de compte payant, alerte à 1 € ; plan B bac à sable |
+| Environnement | **Plan B actif** : bac à sable BigQuery sans facturation (essai refusé, prépaiement exigé) ; incrémental exécuté en `--full-refresh` ; aucun DML ; `data/sample/` source par défaut du rapport |
 | Région | `europe-west1` pour BigQuery et Dataform |
 | Dataform | CLI locale uniquement, installée dans le projet ; pas de console, le graphe Mermaid remplace la capture ; `.df-credentials.json` ignoré dès le premier commit |
 | Dépôt | `people-analytics-gcp`, créé par `gh`, privé puis public après recherche de secrets (`git log -p --all` + motifs) |
