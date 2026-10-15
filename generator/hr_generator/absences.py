@@ -2,7 +2,8 @@
 
 Each (employee, year) has its own RNG derived from the seed, and candidates are
 accepted in start-date order, so a later as-of date never changes absences that
-ended before the earlier one.
+ended before the earlier one. An absence still running at the as-of date is
+extracted with ENDDA = as-of date and extended by the next extraction.
 """
 
 from __future__ import annotations
@@ -151,6 +152,8 @@ def generate_absences(config: GeneratorConfig, cal: WorkCalendar, employees: dic
             if interval[1] is not None and end > interval[1]:
                 end = interval[1]
             busy_until = end
+            # The extraction only knows the absence up to the as-of date; a later extraction extends it.
+            end = min(end, as_of)
             days = cal.count_working_days(begin, end)
             weekly_hours = ref.FULL_TIME_WEEKLY_HOURS * timeline.state_on(begin).empct / 100
             rows.append(

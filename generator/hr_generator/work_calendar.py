@@ -106,15 +106,18 @@ class WorkCalendar:
             return None
         return self.working_days[rng.randrange(lo, hi)]
 
-    def holiday_rows(self) -> list[dict]:
+    def holiday_rows(self, until: date | None = None) -> list[dict]:
         return [
             {"holiday_date": d, "holiday_name": name, "region_scope": "FR-METRO"}
             for d, name in sorted(self.holidays.items())
+            if until is None or d <= until
         ]
 
-    def calendar_rows(self) -> list[dict]:
+    def calendar_rows(self, until: date | None = None) -> list[dict]:
         rows = []
         d, end = date(self.first_year, 1, 1), date(self.last_year, 12, 31)
+        if until is not None:
+            end = min(end, until)
         while d <= end:
             holiday = self.holidays.get(d)
             rows.append(

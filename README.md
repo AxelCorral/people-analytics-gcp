@@ -38,10 +38,12 @@ python -m venv .venv
 PYTHONPATH=generator .venv/Scripts/python -m hr_generator --seed 42 --as-of-date 2026-09-30 --out data/raw
 ```
 
-Le générateur écrit 15 tables Parquet (ou CSV avec `--format csv`) et un `manifest.json` (nombres de lignes, empreintes SHA-256, indicateurs de contrôle). Options :
+Le générateur écrit 15 tables Parquet (ou CSV avec `--format csv`) et un `manifest.json` (nombres de lignes, empreintes SHA-256, indicateurs de contrôle). Il refuse une date d'extraction qui n'est pas passée, et n'extrait rien au-delà de cette date. Options :
 
 - `--inject-anomalies` : insère quatre défauts contrôlés (chevauchement d'affectation, unité inconnue, BEGDA > ENDDA, clé dupliquée) pour démontrer les assertions ;
-- `--start-date 2023-10-01 --as-of-date 2026-12-31` : simule une extraction ultérieure du même historique (démonstration de l'incrémental) — le passé est rejoué à l'identique.
+- démonstration de l'incrémental, deux extractions passées du même historique : `--start-date 2023-10-01 --as-of-date 2026-08-31`, puis `--start-date 2023-10-01 --as-of-date 2026-09-30`. Le passé est rejoué à l'identique ; les absences en cours au 31/08 sont prolongées dans la seconde extraction.
+
+Définitions des indicateurs, dont la distinction absentéisme / absences totales (congés inclus) : [docs/kpi-definitions.md](docs/kpi-definitions.md).
 
 ### Chargement BigQuery, Dataform, Power BI
 

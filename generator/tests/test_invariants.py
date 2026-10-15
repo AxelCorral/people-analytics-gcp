@@ -151,6 +151,33 @@ class TestAbsences:
                 assert gender[r["PERNR"]] == "1"
 
 
+def test_nothing_after_the_as_of_date(tables):
+    """No date beyond the extraction date, except the open-end sentinel 9999-12-31 and the
+    start of an exit record (the day after the last worked day, at most as-of + 1)."""
+    from hr_generator.schemas import SCHEMAS
+
+    for table, columns in SCHEMAS.items():
+        for col in (c.name for c in columns if c.type == "DATE"):
+            for r in tables[table]:
+                value = r[col]
+                if value is None or value == OPEN_END:
+                    continue
+                if table == "pa0000" and col == "BEGDA" and r["MASSN"] == ref.MASSN_EXIT:
+                    assert value <= AS_OF + timedelta(days=1)
+                elif table == "pa0001" and col == "BEGDA" and r["PLANS"] == ref.LEAVER_POSITION:
+                    assert value <= AS_OF + timedelta(days=1)
+                else:
+                    assert value <= AS_OF, (table, col, r)
+    assert max(r["calendar_date"] for r in tables["ref_calendar"]) == AS_OF
+
+
+def test_cli_refuses_an_as_of_date_not_in_the_past(tmp_path):
+    from hr_generator.__main__ import main
+
+    assert main(["--as-of-date", date.today().isoformat(), "--out", str(tmp_path)]) == 2
+    assert not (tmp_path / "manifest.json").exists()
+
+
 def test_anomalies_are_injected_on_demand():
     ds = generate(GeneratorConfig(seed=42, as_of_date=AS_OF, inject_anomalies=True))
     t = ds.tables

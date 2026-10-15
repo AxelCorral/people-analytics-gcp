@@ -9,6 +9,7 @@ Document de cadrage de référence pour toutes les sessions de travail. Toute d�
 1. **Aucun coût.** Essai gratuit Google Cloud uniquement, jamais de passage en compte payant ; alerte budgétaire à 1 €. Plan B : bac à sable BigQuery (§9).
 2. **Livrable unique : le lien vers le dépôt GitHub public `people-analytics-gcp`.** Tout ce qui doit être montré (code, captures, vidéo, graphe de dépendances, résultats d'assertions, définitions, tests RLS) est **dans le dépôt** et reste visible après la fin de l'essai GCP, quand les ressources cloud auront disparu.
 3. Aucun secret, aucune clé, aucun fichier JSON de compte de service, ni dans le dépôt ni dans son historique.
+4. **Aucune donnée postérieure à la date du jour**, ni dans les tables chargées ni dans le rapport. Les dates d'extraction (`--as-of-date`) sont passées (le générateur refuse une date qui n'est pas strictement antérieure au jour même) ; rien n'est extrait au-delà : une absence en cours est coupée à la date d'extraction, le calendrier s'arrête à cette date. Seules exceptions, qui ne sont pas des faits futurs : la date sentinelle de fin ouverte `9999-12-31` (convertie en fin ouverte dès le staging, jamais affichée) et le début d'un enregistrement de sortie, au plus le lendemain de la date d'extraction.
 
 ---
 
@@ -118,7 +119,7 @@ Conventions reprises de SAP HCM : clé salarié `PERNR` (8 chiffres), validité 
 - **Absences** : selon le tableau ci-dessus, jamais hors période d'emploi, jamais chevauchantes, jamais sur un jour non ouvré en début d'absence.
 - **Démographie** : âges de 18 à 66 ans ; répartition femmes/hommes variable par département et par niveau.
 - **Anomalies** : option `--inject-anomalies` (désactivée par défaut) qui insère quelques défauts contrôlés pour démontrer que les assertions les détectent.
-- **Extractions quotidiennes simulées** : relancer avec une `--as-of-date` plus tardive produit le même passé plus les nouveaux jours, ce qui permet de démontrer l'incrémental.
+- **Deux extractions passées pour l'incrémental** : `--start-date 2023-10-01 --as-of-date 2026-08-31`, puis `--start-date 2023-10-01 --as-of-date 2026-09-30` (identique au jeu par défaut). La seconde rejoue exactement le même passé et ajoute le mois de septembre ; les absences coupées au 31/08 y sont prolongées, ce qui reproduit une correction rétroactive (testé).
 
 ---
 
@@ -143,7 +144,7 @@ Tags : `staging`, `intermediate`, `marts`, `pii`, `security`, `incremental`, `da
 | marts | `sec_user_scope` | Table de sécurité pour la RLS | table |
 | marts | `rpt_kpi_monthly` | KPI calculés en SQL, référence de **réconciliation** des mesures DAX | table |
 
-**Incrémental** : `fct_headcount_daily` ne recalcule que les dates postérieures au maximum déjà chargé, moins une **fenêtre de relecture** (31 jours) pour absorber les corrections rétroactives. Une table incrémentale exige des instructions DML (`MERGE` ou `INSERT`). **Plan B** si le projet tourne en bac à sable, où le DML n'est pas pris en charge ([BigQuery sandbox](https://docs.cloud.google.com/bigquery/docs/sandbox)) : `fct_headcount_daily` devient une `table` reconstruite à chaque exécution, par une variable de compilation, et le README l'explique. Le code incrémental reste dans le dépôt.
+**Incrémental** : `fct_headcount_daily` ne recalcule que les dates postérieures au maximum déjà chargé, moins une **fenêtre de relecture** (31 jours) pour absorber les corrections rétroactives. Démonstration : exécution complète sur l'extraction du 2026-08-31, rechargement de `hr_raw` avec celle du 2026-09-30, exécution incrémentale, puis comparaison avec un `--full-refresh`. Le snapshot s'arrête à la date d'extraction, jamais au-delà. Une table incrémentale exige des instructions DML (`MERGE` ou `INSERT`). **Plan B** si le projet tourne en bac à sable, où le DML n'est pas pris en charge ([BigQuery sandbox](https://docs.cloud.google.com/bigquery/docs/sandbox)) : `fct_headcount_daily` devient une `table` reconstruite à chaque exécution, par une variable de compilation, et le README l'explique. Le code incrémental reste dans le dépôt.
 
 **Assertions** :
 
@@ -168,7 +169,7 @@ Date de référence = dernier jour de la période. « Actif » = `STAT2 = 3` à 
 | Taux de démission | démissions de CDI sur 12 mois / effectif moyen CDI sur 12 mois | mois × unité | idem | Même dénominateur que le principal |
 | Taux de sorties totales | toutes sorties sur 12 mois, CDD compris / effectif moyen total sur 12 mois | mois × unité | idem | Gonflé mécaniquement par les fins de CDD : ne pas le comparer au taux CDI |
 | **Taux d'absentéisme** | heures d'absence des types comptés (maladie, accident du travail, accident de trajet, maladie professionnelle, absence injustifiée) / heures théoriques | mois × unité × type | `fct_absence_monthly` | Heures théoriques proratisées par `EMPCT`, sur jours ouvrés, **fériés de métropole déduits**. Absences à cheval sur deux mois découpées au jour |
-| Taux d'absences totales | heures de toutes les absences PA2001 / heures théoriques | mois × unité × type | `fct_absence_monthly` | Inclut congés payés, maternité, paternité, formation : indicateur de disponibilité, pas d'absentéisme |
+| Taux d'absences totales (congés inclus) | heures des **10 types** PA2001 / heures théoriques : les 5 types de l'absentéisme **+ congés payés + RTT + maternité + paternité + formation** | mois × unité × type | `fct_absence_monthly` | **Congés payés et RTT inclus** : indicateur de disponibilité, environ 3 à 4 fois l'absentéisme. Ne jamais l'afficher sous le libellé « absentéisme » ; voir `docs/kpi-definitions.md` |
 | Ancienneté moyenne | moyenne de (date de référence − date d'entrée du parcours en cours), en années, sur les actifs | mois × unité | `fct_headcount_monthly` | Réintégration : dernière entrée retenue par défaut |
 | Pyramide des âges | effectif fin de mois par tranche de 5 ans × sexe | mois × tranche × sexe | `fct_headcount_monthly` + `dim_employee` | Âge à la date de référence, pas à la date du jour ; bornes documentées |
 | Répartition F/H par niveau | effectif fin de mois par `PERSK` × `GESCH`, part de femmes | mois × niveau | `fct_headcount_monthly` + `dim_employee` | Petites cellules : masquage sous 5, même sur données fictives |
@@ -230,7 +231,7 @@ Résultats dans `docs/rls-tests.md`, captures dans `docs/img/`. Les trois premie
 - **Format PBIP**, modèle sémantique en **TMDL** dans le dossier `definition/` : tables, relations, mesures et rôle RLS lisibles dans le dépôt ([Power BI Desktop projects](https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-overview)). Fichiers en UTF-8 sans BOM, fins de ligne CRLF gérées par `.gitattributes`, chemin racine court (limite de 260 caractères sous Windows).
 - **Mode import** via le connecteur Google BigQuery, authentification par compte Google dans le navigateur ([connecteur Google BigQuery](https://learn.microsoft.com/en-us/power-query/connectors/google-bigquery)). `BillingProject` renseigné explicitement par un paramètre Power Query, sans identifiant écrit en dur dans les requêtes. Implémentation du connecteur : celle par défaut, bascule ODBC/ADBC en cas d'erreur.
 - **Modèle en étoile** : faits `fct_headcount_monthly`, `fct_movements`, `fct_absence_monthly` ; dimensions `dim_date` (table de dates), `dim_org_unit`, `dim_employee`, `dim_absence_type`, `dim_action_type` ; relations un-à-plusieurs à sens unique, sauf exception justifiée par la RLS ; `sec_user_scope` déconnectée.
-- **Mesures DAX** (dossiers d'affichage par thème) : `Headcount EoP`, `FTE EoP`, `Avg Headcount 12M`, `Avg Headcount CDI 12M`, `Hires`, `Exits`, `Exits CDI`, `Resignations CDI`, `Turnover CDI 12M %` (principal), `Resignation Rate 12M %`, `Total Exit Rate 12M %`, `Theoretical Hours`, `Absence Hours (counted)`, `Absence Hours (all)`, `Absenteeism %`, `Total Absence %`, `Avg Tenure (years)`, `Avg Age`, `Female Share %`, `Headcount PY`, `Headcount Δ`. Libellés d'affichage en français dans le rapport.
+- **Mesures DAX** (dossiers d'affichage par thème) : `Headcount EoP`, `FTE EoP`, `Avg Headcount 12M`, `Avg Headcount CDI 12M`, `Hires`, `Exits`, `Exits CDI`, `Resignations CDI`, `Turnover CDI 12M %` (principal), `Resignation Rate 12M %`, `Total Exit Rate 12M %`, `Theoretical Hours`, `Absence Hours (counted)`, `Absence Hours (all incl. leave)`, `Absenteeism %`, `Total Absence incl. Leave %` (libellé du rapport : « Absences totales, congés inclus »), `Avg Tenure (years)`, `Avg Age`, `Female Share %`, `Headcount PY`, `Headcount Δ`. Libellés d'affichage en français dans le rapport.
 - **Pages** : **Vue globale**, **Absentéisme**, **Mouvements**, **Effectifs détaillés** (pyramide, F/H par niveau, ancienneté, table nominative soumise à la RLS).
 - **Mode hors ligne** : un paramètre Power Query `DataSource` (`"BigQuery"` ou `"Local"`) bascule toutes les requêtes entre BigQuery et les CSV versionnés de `data/sample/` (exports des tables marts importées, quelques Mo, fictifs). Après l'essai GCP, n'importe qui peut ouvrir le PBIP et l'actualiser en mode `Local` ; le cache `.pbi/cache.abf` n'est pas versionné.
 
@@ -299,7 +300,7 @@ Phases enchaînées sans délai. Les actions marquées ✋ sont manuelles et son
 
 **Phase 3 — Marts, incrémental, documentation, exécution complète**
 - Livrables : dimensions, faits, `fct_headcount_daily` incrémental (ou plan B), `sec_user_scope`, `rpt_kpi_monthly`, descriptions de colonnes, `docs/lineage.md`, export CSV des marts importés dans `data/sample/`.
-- Terminé quand : exécution complète depuis zéro, puis exécution incrémentale après une `--as-of-date` plus tardive, identique à un `--full-refresh`.
+- Terminé quand : exécution complète sur l'extraction du 2026-08-31, puis exécution incrémentale après rechargement de l'extraction du 2026-09-30, identique à un `--full-refresh` ; aucune date de fait postérieure au 2026-09-30 dans les marts.
 - Contrôle : différence nulle entre incrémental et reconstruction, octets traités relevés.
 
 **Phase 4 — Modèle Power BI en PBIP/TMDL**
@@ -338,7 +339,8 @@ Phases enchaînées sans délai. Les actions marquées ✋ sont manuelles et son
 | Vidéo | Moins de 10 Mo, intégrée au README, GIF de secours |
 | Noms | Pseudonymes « Salarié 000123 » ; utilisateurs RLS en `@example.com` |
 | Turnover | Principal : sorties CDI toutes causes / effectif moyen CDI ; secondaires : démission, sorties totales |
-| Absentéisme | Maladie, accident du travail et de trajet, maladie professionnelle, absence injustifiée ; « absences totales » à part |
+| Absentéisme | Maladie, accident du travail et de trajet, maladie professionnelle, absence injustifiée ; « absences totales » à part, congés payés et RTT **inclus** |
+| Incrémental | Deux extractions passées : 2026-08-31 puis 2026-09-30 ; aucune donnée postérieure au jour même |
 | Calendrier | Fériés de métropole ; Alsace-Moselle ignorée et documentée |
 | Présentation | README + vidéo de 2 minutes intégrée ; captures dans `docs/img/` |
 | Langues | Code et modèles en anglais snake_case ; noms SAP en raw ; documentation en français ; résumé anglais de 5 lignes en tête du README |

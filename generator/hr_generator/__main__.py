@@ -33,6 +33,10 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(sys.argv[1:] if argv is None else argv)
+    if args.as_of_date >= date.today():
+        # Exit records start the day after the last worked day: as-of must be strictly in the past.
+        print(f"as-of date {args.as_of_date} must be before today ({date.today()})", file=sys.stderr)
+        return 2
     config = GeneratorConfig(seed=args.seed, as_of_date=args.as_of_date, years=args.years,
                              inject_anomalies=args.inject_anomalies, start_date=args.start_date)
     dataset = generate(config)

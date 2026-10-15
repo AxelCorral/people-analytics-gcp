@@ -7,7 +7,7 @@ from hr_generator.writer import write_dataset
 
 from conftest import AS_OF
 
-LATER_AS_OF = date(2026, 12, 31)
+EARLIER_AS_OF = date(2026, 8, 31)  # first extraction of the incremental demo; the second is AS_OF
 
 
 def test_same_seed_same_content(dataset):
@@ -22,25 +22,32 @@ def test_different_seed_different_content(dataset):
     assert other.content_hash("pa2001") != dataset.content_hash("pa2001")
 
 
-def test_later_extraction_keeps_the_past(dataset):
-    """A later as-of date with the same history start replays the same past (incremental demo)."""
-    later = generate(GeneratorConfig(seed=42, as_of_date=LATER_AS_OF, start_date=dataset.config.history_start))
-    assert later.config.history_start == dataset.config.history_start
+def test_two_extractions_share_the_past(dataset):
+    """Incremental demo: extraction at 2026-08-31, then at 2026-09-30, same pinned history start."""
+    earlier = generate(GeneratorConfig(seed=42, as_of_date=EARLIER_AS_OF, start_date=date(2023, 10, 1)))
+    assert earlier.config.history_start == dataset.config.history_start == date(2023, 10, 1)
 
     def actions(ds):
         def effective(r):  # an exit is known on the last worked day, BEGDA - 1
             return r["BEGDA"] - timedelta(days=1) if r["MASSN"] == "X1" else r["BEGDA"]
 
         return {(r["PERNR"], r["BEGDA"], r["MASSN"], r["MASSG"], r["STAT2"])
-                for r in ds.tables["pa0000"] if effective(r) <= AS_OF}
+                for r in ds.tables["pa0000"] if effective(r) <= EARLIER_AS_OF}
 
     def closed_absences(ds):
-        return {tuple(r.values()) for r in ds.tables["pa2001"] if r["ENDDA"] <= AS_OF}
+        # strictly before: an absence running on the earlier as-of date was cut there and is extended later
+        return {tuple(r.values()) for r in ds.tables["pa2001"] if r["ENDDA"] < EARLIER_AS_OF}
 
-    assert actions(later) == actions(dataset)
-    assert closed_absences(later) == closed_absences(dataset)
-    assert len(later.tables["pa2001"]) > len(dataset.tables["pa2001"])
-    assert len(later.tables["pa0000"]) > len(dataset.tables["pa0000"])
+    assert actions(dataset) == actions(earlier)
+    assert closed_absences(dataset) == closed_absences(earlier)
+    assert len(dataset.tables["pa2001"]) > len(earlier.tables["pa2001"])
+    assert len(dataset.tables["pa0000"]) > len(earlier.tables["pa0000"])
+
+    # Absences cut at the first extraction come back longer in the second one (retroactive change)
+    cut = {(r["PERNR"], r["BEGDA"]): r["ENDDA"] for r in earlier.tables["pa2001"] if r["ENDDA"] == EARLIER_AS_OF}
+    later = {(r["PERNR"], r["BEGDA"]): r["ENDDA"] for r in dataset.tables["pa2001"]}
+    assert cut and all(later[key] >= end for key, end in cut.items())
+    assert any(later[key] > end for key, end in cut.items())
 
 
 def test_writer_outputs_files_and_manifest(dataset, tmp_path):

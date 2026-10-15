@@ -53,8 +53,9 @@ def generate(config: GeneratorConfig | None = None) -> Dataset:
     tables["org_units"] = org_unit_rows(employees)
     tables["security_user_scope"] = security_rows()
     tables.update(reference.reference_tables())
-    tables["ref_public_holidays"] = calendar.holiday_rows()
-    tables["ref_calendar"] = calendar.calendar_rows()
+    # Nothing after the as-of date is extracted, reference calendars included.
+    tables["ref_public_holidays"] = calendar.holiday_rows(until=config.as_of_date)
+    tables["ref_calendar"] = calendar.calendar_rows(until=config.as_of_date)
 
     dataset = Dataset(config, calendar, tables)
     if config.inject_anomalies:
