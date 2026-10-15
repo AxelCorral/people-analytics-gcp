@@ -1,0 +1,45 @@
+# --- Secrets et identifiants : jamais dans le dépôt -------------------------
+.env
+.env.*
+!.env.example
+.df-credentials.json
+**/.df-credentials.json
+*credentials*.json
+*-key*.json
+*_key*.json
+*service-account*.json
+*service_account*.json
+application_default_credentials.json
+*.pem
+*.p12
+
+# --- Données générées (reproductibles par la graine) -----------------------
+data/*
+!data/sample/
+!data/sample/**
+*.parquet
+
+# --- Python -----------------------------------------------------------------
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# --- Node / Dataform --------------------------------------------------------
+node_modules/
+.npm/
+
+# --- Power BI (PBIP) --------------------------------------------------------
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+
+# --- Éditeurs et système ----------------------------------------------------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

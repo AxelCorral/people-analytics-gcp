@@ -1,0 +1,17 @@
+# Normalisation des fins de ligne : LF dans le dépôt par défaut
+* text=auto eol=lf
+
+# Power BI Desktop écrit en CRLF : on conserve CRLF pour éviter des diffs parasites
+powerbi/** text eol=crlf
+
+# Scripts Windows
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+
+# Binaires
+*.png binary
+*.jpg binary
+*.gif binary
+*.mp4 binary
+*.parquet binary
+*.abf binary
