@@ -1,0 +1,21 @@
+config {
+  type: "table",
+  schema: "hr_intermediate",
+  tags: ["intermediate"],
+  description: "Single row: extraction (as-of) date and start of the reporting window. Nothing after as_of_date is ever reported.",
+  columns: {
+    as_of_date: "Extraction date: day before the simulated extraction timestamp",
+    snapshot_start_date: "First day of the reporting window (var snapshot_start_date)",
+    batch_id: "Generator run identifier"
+  },
+  assertions: {
+    nonNull: ["as_of_date", "snapshot_start_date", "batch_id"],
+    rowConditions: ["snapshot_start_date < as_of_date"]
+  }
+}
+
+SELECT
+  DATE_SUB(DATE(MAX(extracted_at)), INTERVAL 1 DAY) AS as_of_date,
+  DATE '${constants.SNAPSHOT_START_DATE}' AS snapshot_start_date,
+  MAX(batch_id) AS batch_id
+FROM ${ref("stg_pa0000_actions")}

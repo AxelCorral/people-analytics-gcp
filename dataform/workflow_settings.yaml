@@ -1,0 +1,11 @@
+defaultProject: people-analytics-ac26
+defaultLocation: europe-west1
+defaultDataset: hr_staging
+defaultAssertionDataset: hr_assertions
+dataformCoreVersion: 3.0.71
+vars:
+  raw_dataset: hr_raw
+  # First day of the reporting window (generator history start)
+  snapshot_start_date: "2023-10-01"
+  # Incremental re-processing window for retroactive HR corrections
+  lookback_days: "31"

@@ -1,0 +1,35 @@
+config {
+  type: "table",
+  schema: "hr_intermediate",
+  tags: ["intermediate"],
+  description: "Calendar enriched with month attributes, from the first calendar day to the extraction date.",
+  columns: {
+    calendar_date: "Day",
+    is_working_day: "Monday to Friday, not a metropolitan French public holiday",
+    is_public_holiday: "Public holiday",
+    holiday_name: "Holiday name",
+    month_start: "First day of the month",
+    month_end: "Last day of the month",
+    is_month_end: "TRUE on the last day of the month",
+    calendar_year: "Year",
+    calendar_month: "Month number",
+    calendar_quarter: "Quarter number"
+  },
+  assertions: {
+    uniqueKey: ["calendar_date"],
+    nonNull: ["calendar_date", "is_working_day", "month_start"]
+  }
+}
+
+SELECT
+  calendar_date,
+  is_working_day,
+  is_public_holiday,
+  holiday_name,
+  DATE_TRUNC(calendar_date, MONTH) AS month_start,
+  LAST_DAY(calendar_date, MONTH) AS month_end,
+  calendar_date = LAST_DAY(calendar_date, MONTH) AS is_month_end,
+  EXTRACT(YEAR FROM calendar_date) AS calendar_year,
+  EXTRACT(MONTH FROM calendar_date) AS calendar_month,
+  EXTRACT(QUARTER FROM calendar_date) AS calendar_quarter
+FROM ${ref("stg_ref_calendar")}

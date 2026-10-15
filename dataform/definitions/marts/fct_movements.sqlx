@@ -1,0 +1,89 @@
+config {
+  type: "table",
+  schema: "hr_marts",
+  tags: ["marts"],
+  description: "Workforce movements in the reporting window: hires, rehires, exits (dated on the last worked day), transfers (one row out, one row in), promotions and contract changes. Department and contract are those of the event day (last worked day for an exit).",
+  columns: {
+    movement_id: "employee_id + event date + movement type",
+    event_date: "Movement date; for an exit, last worked day (BEGDA - 1)",
+    month_start: "First day of the event month (relationship key to dim_date)",
+    employee_id: "Personnel number",
+    movement_type: "hire, rehire, exit, transfer_in, transfer_out, promotion, contract_change",
+    action_key: "MASSN-MASSG",
+    org_unit_id: "Department concerned",
+    site_code: "Site concerned",
+    employee_group_code: "PERSG on the event day",
+    employee_subgroup_code: "PERSK on the event day",
+    is_entry: "Hire or rehire",
+    is_exit: "Exit",
+    is_cdi_exit: "Exit of a permanent contract (CDI) employee",
+    is_resignation: "Exit by resignation",
+    headcount_delta: "+1 entry or transfer in, -1 exit or transfer out, 0 otherwise"
+  },
+  assertions: {
+    uniqueKey: ["movement_id"],
+    nonNull: ["event_date", "employee_id", "movement_type", "org_unit_id", "employee_group_code"]
+  }
+}
+
+WITH actions AS (
+  SELECT
+    a.employee_id,
+    a.action_category,
+    a.action_type_code,
+    a.action_reason_code,
+    CASE
+      WHEN a.action_category = 'exit' THEN a.exit_last_day
+      ELSE a.valid_from
+    END AS event_date,
+    a.valid_from
+  FROM ${ref("stg_pa0000_actions")} AS a
+),
+
+expanded AS (
+  SELECT *, CASE action_category
+      WHEN 'hire' THEN 'hire'
+      WHEN 'rehire' THEN 'rehire'
+      WHEN 'exit' THEN 'exit'
+      WHEN 'contract_change' THEN 'contract_change'
+      WHEN 'org_change' THEN IF(action_reason_code = '01', 'transfer_in', 'promotion')
+    END AS movement_type,
+    event_date AS lookup_date
+  FROM actions
+  UNION ALL
+  -- a transfer also leaves the previous department, the day before
+  SELECT *, 'transfer_out', DATE_SUB(valid_from, INTERVAL 1 DAY)
+  FROM actions
+  WHERE action_category = 'org_change' AND action_reason_code = '01'
+)
+
+SELECT
+  CONCAT(e.employee_id, '-', FORMAT_DATE('%Y%m%d', e.event_date), '-', e.movement_type) AS movement_id,
+  e.event_date,
+  DATE_TRUNC(e.event_date, MONTH) AS month_start,
+  e.employee_id,
+  e.movement_type,
+  CONCAT(e.action_type_code, '-', e.action_reason_code) AS action_key,
+  p.org_unit_id,
+  p.site_code,
+  p.employee_group_code,
+  p.employee_subgroup_code,
+  e.movement_type IN ('hire', 'rehire') AS is_entry,
+  e.movement_type = 'exit' AS is_exit,
+  e.movement_type = 'exit' AND g.contract_category = 'permanent' AS is_cdi_exit,
+  e.movement_type = 'exit' AND r.exit_category = 'resignation' AS is_resignation,
+  CASE
+    WHEN e.movement_type IN ('hire', 'rehire', 'transfer_in') THEN 1
+    WHEN e.movement_type IN ('exit', 'transfer_out') THEN -1
+    ELSE 0
+  END AS headcount_delta
+FROM expanded AS e
+CROSS JOIN ${ref("int_extraction_context")} AS x
+JOIN ${ref("int_employee_periods")} AS p
+  ON p.employee_id = e.employee_id
+  AND ${constants.inPeriod("e.lookup_date", "p.period_start", "p.period_end")}
+LEFT JOIN ${ref("stg_ref_employee_groups")} AS g
+  ON g.employee_group_code = p.employee_group_code
+LEFT JOIN ${ref("stg_ref_action_reasons")} AS r
+  ON r.action_type_code = e.action_type_code AND r.action_reason_code = e.action_reason_code
+WHERE e.event_date BETWEEN x.snapshot_start_date AND x.as_of_date

@@ -1,0 +1,24 @@
+config {
+  type: "view",
+  schema: "hr_staging",
+  tags: ["staging", "security"],
+  description: "RLS mapping: fictitious user principal name (@example.com) to scope.",
+  columns: {
+    user_upn: "Fictitious UPN, matched against USERPRINCIPALNAME() in Power BI",
+    scope_type: "ALL, SITE or DEPT",
+    scope_value: "'*', site code or department org unit id",
+    role_label: "Business role"
+  },
+  assertions: {
+    uniqueKey: ["user_upn", "scope_type", "scope_value"],
+    nonNull: ["user_upn", "scope_type", "scope_value"],
+    rowConditions: ["scope_type IN ('ALL', 'SITE', 'DEPT')", "ENDS_WITH(user_upn, '@example.com')"]
+  }
+}
+
+SELECT
+  LOWER(user_upn) AS user_upn,
+  scope_type,
+  scope_value,
+  role_label
+FROM ${ref("security_user_scope")}

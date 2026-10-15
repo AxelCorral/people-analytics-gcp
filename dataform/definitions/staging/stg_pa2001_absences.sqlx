@@ -1,0 +1,28 @@
+config {
+  type: "view",
+  schema: "hr_staging",
+  tags: ["staging"],
+  description: "Absences (PA2001-like). An absence running at the extraction date ends on that date.",
+  columns: {
+    employee_id: "Personnel number (PERNR)",
+    absence_start: "First day of absence (BEGDA), a working day",
+    absence_end: "Last day of absence (ENDDA)",
+    absence_type_code: "Absence type (AWART), project code",
+    absence_days: "Working days of absence (ABWTG)",
+    absence_hours: "Hours of absence (STDAZ)"
+  },
+  assertions: {
+    uniqueKey: ["employee_id", "absence_start"],
+    nonNull: ["employee_id", "absence_start", "absence_end", "absence_type_code"],
+    rowConditions: ["absence_start <= absence_end", "absence_days > 0", "absence_hours > 0"]
+  }
+}
+
+SELECT
+  PERNR AS employee_id,
+  BEGDA AS absence_start,
+  ENDDA AS absence_end,
+  AWART AS absence_type_code,
+  ABWTG AS absence_days,
+  STDAZ AS absence_hours
+FROM ${ref("pa2001")}

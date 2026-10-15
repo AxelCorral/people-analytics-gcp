@@ -1,0 +1,57 @@
+config {
+  type: "table",
+  schema: "hr_marts",
+  tags: ["marts"],
+  description: "End-of-month headcount snapshot (imported into Power BI). Stock measures are semi-additive: never sum across months.",
+  columns: {
+    month_end_date: "Last day of the month (or extraction date for a partial month)",
+    month_start: "First day of the month (relationship key to dim_date)",
+    employee_id: "Personnel number",
+    org_unit_id: "Department at month end",
+    site_code: "Site at month end",
+    employee_group_code: "PERSG at month end",
+    employee_subgroup_code: "PERSK at month end",
+    employment_pct: "EMPCT at month end",
+    fte: "Full-time equivalent at month end",
+    tenure_years: "Years since the start of the current spell, at month end",
+    age_years: "Age in completed years at month end",
+    age_band: "5-year age band at month end",
+    age_band_order: "Sort key of the age band"
+  },
+  assertions: {
+    uniqueKey: ["month_end_date", "employee_id"],
+    nonNull: ["month_end_date", "month_start", "employee_id", "org_unit_id", "age_years"],
+    rowConditions: ["tenure_years >= 0", "age_years BETWEEN 16 AND 70"]
+  }
+}
+
+WITH snap AS (
+  SELECT h.*,
+    DATE_DIFF(h.snapshot_date, e.birth_date, YEAR)
+      - IF(FORMAT_DATE('%m%d', h.snapshot_date) < FORMAT_DATE('%m%d', e.birth_date), 1, 0) AS age_years
+  FROM ${ref("fct_headcount_daily")} AS h
+  JOIN ${ref("int_calendar")} AS c ON c.calendar_date = h.snapshot_date
+  CROSS JOIN ${ref("int_extraction_context")} AS x
+  JOIN ${ref("stg_pa0002_persons")} AS e USING (employee_id)
+  WHERE c.is_month_end OR h.snapshot_date = x.as_of_date
+)
+
+SELECT
+  snapshot_date AS month_end_date,
+  DATE_TRUNC(snapshot_date, MONTH) AS month_start,
+  employee_id,
+  org_unit_id,
+  site_code,
+  employee_group_code,
+  employee_subgroup_code,
+  employment_pct,
+  fte,
+  ROUND(DATE_DIFF(snapshot_date, spell_start, DAY) / 365.25, 2) AS tenure_years,
+  age_years,
+  CASE
+    WHEN age_years < 20 THEN '< 20'
+    WHEN age_years >= 65 THEN '65 et +'
+    ELSE CONCAT(CAST(DIV(age_years, 5) * 5 AS STRING), '-', CAST(DIV(age_years, 5) * 5 + 4 AS STRING))
+  END AS age_band,
+  LEAST(GREATEST(DIV(age_years, 5), 3), 13) AS age_band_order
+FROM snap

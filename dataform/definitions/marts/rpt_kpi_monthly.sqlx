@@ -1,0 +1,161 @@
+config {
+  type: "table",
+  schema: "hr_marts",
+  tags: ["marts", "reconciliation"],
+  description: "HR KPIs computed in SQL per month and scope (company, site, department). Reference for reconciling the Power BI DAX measures; definitions in docs/kpi-definitions.md. 12-month rates are NULL until 12 months of history are available.",
+  columns: {
+    scope_level: "company, site or department",
+    scope_value: "ALL, site code or department org unit id",
+    scope_label: "Entreprise, site name or department name",
+    month_start: "First day of the month",
+    month_end_date: "Month end (or extraction date for a partial month)",
+    headcount: "Active employees at month end",
+    headcount_cdi: "Active CDI employees at month end",
+    fte: "Full-time equivalent at month end",
+    hires: "Hires and rehires in the month",
+    exits: "Exits in the month (last worked day in the month)",
+    cdi_exits: "CDI exits in the month",
+    female_share: "Share of women at month end",
+    avg_tenure_years: "Average tenure at month end",
+    avg_age_years: "Average age at month end",
+    theoretical_hours: "Theoretical hours in the month",
+    absence_hours_counted: "Absence hours of the absenteeism types",
+    absence_hours_all: "Absence hours of all types (paid leave and RTT included)",
+    absenteeism_rate: "Absenteeism rate of the month",
+    total_absence_rate: "Total absence rate of the month, paid leave and RTT included",
+    months_in_window: "Months available in the trailing 12-month window",
+    avg_headcount_12m: "Average of the 12 month-end headcounts",
+    avg_headcount_cdi_12m: "Average of the 12 month-end CDI headcounts",
+    cdi_turnover_12m: "Main KPI: CDI exits (all causes) over 12 months / average CDI headcount",
+    resignation_rate_12m: "CDI resignations over 12 months / average CDI headcount",
+    total_exit_rate_12m: "All exits (CDD and apprentices included) over 12 months / average headcount",
+    absenteeism_rate_12m: "Absenteeism over the trailing 12 months",
+    total_absence_rate_12m: "Total absences (paid leave and RTT included) over the trailing 12 months"
+  },
+  assertions: {
+    uniqueKey: ["scope_level", "scope_value", "month_start"],
+    nonNull: ["scope_level", "scope_value", "month_start", "headcount"]
+  }
+}
+
+WITH scope_map AS (
+  SELECT org_unit_id, 'company' AS scope_level, 'ALL' AS scope_value, 'Entreprise' AS scope_label FROM ${ref("dim_org_unit")}
+  UNION ALL
+  SELECT org_unit_id, 'site', site_code, site_name FROM ${ref("dim_org_unit")}
+  UNION ALL
+  SELECT org_unit_id, 'department', org_unit_id, department_name FROM ${ref("dim_org_unit")}
+),
+
+months AS (
+  SELECT month_start, MAX(month_end_date) AS month_end_date
+  FROM ${ref("fct_headcount_monthly")}
+  GROUP BY month_start
+),
+
+grid AS (
+  SELECT DISTINCT s.scope_level, s.scope_value, s.scope_label, m.month_start, m.month_end_date
+  FROM scope_map AS s
+  CROSS JOIN months AS m
+),
+
+heads AS (
+  SELECT
+    s.scope_level, s.scope_value, h.month_start,
+    COUNT(*) AS headcount,
+    COUNTIF(g.contract_category = 'permanent') AS headcount_cdi,
+    SUM(h.fte) AS fte,
+    COUNTIF(e.gender_code = '2') AS women,
+    AVG(h.tenure_years) AS avg_tenure_years,
+    AVG(h.age_years) AS avg_age_years
+  FROM ${ref("fct_headcount_monthly")} AS h
+  JOIN scope_map AS s USING (org_unit_id)
+  JOIN ${ref("dim_contract_type")} AS g USING (employee_group_code)
+  JOIN ${ref("dim_employee")} AS e USING (employee_id)
+  GROUP BY 1, 2, 3
+),
+
+moves AS (
+  SELECT
+    s.scope_level, s.scope_value, m.month_start,
+    COUNTIF(m.is_entry) AS hires,
+    COUNTIF(m.is_exit) AS exits,
+    COUNTIF(m.is_cdi_exit) AS cdi_exits,
+    COUNTIF(m.is_cdi_exit AND m.is_resignation) AS cdi_resignations
+  FROM ${ref("fct_movements")} AS m
+  JOIN scope_map AS s USING (org_unit_id)
+  GROUP BY 1, 2, 3
+),
+
+work AS (
+  SELECT s.scope_level, s.scope_value, w.month_start, SUM(w.theoretical_hours) AS theoretical_hours
+  FROM ${ref("fct_worktime_monthly")} AS w
+  JOIN scope_map AS s USING (org_unit_id)
+  GROUP BY 1, 2, 3
+),
+
+absences AS (
+  SELECT
+    s.scope_level, s.scope_value, a.month_start,
+    SUM(IF(t.counts_in_absenteeism, a.absence_hours, 0)) AS absence_hours_counted,
+    SUM(a.absence_hours) AS absence_hours_all
+  FROM ${ref("fct_absence_monthly")} AS a
+  JOIN scope_map AS s USING (org_unit_id)
+  JOIN ${ref("dim_absence_type")} AS t USING (absence_type_code)
+  GROUP BY 1, 2, 3
+),
+
+base AS (
+  SELECT
+    g.scope_level, g.scope_value, g.scope_label, g.month_start, g.month_end_date,
+    COALESCE(h.headcount, 0) AS headcount,
+    COALESCE(h.headcount_cdi, 0) AS headcount_cdi,
+    COALESCE(h.fte, 0) AS fte,
+    COALESCE(mv.hires, 0) AS hires,
+    COALESCE(mv.exits, 0) AS exits,
+    COALESCE(mv.cdi_exits, 0) AS cdi_exits,
+    COALESCE(mv.cdi_resignations, 0) AS cdi_resignations,
+    SAFE_DIVIDE(h.women, h.headcount) AS female_share,
+    h.avg_tenure_years,
+    h.avg_age_years,
+    COALESCE(w.theoretical_hours, 0) AS theoretical_hours,
+    COALESCE(a.absence_hours_counted, 0) AS absence_hours_counted,
+    COALESCE(a.absence_hours_all, 0) AS absence_hours_all
+  FROM grid AS g
+  LEFT JOIN heads AS h USING (scope_level, scope_value, month_start)
+  LEFT JOIN moves AS mv USING (scope_level, scope_value, month_start)
+  LEFT JOIN work AS w USING (scope_level, scope_value, month_start)
+  LEFT JOIN absences AS a USING (scope_level, scope_value, month_start)
+),
+
+rolling AS (
+  SELECT
+    *,
+    COUNT(*) OVER w12 AS months_in_window,
+    AVG(headcount) OVER w12 AS avg_headcount_12m,
+    AVG(headcount_cdi) OVER w12 AS avg_headcount_cdi_12m,
+    SUM(exits) OVER w12 AS exits_12m,
+    SUM(cdi_exits) OVER w12 AS cdi_exits_12m,
+    SUM(cdi_resignations) OVER w12 AS cdi_resignations_12m,
+    SUM(theoretical_hours) OVER w12 AS theoretical_hours_12m,
+    SUM(absence_hours_counted) OVER w12 AS absence_hours_counted_12m,
+    SUM(absence_hours_all) OVER w12 AS absence_hours_all_12m
+  FROM base
+  WINDOW w12 AS (PARTITION BY scope_level, scope_value ORDER BY month_start ROWS BETWEEN 11 PRECEDING AND CURRENT ROW)
+)
+
+SELECT
+  scope_level, scope_value, scope_label, month_start, month_end_date,
+  headcount, headcount_cdi, fte, hires, exits, cdi_exits,
+  female_share, avg_tenure_years, avg_age_years,
+  theoretical_hours, absence_hours_counted, absence_hours_all,
+  SAFE_DIVIDE(absence_hours_counted, theoretical_hours) AS absenteeism_rate,
+  SAFE_DIVIDE(absence_hours_all, theoretical_hours) AS total_absence_rate,
+  months_in_window,
+  IF(months_in_window = 12, avg_headcount_12m, NULL) AS avg_headcount_12m,
+  IF(months_in_window = 12, avg_headcount_cdi_12m, NULL) AS avg_headcount_cdi_12m,
+  IF(months_in_window = 12, SAFE_DIVIDE(cdi_exits_12m, avg_headcount_cdi_12m), NULL) AS cdi_turnover_12m,
+  IF(months_in_window = 12, SAFE_DIVIDE(cdi_resignations_12m, avg_headcount_cdi_12m), NULL) AS resignation_rate_12m,
+  IF(months_in_window = 12, SAFE_DIVIDE(exits_12m, avg_headcount_12m), NULL) AS total_exit_rate_12m,
+  IF(months_in_window = 12, SAFE_DIVIDE(absence_hours_counted_12m, theoretical_hours_12m), NULL) AS absenteeism_rate_12m,
+  IF(months_in_window = 12, SAFE_DIVIDE(absence_hours_all_12m, theoretical_hours_12m), NULL) AS total_absence_rate_12m
+FROM rolling

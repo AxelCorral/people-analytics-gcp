@@ -1,0 +1,39 @@
+config {
+  type: "assertion",
+  tags: ["assertions", "staging"],
+  description: "Every code used in the infotypes exists in its reference table: ORGEH in department org units, AWART in absence types, MASSN/MASSG in action reasons, PERSG and PERSK in employee groups and subgroups."
+}
+
+SELECT 'org_unit_id' AS code_type, CAST(a.org_unit_id AS STRING) AS code, COUNT(*) AS row_count
+FROM ${ref("stg_pa0001_assignments")} AS a
+LEFT JOIN ${ref("stg_org_units")} AS u ON u.org_unit_id = a.org_unit_id AND u.org_unit_level = 'department'
+WHERE u.org_unit_id IS NULL
+GROUP BY 1, 2
+
+UNION ALL
+SELECT 'absence_type_code', a.absence_type_code, COUNT(*)
+FROM ${ref("stg_pa2001_absences")} AS a
+LEFT JOIN ${ref("stg_ref_absence_types")} AS t USING (absence_type_code)
+WHERE t.absence_type_code IS NULL
+GROUP BY 1, 2
+
+UNION ALL
+SELECT 'action_reason', CONCAT(a.action_type_code, '-', a.action_reason_code), COUNT(*)
+FROM ${ref("stg_pa0000_actions")} AS a
+LEFT JOIN ${ref("stg_ref_action_reasons")} AS r USING (action_type_code, action_reason_code)
+WHERE r.action_reason_code IS NULL
+GROUP BY 1, 2
+
+UNION ALL
+SELECT 'employee_group_code', a.employee_group_code, COUNT(*)
+FROM ${ref("stg_pa0001_assignments")} AS a
+LEFT JOIN ${ref("stg_ref_employee_groups")} AS g USING (employee_group_code)
+WHERE g.employee_group_code IS NULL
+GROUP BY 1, 2
+
+UNION ALL
+SELECT 'employee_subgroup_code', a.employee_subgroup_code, COUNT(*)
+FROM ${ref("stg_pa0001_assignments")} AS a
+LEFT JOIN ${ref("stg_ref_employee_subgroups")} AS s USING (employee_subgroup_code)
+WHERE s.employee_subgroup_code IS NULL
+GROUP BY 1, 2

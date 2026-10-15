@@ -1,0 +1,56 @@
+config {
+  type: "table",
+  schema: "hr_intermediate",
+  tags: ["intermediate"],
+  description: "One employment spell per hire or rehire, closed by the following exit. A rehired employee has several spells.",
+  columns: {
+    spell_id: "employee_id + spell start date",
+    employee_id: "Personnel number",
+    spell_number: "1 for the first hire, 2 after a rehire, ...",
+    spell_start: "First day of employment",
+    entry_category: "hire or rehire",
+    entry_reason_code: "MASSG of the entry action",
+    spell_last_day: "Last worked day, NULL while employed",
+    exit_reason_code: "MASSG of the exit action",
+    exit_category: "resignation, dismissal, mutual_agreement, contract_end or retirement"
+  },
+  assertions: {
+    uniqueKey: ["spell_id"],
+    nonNull: ["employee_id", "spell_start", "entry_category"],
+    rowConditions: ["spell_last_day IS NULL OR spell_start <= spell_last_day"]
+  }
+}
+
+WITH events AS (
+  SELECT employee_id, valid_from AS event_date, action_category, action_type_code, action_reason_code, exit_last_day
+  FROM ${ref("stg_pa0000_actions")}
+  WHERE action_category IN ('hire', 'rehire', 'exit')
+),
+
+ordered AS (
+  SELECT
+    *,
+    LEAD(action_category) OVER w AS next_category,
+    LEAD(action_type_code) OVER w AS next_type_code,
+    LEAD(action_reason_code) OVER w AS next_reason_code,
+    LEAD(exit_last_day) OVER w AS next_exit_last_day
+  FROM events
+  WINDOW w AS (PARTITION BY employee_id ORDER BY event_date)
+)
+
+SELECT
+  CONCAT(o.employee_id, '-', FORMAT_DATE('%Y%m%d', o.event_date)) AS spell_id,
+  o.employee_id,
+  ROW_NUMBER() OVER (PARTITION BY o.employee_id ORDER BY o.event_date) AS spell_number,
+  o.event_date AS spell_start,
+  o.action_category AS entry_category,
+  o.action_reason_code AS entry_reason_code,
+  IF(o.next_category = 'exit', o.next_exit_last_day, NULL) AS spell_last_day,
+  IF(o.next_category = 'exit', o.next_reason_code, NULL) AS exit_reason_code,
+  r.exit_category
+FROM ordered AS o
+LEFT JOIN ${ref("stg_ref_action_reasons")} AS r
+  ON o.next_category = 'exit'
+  AND r.action_type_code = o.next_type_code
+  AND r.action_reason_code = o.next_reason_code
+WHERE o.action_category IN ('hire', 'rehire')

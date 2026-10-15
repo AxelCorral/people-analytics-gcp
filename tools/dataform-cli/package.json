@@ -1,0 +1,12 @@
+{
+  "name": "people-analytics-dataform",
+  "private": true,
+  "description": "Pinned Dataform CLI (local install, no global npm package)",
+  "scripts": {
+    "compile": "dataform compile ../../dataform",
+    "run": "dataform run ../../dataform --full-refresh"
+  },
+  "devDependencies": {
+    "@dataform/cli": "3.0.71"
+  }
+}

@@ -1,0 +1,60 @@
+config {
+  type: "table",
+  schema: "hr_intermediate",
+  tags: ["intermediate"],
+  description: "Time slicing of PA0000 x PA0001 x PA0007: one row per employee and homogeneous period (status, assignment and working time constant).",
+  columns: {
+    employee_id: "Personnel number",
+    period_start: "First day of the period",
+    period_end: "Last day of the period, NULL when open-ended",
+    is_active: "Employment status active (STAT2 = 3) during the period",
+    org_unit_id: "Department org unit",
+    site_code: "Site",
+    employee_group_code: "PERSG",
+    employee_subgroup_code: "PERSK",
+    employment_pct: "EMPCT",
+    weekly_hours: "WOSTD",
+    daily_hours: "WOSTD / 5"
+  },
+  assertions: {
+    uniqueKey: ["employee_id", "period_start"],
+    nonNull: ["employee_id", "period_start", "is_active", "org_unit_id", "employment_pct"],
+    rowConditions: ["period_end IS NULL OR period_start <= period_end"]
+  }
+}
+
+WITH boundaries AS (
+  SELECT employee_id, valid_from AS boundary FROM ${ref("stg_pa0000_actions")}
+  UNION DISTINCT
+  SELECT employee_id, valid_from FROM ${ref("stg_pa0001_assignments")}
+  UNION DISTINCT
+  SELECT employee_id, valid_from FROM ${ref("stg_pa0007_work_schedules")}
+),
+
+periods AS (
+  SELECT
+    employee_id,
+    boundary AS period_start,
+    DATE_SUB(LEAD(boundary) OVER (PARTITION BY employee_id ORDER BY boundary), INTERVAL 1 DAY) AS period_end
+  FROM boundaries
+)
+
+SELECT
+  p.employee_id,
+  p.period_start,
+  p.period_end,
+  a.is_active,
+  o.org_unit_id,
+  o.site_code,
+  o.employee_group_code,
+  o.employee_subgroup_code,
+  w.employment_pct,
+  w.weekly_hours,
+  w.daily_hours
+FROM periods AS p
+JOIN ${ref("stg_pa0000_actions")} AS a
+  ON a.employee_id = p.employee_id AND ${constants.inPeriod("p.period_start", "a.valid_from", "a.valid_to")}
+JOIN ${ref("stg_pa0001_assignments")} AS o
+  ON o.employee_id = p.employee_id AND ${constants.inPeriod("p.period_start", "o.valid_from", "o.valid_to")}
+JOIN ${ref("stg_pa0007_work_schedules")} AS w
+  ON w.employee_id = p.employee_id AND ${constants.inPeriod("p.period_start", "w.valid_from", "w.valid_to")}

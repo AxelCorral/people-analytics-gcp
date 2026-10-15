@@ -1,0 +1,13 @@
+config {
+  type: "assertion",
+  tags: ["assertions", "intermediate"],
+  description: "Every working day of absence falls inside an active employment period."
+}
+
+SELECT d.employee_id, d.absence_date, d.absence_type_code
+FROM ${ref("int_absence_days")} AS d
+LEFT JOIN ${ref("int_employee_periods")} AS p
+  ON p.employee_id = d.employee_id
+  AND ${constants.inPeriod("d.absence_date", "p.period_start", "p.period_end")}
+  AND p.is_active
+WHERE p.employee_id IS NULL

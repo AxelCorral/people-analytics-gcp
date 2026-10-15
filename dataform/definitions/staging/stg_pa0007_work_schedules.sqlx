@@ -1,0 +1,30 @@
+config {
+  type: "view",
+  schema: "hr_staging",
+  tags: ["staging"],
+  description: "Planned working time (PA0007-like). One row per employee and validity start.",
+  columns: {
+    employee_id: "Personnel number (PERNR)",
+    valid_from: "Validity start (BEGDA)",
+    valid_to: "Validity end (ENDDA), NULL when open-ended",
+    work_schedule_rule: "Work schedule rule (SCHKZ): NORM, TP90, TP80, TP50",
+    employment_pct: "Employment percentage (EMPCT)",
+    weekly_hours: "Weekly working hours (WOSTD)",
+    daily_hours: "Theoretical hours per working day = weekly_hours / 5 (part-time spread evenly)"
+  },
+  assertions: {
+    uniqueKey: ["employee_id", "valid_from"],
+    nonNull: ["employee_id", "valid_from", "employment_pct", "weekly_hours"],
+    rowConditions: ["valid_to IS NULL OR valid_from <= valid_to", "employment_pct > 0 AND employment_pct <= 100"]
+  }
+}
+
+SELECT
+  PERNR AS employee_id,
+  BEGDA AS valid_from,
+  NULLIF(ENDDA, ${constants.OPEN_END}) AS valid_to,
+  SCHKZ AS work_schedule_rule,
+  EMPCT AS employment_pct,
+  WOSTD AS weekly_hours,
+  WOSTD / 5 AS daily_hours
+FROM ${ref("pa0007")}

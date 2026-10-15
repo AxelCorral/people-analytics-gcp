@@ -1,0 +1,371 @@
+{
+  "dim_date": {
+    "rows": 1096,
+    "bytes": 101823,
+    "columns": {
+      "date": "DATE",
+      "year": "INTEGER",
+      "quarter": "INTEGER",
+      "month": "INTEGER",
+      "month_start": "DATE",
+      "month_end": "DATE",
+      "year_month": "STRING",
+      "month_label": "STRING",
+      "month_short_fr": "STRING",
+      "is_month_end": "BOOLEAN",
+      "is_working_day": "BOOLEAN",
+      "is_public_holiday": "BOOLEAN",
+      "holiday_name": "STRING"
+    },
+    "descriptions": {
+      "date": "Day (key)",
+      "year": "Year",
+      "quarter": "Quarter number",
+      "month": "Month number",
+      "month_start": "First day of the month",
+      "month_end": "Last day of the month",
+      "year_month": "YYYY-MM",
+      "month_label": "Month name (French) and year",
+      "month_short_fr": "Short French month name",
+      "is_month_end": "Last day of the month",
+      "is_working_day": "Working day (metropolitan France)",
+      "is_public_holiday": "Public holiday",
+      "holiday_name": "Holiday name"
+    },
+    "table_description": "Date dimension, from the start of the reporting window to the extraction date (no future date)."
+  },
+  "dim_org_unit": {
+    "rows": 12,
+    "bytes": 980,
+    "columns": {
+      "org_unit_id": "STRING",
+      "department_code": "STRING",
+      "department_name": "STRING",
+      "site_code": "STRING",
+      "site_name": "STRING",
+      "site_org_unit_id": "STRING",
+      "head_employee_id": "STRING"
+    },
+    "descriptions": {
+      "org_unit_id": "Department org unit (key)",
+      "department_code": "D01 to D12",
+      "department_name": "Department name",
+      "site_code": "Site code",
+      "site_name": "Site name",
+      "site_org_unit_id": "Site org unit",
+      "head_employee_id": "Head of department at the extraction date"
+    },
+    "table_description": "Departments (grain of every fact) with their site. Target of the RLS filter."
+  },
+  "dim_employee": {
+    "rows": 1250,
+    "bytes": 153536,
+    "columns": {
+      "employee_id": "STRING",
+      "display_name": "STRING",
+      "gender_code": "STRING",
+      "gender_label": "STRING",
+      "birth_date": "DATE",
+      "nationality_code": "STRING",
+      "first_hire_date": "DATE",
+      "current_org_unit_id": "STRING",
+      "current_site_code": "STRING",
+      "current_employee_group_code": "STRING",
+      "current_employee_subgroup_code": "STRING",
+      "is_active_at_extraction": "BOOLEAN",
+      "org_unit_ids_history": "STRING",
+      "site_codes_history": "STRING"
+    },
+    "descriptions": {
+      "employee_id": "Personnel number (key)",
+      "display_name": "Pseudonym 'Salari\u00e9 000123'",
+      "gender_code": "1 male, 2 female",
+      "gender_label": "Femme / Homme",
+      "birth_date": "Date of birth (fictitious)",
+      "nationality_code": "ISO 3166-1 alpha-2",
+      "first_hire_date": "First hire date",
+      "current_org_unit_id": "Department at the extraction date",
+      "current_site_code": "Site at the extraction date",
+      "current_employee_group_code": "PERSG at the extraction date",
+      "current_employee_subgroup_code": "PERSK at the extraction date",
+      "is_active_at_extraction": "Employed at the extraction date",
+      "org_unit_ids_history": "Departments where the employee worked in the reporting window, '|id1|id2|' (RLS on this table)",
+      "site_codes_history": "Sites where the employee worked in the reporting window, '|S100|S200|' (RLS on this table)"
+    },
+    "table_description": "Employees (pseudonyms). current_org_unit_id = department at the extraction date (last department for leavers), used by the RLS filter on this table."
+  },
+  "dim_contract_type": {
+    "rows": 3,
+    "bytes": 132,
+    "columns": {
+      "employee_group_code": "STRING",
+      "contract_type": "STRING",
+      "contract_category": "STRING"
+    },
+    "descriptions": {
+      "employee_group_code": "PERSG (key)",
+      "contract_type": "CDI, CDD, Alternant",
+      "contract_category": "permanent, fixed_term, apprentice"
+    },
+    "table_description": "Contract types (PERSG)."
+  },
+  "dim_level": {
+    "rows": 3,
+    "bytes": 123,
+    "columns": {
+      "employee_subgroup_code": "STRING",
+      "level_label": "STRING",
+      "level_rank": "INTEGER"
+    },
+    "descriptions": {
+      "employee_subgroup_code": "PERSK (key)",
+      "level_label": "Cadre, Agent de ma\u00eetrise, Employ\u00e9 / ouvrier",
+      "level_rank": "1 to 3"
+    },
+    "table_description": "Employee levels (PERSK)."
+  },
+  "dim_absence_type": {
+    "rows": 10,
+    "bytes": 747,
+    "columns": {
+      "absence_type_code": "STRING",
+      "absence_type_label": "STRING",
+      "absence_category": "STRING",
+      "counts_in_absenteeism": "BOOLEAN",
+      "absence_scope": "STRING"
+    },
+    "descriptions": {
+      "absence_type_code": "AWART (key)",
+      "absence_type_label": "Label",
+      "absence_category": "leave, health, family, training, unjustified",
+      "counts_in_absenteeism": "Included in the absenteeism rate",
+      "absence_scope": "\u00ab Absent\u00e9isme \u00bb or \u00ab Autres absences (cong\u00e9s inclus) \u00bb"
+    },
+    "table_description": "Absence types. counts_in_absenteeism separates the absenteeism rate from total absences (paid leave included)."
+  },
+  "dim_action_type": {
+    "rows": 14,
+    "bytes": 1243,
+    "columns": {
+      "action_key": "STRING",
+      "action_type_code": "STRING",
+      "action_type_label": "STRING",
+      "action_category": "STRING",
+      "action_reason_code": "STRING",
+      "action_reason_label": "STRING",
+      "exit_category": "STRING",
+      "exit_category_label": "STRING"
+    },
+    "descriptions": {
+      "action_key": "MASSN-MASSG (key)",
+      "action_type_code": "MASSN",
+      "action_type_label": "Action label",
+      "action_category": "hire, rehire, org_change, contract_change, exit",
+      "action_reason_code": "MASSG",
+      "action_reason_label": "Reason label",
+      "exit_category": "Exit category (exits only)",
+      "exit_category_label": "French label of the exit category"
+    },
+    "table_description": "Personnel action type and reason, with the exit category."
+  },
+  "sec_user_scope": {
+    "rows": 36,
+    "bytes": 2178,
+    "columns": {
+      "user_upn": "STRING",
+      "scope_type": "STRING",
+      "scope_value": "STRING",
+      "role_label": "STRING"
+    },
+    "descriptions": {
+      "user_upn": "UPN (@example.com)",
+      "scope_type": "ALL, SITE, DEPT",
+      "scope_value": "'*', site code or department org unit id",
+      "role_label": "Business role"
+    },
+    "table_description": "RLS table: fictitious UPN to scope. Disconnected and hidden in the Power BI model."
+  },
+  "fct_headcount_monthly": {
+    "rows": 29056,
+    "bytes": 2450675,
+    "columns": {
+      "month_end_date": "DATE",
+      "month_start": "DATE",
+      "employee_id": "STRING",
+      "org_unit_id": "STRING",
+      "site_code": "STRING",
+      "employee_group_code": "STRING",
+      "employee_subgroup_code": "STRING",
+      "employment_pct": "FLOAT",
+      "fte": "FLOAT",
+      "tenure_years": "FLOAT",
+      "age_years": "INTEGER",
+      "age_band": "STRING",
+      "age_band_order": "INTEGER"
+    },
+    "descriptions": {
+      "month_end_date": "Last day of the month (or extraction date for a partial month)",
+      "month_start": "First day of the month (relationship key to dim_date)",
+      "employee_id": "Personnel number",
+      "org_unit_id": "Department at month end",
+      "site_code": "Site at month end",
+      "employee_group_code": "PERSG at month end",
+      "employee_subgroup_code": "PERSK at month end",
+      "employment_pct": "EMPCT at month end",
+      "fte": "Full-time equivalent at month end",
+      "tenure_years": "Years since the start of the current spell, at month end",
+      "age_years": "Age in completed years at month end",
+      "age_band": "5-year age band at month end",
+      "age_band_order": "Sort key of the age band"
+    },
+    "table_description": "End-of-month headcount snapshot (imported into Power BI). Stock measures are semi-additive: never sum across months."
+  },
+  "fct_movements": {
+    "rows": 1072,
+    "bytes": 137097,
+    "columns": {
+      "movement_id": "STRING",
+      "event_date": "DATE",
+      "month_start": "DATE",
+      "employee_id": "STRING",
+      "movement_type": "STRING",
+      "action_key": "STRING",
+      "org_unit_id": "STRING",
+      "site_code": "STRING",
+      "employee_group_code": "STRING",
+      "employee_subgroup_code": "STRING",
+      "is_entry": "BOOLEAN",
+      "is_exit": "BOOLEAN",
+      "is_cdi_exit": "BOOLEAN",
+      "is_resignation": "BOOLEAN",
+      "headcount_delta": "INTEGER"
+    },
+    "descriptions": {
+      "movement_id": "employee_id + event date + movement type",
+      "event_date": "Movement date; for an exit, last worked day (BEGDA - 1)",
+      "month_start": "First day of the event month (relationship key to dim_date)",
+      "employee_id": "Personnel number",
+      "movement_type": "hire, rehire, exit, transfer_in, transfer_out, promotion, contract_change",
+      "action_key": "MASSN-MASSG",
+      "org_unit_id": "Department concerned",
+      "site_code": "Site concerned",
+      "employee_group_code": "PERSG on the event day",
+      "employee_subgroup_code": "PERSK on the event day",
+      "is_entry": "Hire or rehire",
+      "is_exit": "Exit",
+      "is_cdi_exit": "Exit of a permanent contract (CDI) employee",
+      "is_resignation": "Exit by resignation",
+      "headcount_delta": "+1 entry or transfer in, -1 exit or transfer out, 0 otherwise"
+    },
+    "table_description": "Workforce movements in the reporting window: hires, rehires, exits (dated on the last worked day), transfers (one row out, one row in), promotions and contract changes. Department and contract are those of the event day (last worked day for an exit)."
+  },
+  "fct_worktime_monthly": {
+    "rows": 29542,
+    "bytes": 1540844,
+    "columns": {
+      "month_start": "DATE",
+      "employee_id": "STRING",
+      "org_unit_id": "STRING",
+      "site_code": "STRING",
+      "employee_group_code": "STRING",
+      "working_days": "INTEGER",
+      "theoretical_hours": "FLOAT"
+    },
+    "descriptions": {
+      "month_start": "First day of the month (relationship key to dim_date)",
+      "employee_id": "Personnel number",
+      "org_unit_id": "Department",
+      "site_code": "Site",
+      "employee_group_code": "PERSG",
+      "working_days": "Working days employed in the month",
+      "theoretical_hours": "Theoretical hours in the month"
+    },
+    "table_description": "Theoretical working time per employee, month and department: denominator of the absenteeism and total absence rates. Working days exclude weekends and metropolitan French public holidays; hours = WOSTD / 5 per working day."
+  },
+  "fct_absence_monthly": {
+    "rows": 32023,
+    "bytes": 1667560,
+    "columns": {
+      "month_start": "DATE",
+      "employee_id": "STRING",
+      "org_unit_id": "STRING",
+      "site_code": "STRING",
+      "absence_type_code": "STRING",
+      "absence_days": "INTEGER",
+      "absence_hours": "FLOAT"
+    },
+    "descriptions": {
+      "month_start": "First day of the month (relationship key to dim_date)",
+      "employee_id": "Personnel number",
+      "org_unit_id": "Department on the absence day",
+      "site_code": "Site on the absence day",
+      "absence_type_code": "AWART",
+      "absence_days": "Working days of absence in the month",
+      "absence_hours": "Hours of absence in the month"
+    },
+    "table_description": "Absence hours per employee, month, department and absence type (working days only). Numerator of the absenteeism rate (types with counts_in_absenteeism) and of the total absence rate (all types, paid leave and RTT included)."
+  },
+  "rpt_kpi_monthly": {
+    "rows": 612,
+    "bytes": 178727,
+    "columns": {
+      "scope_level": "STRING",
+      "scope_value": "STRING",
+      "scope_label": "STRING",
+      "month_start": "DATE",
+      "month_end_date": "DATE",
+      "headcount": "INTEGER",
+      "headcount_cdi": "INTEGER",
+      "fte": "FLOAT",
+      "hires": "INTEGER",
+      "exits": "INTEGER",
+      "cdi_exits": "INTEGER",
+      "female_share": "FLOAT",
+      "avg_tenure_years": "FLOAT",
+      "avg_age_years": "FLOAT",
+      "theoretical_hours": "FLOAT",
+      "absence_hours_counted": "FLOAT",
+      "absence_hours_all": "FLOAT",
+      "absenteeism_rate": "FLOAT",
+      "total_absence_rate": "FLOAT",
+      "months_in_window": "INTEGER",
+      "avg_headcount_12m": "FLOAT",
+      "avg_headcount_cdi_12m": "FLOAT",
+      "cdi_turnover_12m": "FLOAT",
+      "resignation_rate_12m": "FLOAT",
+      "total_exit_rate_12m": "FLOAT",
+      "absenteeism_rate_12m": "FLOAT",
+      "total_absence_rate_12m": "FLOAT"
+    },
+    "descriptions": {
+      "scope_level": "company, site or department",
+      "scope_value": "ALL, site code or department org unit id",
+      "scope_label": "Entreprise, site name or department name",
+      "month_start": "First day of the month",
+      "month_end_date": "Month end (or extraction date for a partial month)",
+      "headcount": "Active employees at month end",
+      "headcount_cdi": "Active CDI employees at month end",
+      "fte": "Full-time equivalent at month end",
+      "hires": "Hires and rehires in the month",
+      "exits": "Exits in the month (last worked day in the month)",
+      "cdi_exits": "CDI exits in the month",
+      "female_share": "Share of women at month end",
+      "avg_tenure_years": "Average tenure at month end",
+      "avg_age_years": "Average age at month end",
+      "theoretical_hours": "Theoretical hours in the month",
+      "absence_hours_counted": "Absence hours of the absenteeism types",
+      "absence_hours_all": "Absence hours of all types (paid leave and RTT included)",
+      "absenteeism_rate": "Absenteeism rate of the month",
+      "total_absence_rate": "Total absence rate of the month, paid leave and RTT included",
+      "months_in_window": "Months available in the trailing 12-month window",
+      "avg_headcount_12m": "Average of the 12 month-end headcounts",
+      "avg_headcount_cdi_12m": "Average of the 12 month-end CDI headcounts",
+      "cdi_turnover_12m": "Main KPI: CDI exits (all causes) over 12 months / average CDI headcount",
+      "resignation_rate_12m": "CDI resignations over 12 months / average CDI headcount",
+      "total_exit_rate_12m": "All exits (CDD and apprentices included) over 12 months / average headcount",
+      "absenteeism_rate_12m": "Absenteeism over the trailing 12 months",
+      "total_absence_rate_12m": "Total absences (paid leave and RTT included) over the trailing 12 months"
+    },
+    "table_description": "HR KPIs computed in SQL per month and scope (company, site, department). Reference for reconciling the Power BI DAX measures; definitions in docs/kpi-definitions.md. 12-month rates are NULL until 12 months of history are available."
+  }
+}

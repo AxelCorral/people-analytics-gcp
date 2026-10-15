@@ -1,0 +1,15 @@
+"action_key","action_type_code","action_type_label","action_category","action_reason_code","action_reason_label","exit_category","exit_category_label"
+"C1-01","C1","Changement de contrat","contract_change","01","Transformation CDD en CDI",,
+"C1-02","C1","Changement de contrat","contract_change","02","Embauche en CDI après alternance",,
+"H1-01","H1","Embauche","hire","01","Remplacement",,
+"H1-02","H1","Embauche","hire","02","Création de poste",,
+"H1-03","H1","Embauche","hire","03","Renfort saisonnier",,
+"H2-01","H2","Réintégration","rehire","01","Retour d'un ancien salarié",,
+"O1-01","O1","Changement d'affectation","org_change","01","Mutation",,
+"O1-02","O1","Changement d'affectation","org_change","02","Promotion",,
+"X1-01","X1","Sortie","exit","01","Démission","resignation","Démission"
+"X1-02","X1","Sortie","exit","02","Licenciement","dismissal","Licenciement"
+"X1-03","X1","Sortie","exit","03","Rupture conventionnelle","mutual_agreement","Rupture conventionnelle"
+"X1-04","X1","Sortie","exit","04","Fin de CDD","contract_end","Fin de contrat"
+"X1-05","X1","Sortie","exit","05","Fin de contrat d'alternance","contract_end","Fin de contrat"
+"X1-06","X1","Sortie","exit","06","Départ à la retraite","retirement","Retraite"

@@ -1,0 +1,15 @@
+config {
+  type: "assertion",
+  tags: ["assertions", "security"],
+  description: "Every RLS scope points to an existing site or department; ALL scopes use '*'."
+}
+
+SELECT s.user_upn, s.scope_type, s.scope_value
+FROM ${ref("stg_security_user_scope")} AS s
+LEFT JOIN ${ref("stg_ref_sites")} AS site
+  ON s.scope_type = 'SITE' AND site.site_code = s.scope_value
+LEFT JOIN ${ref("stg_org_units")} AS dept
+  ON s.scope_type = 'DEPT' AND dept.org_unit_id = s.scope_value AND dept.org_unit_level = 'department'
+WHERE (s.scope_type = 'ALL' AND s.scope_value != '*')
+   OR (s.scope_type = 'SITE' AND site.site_code IS NULL)
+   OR (s.scope_type = 'DEPT' AND dept.org_unit_id IS NULL)

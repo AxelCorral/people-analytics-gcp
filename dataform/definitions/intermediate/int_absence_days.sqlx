@@ -1,0 +1,29 @@
+config {
+  type: "table",
+  schema: "hr_intermediate",
+  tags: ["intermediate"],
+  description: "One row per employee and working day of absence. Multi-month absences are split by day; hours spread evenly over the absence working days.",
+  columns: {
+    employee_id: "Personnel number",
+    absence_date: "Working day of absence",
+    absence_start: "First day of the absence it belongs to",
+    absence_type_code: "AWART",
+    absence_hours: "Hours of absence on that day = STDAZ / ABWTG"
+  },
+  assertions: {
+    uniqueKey: ["employee_id", "absence_date"],
+    nonNull: ["employee_id", "absence_date", "absence_type_code", "absence_hours"]
+  }
+}
+
+SELECT
+  a.employee_id,
+  c.calendar_date AS absence_date,
+  a.absence_start,
+  a.absence_type_code,
+  a.absence_hours / a.absence_days AS absence_hours
+FROM ${ref("stg_pa2001_absences")} AS a
+JOIN ${ref("int_calendar")} AS c
+  ON c.calendar_date BETWEEN a.absence_start AND a.absence_end
+  AND c.is_working_day
+WHERE a.absence_days > 0

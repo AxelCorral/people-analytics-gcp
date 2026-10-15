@@ -1,0 +1,32 @@
+config {
+  type: "view",
+  schema: "hr_staging",
+  tags: ["staging", "pii"],
+  description: "Personal data (PA0002-like). Pseudonyms only: 'Salarié' + 6-digit sequence, fictitious birth dates.",
+  columns: {
+    employee_id: "Personnel number (PERNR)",
+    valid_from: "Validity start (BEGDA)",
+    valid_to: "Validity end (ENDDA), NULL when open-ended",
+    display_name: "Pseudonym, e.g. 'Salarié 000123'",
+    birth_date: "Date of birth (GBDAT), fictitious",
+    gender_code: "Gender key (GESCH): 1 male, 2 female",
+    gender_label: "Femme / Homme",
+    nationality_code: "Nationality (NATIO), ISO 3166-1 alpha-2"
+  },
+  assertions: {
+    uniqueKey: ["employee_id", "valid_from"],
+    nonNull: ["employee_id", "valid_from", "display_name", "birth_date", "gender_code"],
+    rowConditions: ["valid_to IS NULL OR valid_from <= valid_to", "gender_code IN ('1', '2')"]
+  }
+}
+
+SELECT
+  PERNR AS employee_id,
+  BEGDA AS valid_from,
+  NULLIF(ENDDA, ${constants.OPEN_END}) AS valid_to,
+  CONCAT(NACHN, ' ', VORNA) AS display_name,
+  GBDAT AS birth_date,
+  GESCH AS gender_code,
+  CASE GESCH WHEN '2' THEN 'Femme' WHEN '1' THEN 'Homme' END AS gender_label,
+  NATIO AS nationality_code
+FROM ${ref("pa0002")}

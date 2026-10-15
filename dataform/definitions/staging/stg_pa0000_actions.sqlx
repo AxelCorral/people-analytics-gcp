@@ -1,0 +1,40 @@
+config {
+  type: "view",
+  schema: "hr_staging",
+  tags: ["staging"],
+  description: "Personnel actions (PA0000-like), renamed. One row per employee and validity start. Open end 9999-12-31 becomes NULL.",
+  columns: {
+    employee_id: "Personnel number (PERNR)",
+    valid_from: "Validity start (BEGDA)",
+    valid_to: "Validity end (ENDDA), NULL when open-ended",
+    action_type_code: "Action type (MASSN), project code",
+    action_reason_code: "Action reason (MASSG), project code",
+    action_category: "hire, rehire, org_change, contract_change or exit",
+    employment_status_code: "Employment status (STAT2): 3 active, 0 withdrawn",
+    is_active: "TRUE when STAT2 = 3",
+    exit_last_day: "For an exit action: last worked day = BEGDA - 1 (analytical exit date)",
+    batch_id: "Generator run identifier",
+    extracted_at: "Simulated extraction timestamp"
+  },
+  assertions: {
+    uniqueKey: ["employee_id", "valid_from"],
+    nonNull: ["employee_id", "valid_from", "action_type_code", "action_category", "employment_status_code"],
+    rowConditions: ["valid_to IS NULL OR valid_from <= valid_to"]
+  }
+}
+
+SELECT
+  a.PERNR AS employee_id,
+  a.BEGDA AS valid_from,
+  NULLIF(a.ENDDA, ${constants.OPEN_END}) AS valid_to,
+  a.MASSN AS action_type_code,
+  a.MASSG AS action_reason_code,
+  t.action_category,
+  a.STAT2 AS employment_status_code,
+  a.STAT2 = '3' AS is_active,
+  IF(t.action_category = 'exit', DATE_SUB(a.BEGDA, INTERVAL 1 DAY), NULL) AS exit_last_day,
+  a._batch_id AS batch_id,
+  a._extracted_at AS extracted_at
+FROM ${ref("pa0000")} AS a
+LEFT JOIN ${ref("ref_action_types")} AS t
+  ON t.action_type_code = a.MASSN

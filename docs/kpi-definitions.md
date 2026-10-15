@@ -47,7 +47,7 @@ Remarques :
 | Effectif fin de mois | salariés distincts actifs au dernier jour du mois | semi-additif |
 | ETP fin de mois | Σ `EMPCT / 100` des actifs à la date de référence | ≠ ETP moyen de la période |
 | Entrées | actions H1 (embauche) et H2 (réintégration) dont `BEGDA` est dans la période | une mutation (O1) ou une transformation CDD → CDI (C1) n'est pas une entrée |
-| Sorties | actions X1 dont la date de sortie analytique est dans la période | date = `BEGDA - 1` |
+| Sorties | actions X1 dont la date de sortie analytique est dans la période | date = `BEGDA - 1`. Un salarié dont le dernier jour est le 30 compte **à la fois** dans l'effectif du 30 et dans les sorties du mois : la variation d'effectif d'un mois n'est donc pas égale à « entrées − sorties du mois ». L'égalité tient si les sorties sont datées du lendemain (`BEGDA`), ce que vérifie l'assertion `assert_movements_balance_headcount` |
 | **Turnover CDI 12 mois (principal)** | sorties de CDI toutes causes sur 12 mois / effectif moyen CDI 12 mois | fins de CDD exclues ; contrat apprécié au dernier jour travaillé |
 | Taux de démission 12 mois | démissions de CDI (X1 / 01) / effectif moyen CDI 12 mois | même dénominateur que le principal |
 | Taux de sorties totales 12 mois | toutes sorties, CDD et alternants compris / effectif moyen total 12 mois | gonflé par les fins de contrat : ne pas comparer au taux CDI |

@@ -1,0 +1,40 @@
+config {
+  type: "view",
+  schema: "hr_staging",
+  tags: ["staging"],
+  description: "Organisational assignment (PA0001-like), renamed. One row per employee and validity start.",
+  columns: {
+    employee_id: "Personnel number (PERNR)",
+    valid_from: "Validity start (BEGDA)",
+    valid_to: "Validity end (ENDDA), NULL when open-ended",
+    company_code: "Company code (BUKRS), fictitious",
+    site_code: "Site (WERKS, personnel area)",
+    personnel_subarea: "Personnel subarea (BTRTL)",
+    employee_group_code: "Employee group (PERSG): 1 CDI, 2 CDD, 3 apprentice",
+    employee_subgroup_code: "Level (PERSK): CA manager, AM supervisor, EO staff",
+    org_unit_id: "Organisational unit (ORGEH), department level",
+    position_id: "Position (PLANS), 99999999 after an exit",
+    job_key: "Job key (STELL)",
+    cost_center: "Cost center (KOSTL)"
+  },
+  assertions: {
+    uniqueKey: ["employee_id", "valid_from"],
+    nonNull: ["employee_id", "valid_from", "site_code", "employee_group_code", "employee_subgroup_code", "org_unit_id"],
+    rowConditions: ["valid_to IS NULL OR valid_from <= valid_to"]
+  }
+}
+
+SELECT
+  PERNR AS employee_id,
+  BEGDA AS valid_from,
+  NULLIF(ENDDA, ${constants.OPEN_END}) AS valid_to,
+  BUKRS AS company_code,
+  WERKS AS site_code,
+  BTRTL AS personnel_subarea,
+  PERSG AS employee_group_code,
+  PERSK AS employee_subgroup_code,
+  ORGEH AS org_unit_id,
+  PLANS AS position_id,
+  STELL AS job_key,
+  KOSTL AS cost_center
+FROM ${ref("pa0001")}

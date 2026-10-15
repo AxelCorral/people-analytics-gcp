@@ -1,0 +1,30 @@
+config {
+  type: "view",
+  schema: "hr_staging",
+  tags: ["staging"],
+  description: "Organisational units: company, 4 sites, 12 departments (fictitious).",
+  columns: {
+    org_unit_id: "Organisational unit id (= ORGEH)",
+    org_unit_name: "Unit name",
+    org_unit_level: "company, site or department",
+    parent_org_unit_id: "Parent unit",
+    site_code: "Site code for site and department units",
+    department_code: "Department code (D01 to D12)",
+    head_employee_id: "Head of unit at the extraction date"
+  },
+  assertions: {
+    uniqueKey: ["org_unit_id"],
+    nonNull: ["org_unit_id", "org_unit_name", "org_unit_level"],
+    rowConditions: ["org_unit_level IN ('company', 'site', 'department')"]
+  }
+}
+
+SELECT
+  org_unit_id,
+  org_unit_name,
+  org_unit_level,
+  parent_org_unit_id,
+  site_code,
+  department_code,
+  head_pernr AS head_employee_id
+FROM ${ref("org_units")}

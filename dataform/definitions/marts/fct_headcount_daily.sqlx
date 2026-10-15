@@ -1,0 +1,53 @@
+config {
+  type: "incremental",
+  schema: "hr_marts",
+  tags: ["marts", "incremental", "daily"],
+  description: "Daily headcount snapshot: one row per active employee and day, up to the extraction date. Declared incremental (MERGE on the unique key, 31-day lookback for retroactive corrections); executed with --full-refresh only because the BigQuery sandbox rejects DML (see docs/incremental.md). Clustered, not partitioned: sandbox partitions expire after 60 days.",
+  uniqueKey: ["snapshot_date", "employee_id"],
+  bigquery: {
+    clusterBy: ["snapshot_date", "org_unit_id"]
+  },
+  columns: {
+    snapshot_date: "Day of the snapshot",
+    employee_id: "Personnel number",
+    org_unit_id: "Department on that day",
+    site_code: "Site on that day",
+    employee_group_code: "PERSG on that day",
+    employee_subgroup_code: "PERSK on that day",
+    employment_pct: "EMPCT on that day",
+    fte: "Full-time equivalent = EMPCT / 100",
+    daily_hours: "Theoretical hours of a working day (WOSTD / 5)",
+    spell_id: "Employment spell",
+    spell_start: "Start of the current employment spell (tenure reference)"
+  },
+  assertions: {
+    uniqueKey: ["snapshot_date", "employee_id"],
+    nonNull: ["snapshot_date", "employee_id", "org_unit_id", "fte", "spell_start"]
+  }
+}
+
+SELECT
+  c.calendar_date AS snapshot_date,
+  p.employee_id,
+  p.org_unit_id,
+  p.site_code,
+  p.employee_group_code,
+  p.employee_subgroup_code,
+  p.employment_pct,
+  p.employment_pct / 100 AS fte,
+  p.daily_hours,
+  s.spell_id,
+  s.spell_start
+FROM ${ref("int_calendar")} AS c
+CROSS JOIN ${ref("int_extraction_context")} AS x
+JOIN ${ref("int_employee_periods")} AS p
+  ON ${constants.inPeriod("c.calendar_date", "p.period_start", "p.period_end")}
+  AND p.is_active
+JOIN ${ref("int_employment_spells")} AS s
+  ON s.employee_id = p.employee_id
+  AND ${constants.inPeriod("c.calendar_date", "s.spell_start", "s.spell_last_day")}
+WHERE c.calendar_date BETWEEN x.snapshot_start_date AND x.as_of_date
+${when(incremental(),
+  `AND c.calendar_date > (
+    SELECT DATE_SUB(MAX(snapshot_date), INTERVAL ${constants.LOOKBACK_DAYS} DAY) FROM ${self()}
+  )`)}

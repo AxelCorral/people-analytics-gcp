@@ -1,0 +1,22 @@
+config {
+  type: "assertion",
+  tags: ["assertions", "staging"],
+  description: "Action sequence: the first action of an employee is a hire, only a rehire follows an exit, and every exit follows an entry."
+}
+
+WITH ordered AS (
+  SELECT
+    employee_id,
+    valid_from,
+    action_category,
+    LAG(action_category) OVER (PARTITION BY employee_id ORDER BY valid_from) AS previous_category,
+    LAG(is_active) OVER (PARTITION BY employee_id ORDER BY valid_from) AS previous_active
+  FROM ${ref("stg_pa0000_actions")}
+)
+
+SELECT employee_id, valid_from, action_category, previous_category
+FROM ordered
+WHERE (previous_category IS NULL AND action_category != 'hire')
+   OR (previous_active = FALSE AND action_category != 'rehire')
+   OR (action_category = 'rehire' AND previous_active)
+   OR (action_category = 'exit' AND previous_active IS DISTINCT FROM TRUE)

@@ -1,0 +1,37 @@
+config {
+  type: "table",
+  schema: "hr_marts",
+  tags: ["marts"],
+  description: "Theoretical working time per employee, month and department: denominator of the absenteeism and total absence rates. Working days exclude weekends and metropolitan French public holidays; hours = WOSTD / 5 per working day.",
+  columns: {
+    month_start: "First day of the month (relationship key to dim_date)",
+    employee_id: "Personnel number",
+    org_unit_id: "Department",
+    site_code: "Site",
+    employee_group_code: "PERSG",
+    working_days: "Working days employed in the month",
+    theoretical_hours: "Theoretical hours in the month"
+  },
+  assertions: {
+    uniqueKey: ["month_start", "employee_id", "org_unit_id", "employee_group_code"],
+    nonNull: ["month_start", "employee_id", "org_unit_id", "theoretical_hours"],
+    rowConditions: ["theoretical_hours > 0"]
+  }
+}
+
+SELECT
+  c.month_start,
+  p.employee_id,
+  p.org_unit_id,
+  p.site_code,
+  p.employee_group_code,
+  COUNT(*) AS working_days,
+  SUM(p.daily_hours) AS theoretical_hours
+FROM ${ref("int_employee_periods")} AS p
+JOIN ${ref("int_calendar")} AS c
+  ON ${constants.inPeriod("c.calendar_date", "p.period_start", "p.period_end")}
+  AND c.is_working_day
+CROSS JOIN ${ref("int_extraction_context")} AS x
+WHERE p.is_active
+  AND c.calendar_date BETWEEN x.snapshot_start_date AND x.as_of_date
+GROUP BY 1, 2, 3, 4, 5
