@@ -50,7 +50,7 @@ Document de cadrage de référence pour toutes les sessions de travail. Toute d�
 [hr_assertions]           résultats des assertions
         |
         v  connecteur Google BigQuery, mode import
-[Power BI Desktop, PBIP/TMDL]  modèle en étoile, mesures DAX, rôle RLS, rapport 4 pages
+[Power BI Desktop, PBIP/TMDL]  modèle en étoile, mesures DAX, rôle RLS, rapport 5 pages (dont Contrôle RLS)
         |
         v  exports versionnés
 [docs/]  captures, graphe de dépendances, résultats d'assertions, tests RLS, vidéo
@@ -239,7 +239,7 @@ Résultats dans `docs/rls-tests.md`, captures dans `docs/img/`. Les trois premie
 - **Format PBIP**, modèle sémantique en **TMDL** dans le dossier `definition/` : tables, relations, mesures et rôle RLS lisibles dans le dépôt ([Power BI Desktop projects](https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-overview)). Fichiers en UTF-8 sans BOM, fins de ligne CRLF gérées par `.gitattributes`, chemin racine court (limite de 260 caractères sous Windows).
 - **Mode import** via le connecteur Google BigQuery, authentification par compte Google dans le navigateur ([connecteur Google BigQuery](https://learn.microsoft.com/en-us/power-query/connectors/google-bigquery)). `BillingProject` renseigné explicitement par un paramètre Power Query, sans identifiant écrit en dur dans les requêtes. Implémentation du connecteur : celle par défaut, bascule ODBC/ADBC en cas d'erreur.
 - **Modèle en étoile** : faits `fct_headcount_monthly`, `fct_movements`, `fct_worktime_monthly`, `fct_absence_monthly` ; dimensions `dim_date` (table de dates), `dim_org_unit`, `dim_employee`, `dim_contract_type`, `dim_level`, `dim_absence_type`, `dim_action_type` ; 19 relations plusieurs-à-un à sens unique, sans exception ; `sec_user_scope` déconnectée et masquée.
-- **Génération et validation** : le TMDL est produit par `tools/build_pbip.py` à partir des schémas réels des marts. Il est validé hors Desktop par le désérialiseur officiel `TmdlSerializer` (`Microsoft.AnalysisServices` 19.84.1) et par `Model.Validate()`, sans erreur. Les fichiers JSON du rapport sont validés contre leurs schémas publics. Le rapport est livré avec 4 pages vides ; la mise en page se fait dans Desktop ([docs/powerbi-checklist.md](docs/powerbi-checklist.md)).
+- **Génération et validation** : le TMDL est produit par `tools/build_pbip.py` à partir des schémas réels des marts. Il est validé hors Desktop par le désérialiseur officiel `TmdlSerializer` (`Microsoft.AnalysisServices` 19.84.1) et par `Model.Validate()`, sans erreur. Les fichiers JSON du rapport sont validés contre leurs schémas publics. Le rapport est livré avec 5 pages et 55 visuels générés, validés contre les schémas PBIR ; Desktop sert à actualiser, vérifier et affiner la mise en forme ([docs/powerbi-checklist.md](docs/powerbi-checklist.md), plan dans [docs/report-spec.md](docs/report-spec.md)).
 - **Mesures DAX (26)**, rangées par dossier d'affichage :
   - **Effectifs** : `Headcount EoP`, `Headcount EoP (masked < 5)`, `Headcount EoP Women`, `Headcount EoP Men (negative)`, `FTE EoP`, `Headcount PY`, `Headcount Δ`, `Avg Headcount 12M`, `Avg Headcount CDI 12M`, `Avg Tenure (years)`, `Avg Age`, `Female Share %` ;
   - **Mouvements** : `Hires`, `Exits`, `Exits CDI`, `Resignations CDI`, `Turnover CDI 12M %` (principal), `Resignation Rate 12M %`, `Total Exit Rate 12M %` ;
@@ -330,7 +330,7 @@ Phases enchaînées sans délai. Les actions marquées ✋ sont manuelles et son
 - Contrôle : `docs/kpi-reconciliation.md`.
 
 **Phase 5 — Rapport, tests RLS, README, vidéo, publication**
-- Livrables : 4 pages de rapport, `docs/rls-tests.md`, captures `docs/img/`, README final, vidéo de 2 minutes.
+- Livrables : 5 pages de rapport (dont Contrôle RLS), `docs/rls-tests.md`, captures `docs/img/`, README final, vidéo de 2 minutes.
 - ✋ Mise en page dans Power BI Desktop ; « Afficher en tant que » pour les 5 utilisateurs ; captures ; enregistrement de la vidéo (< 10 Mo) ; bascule du dépôt en public après la recherche de secrets.
 - Terminé quand : 5 cas RLS conformes, PBIP actualisable en mode `Local`, README reproductible par un tiers, aucun secret dans l'historique, dépôt public et lien vérifié depuis une session non connectée.
 

@@ -121,7 +121,7 @@ bq ls --project_id=people-analytics-ac26
 | Phase | Action ✋ |
 |---|---|
 | 4 | Ouvrir le `.pbip` dans Power BI Desktop, se connecter à Google dans le navigateur (compte personnel, pas de compte de service), actualiser |
-| 5 | Mettre en page les 4 pages ; « Afficher en tant que » pour les 5 utilisateurs fictifs ; captures dans `docs/img/` |
+| 5 | Vérifier les 5 pages générées ; « Afficher en tant que » pour les 5 utilisateurs fictifs (page Contrôle RLS) ; captures dans `docs/img/` |
 | 5 | Enregistrer la vidéo de 2 minutes, **moins de 10 Mo** (chaîne de bout en bout + RLS avec trois utilisateurs), la téléverser dans le README par l'éditeur web de GitHub |
 | 5 | Après validation de la recherche de secrets : passer le dépôt en public, vérifier le lien depuis une fenêtre de navigation privée |
 | Fin | Supprimer le projet GCP ; `gcloud auth application-default revoke` |
