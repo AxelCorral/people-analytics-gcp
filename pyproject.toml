@@ -1,0 +1,16 @@
+[project]
+name = "people-analytics-gcp"
+version = "0.1.0"
+description = "Synthetic SAP HCM-like HR data generator and BigQuery / Dataform / Power BI analytics chain."
+requires-python = ">=3.12"
+dependencies = [
+    "pyarrow>=17",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["generator/tests"]
+pythonpath = ["generator"]
+addopts = "-ra"
