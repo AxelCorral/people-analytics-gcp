@@ -4,7 +4,7 @@ Généré par `tools/lineage.py` à partir de `dataform compile --json` (la cons
 
 - 15 sources déclarées (`hr_raw`)
 - 14 vues, 18 tables, 1 table incrémentale
-- 70 assertions, dont 10 personnalisées : `assert_absence_within_employment`, `assert_action_sequence`, `assert_movements_balance_headcount`, `assert_no_future_dates`, `assert_no_overlap_pa0000_actions`, `assert_no_overlap_pa0001_assignments`, `assert_no_overlap_pa0007_work_schedules`, `assert_referential_integrity`, `assert_security_scope_valid`, `assert_snapshot_matches_spells`
+- 71 assertions, dont 11 personnalisées : `assert_absence_within_employment`, `assert_action_sequence`, `assert_employee_history_covers_facts`, `assert_movements_balance_headcount`, `assert_no_future_dates`, `assert_no_overlap_pa0000_actions`, `assert_no_overlap_pa0001_assignments`, `assert_no_overlap_pa0007_work_schedules`, `assert_referential_integrity`, `assert_security_scope_valid`, `assert_snapshot_matches_spells`
 
 Les assertions (non représentées) sont dans `hr_assertions`.
 
@@ -93,6 +93,7 @@ flowchart LR
   hr_marts__fct_absence_monthly --> hr_marts__rpt_kpi_monthly
   hr_marts__fct_headcount_daily --> hr_marts__fct_headcount_monthly
   hr_marts__fct_headcount_monthly --> hr_marts__rpt_kpi_monthly
+  hr_marts__fct_movements --> hr_marts__dim_employee
   hr_marts__fct_movements --> hr_marts__rpt_kpi_monthly
   hr_marts__fct_worktime_monthly --> hr_marts__rpt_kpi_monthly
   hr_raw__org_units --> hr_staging__stg_org_units

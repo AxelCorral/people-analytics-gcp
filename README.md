@@ -2,7 +2,7 @@
 
 > **Summary (EN).** End-to-end analytics engineering exercise on a fictitious HR dataset, built at zero cost.
 > A seeded Python generator produces SAP HCM-*inspired* tables (PA0000, PA0001, PA0002, PA0007, PA2001), loaded into BigQuery (europe-west1, sandbox).
-> Dataform (local CLI) builds staging, intermediate and mart layers with 70 assertions and an incremental headcount snapshot.
+> Dataform (local CLI) builds staging, intermediate and mart layers with 71 assertions and an incremental headcount snapshot.
 > A Power BI star schema (PBIP/TMDL) exposes 26 DAX measures and dynamic row-level security, validated against SQL.
 > All data is synthetic; this is a portfolio project, not client work.
 
@@ -38,7 +38,7 @@ Région `europe-west1` pour tous les datasets. Détail des modèles : [graphe Da
   - date de sortie au `BEGDA - 1` ;
   - réintégrations et mutations ;
   - jours fériés de métropole.
-- **De la qualité de données outillée** : 70 assertions Dataform (unicité, non-nullité, `BEGDA ≤ ENDDA`, absence de chevauchement, intégrité référentielle, cohérence snapshot / parcours, équilibre des flux). Les 4 anomalies injectées volontairement sont toutes détectées ([résultats](docs/assertions-results.md)).
+- **De la qualité de données outillée** : 71 assertions Dataform (unicité, non-nullité, `BEGDA ≤ ENDDA`, absence de chevauchement, intégrité référentielle, complétude du périmètre RLS, cohérence snapshot / parcours, équilibre des flux). Les 4 anomalies injectées volontairement sont toutes détectées ([résultats](docs/assertions-results.md)).
 - **Des KPI définis et réconciliés** : turnover CDI (dénominateur effectif moyen CDI), absentéisme distinct des « absences totales, congés inclus », ancienneté, pyramide des âges, F/H par niveau ([définitions](docs/kpi-definitions.md)). Le SQL de Dataform et un calcul Python indépendant donnent les mêmes valeurs :
 
   | KPI (12 mois au 2026-09-30) | Valeur |

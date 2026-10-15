@@ -7,7 +7,7 @@ Valeurs attendues au **2026-09** (effectif fin de mois issu de `rpt_kpi_monthly`
 | Utilisateur simulé | Périmètre | Attendu | Effectif 2026-09 attendu | Sites visibles | Salariés visibles (`dim_employee`) | Résultat observé | Capture |
 |---|---|---|---:|---:|---:|---|---|
 | `drh@example.com` | ALL | Tout | 820 | 4 | 1250 | à remplir | `docs/img/rls-drh.png` |
-| `dir.s200@example.com` | SITE S200 | Site Est uniquement | 248 | 1 | 406 | à remplir | `docs/img/rls-dir.s200.png` |
+| `dir.s200@example.com` | SITE S200 | Site Est uniquement | 248 | 1 | 407 | à remplir | `docs/img/rls-dir.s200.png` |
 | `mgr.d07@example.com` | DEPT 50300007 | Commercial uniquement | 81 | 1 | 119 | à remplir | `docs/img/rls-mgr.d07.png` |
 | `mgr.multi@example.com` | DEPT 50100002 + 50200005 | Maintenance + Qualité | 77 | 2 | 110 | à remplir | `docs/img/rls-mgr.multi.png` |
 | `unknown@example.com` | aucun | Rapport vide | 0 | 0 | 0 | à remplir | `docs/img/rls-unknown.png` |
@@ -17,4 +17,5 @@ Points de vigilance vérifiés par ces cas :
 - `dim_employee` est filtré lui aussi : sans cela, la liste nominative de la page « Effectifs détaillés » afficherait tous les salariés à un manager ;
 - périmètre historique : un salarié muté hors du département reste visible pour ses faits passés dans le département, pas pour ceux de son nouveau département (filtre de `dim_org_unit` sur les faits) ;
 - un utilisateur absent de `sec_user_scope` ne voit rien ;
+- bordure de fenêtre : une salariée mutée de S200 vers S400 le premier jour de la fenêtre (2023-10-01) n'a jamais travaillé dans S200 pendant la fenêtre, mais sa ligne `transfer_out` y est datée. Les colonnes d'historique incluent donc aussi les départements de `fct_movements` ; sinon le directeur de S200 perdrait cette ligne (filtre de `dim_employee` propagé aux faits). L'assertion `assert_employee_history_covers_facts` le garantit pour les quatre tables de faits, et `docs/reference-values.md` recompte les salariés visibles de deux façons ;
 - la table `rpt_kpi_monthly` (agrégats entreprise) n'est pas importée dans le modèle, car la RLS ne pourrait pas la restreindre.

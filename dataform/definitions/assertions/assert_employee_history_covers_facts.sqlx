@@ -1,0 +1,19 @@
+config {
+  type: "assertion",
+  tags: ["assertions", "marts"],
+  description: "RLS completeness: every fact row's department is in the employee's org_unit_ids_history, so a scope that sees the fact also sees the employee."
+}
+
+WITH facts AS (
+  SELECT employee_id, org_unit_id, 'fct_headcount_monthly' AS source FROM ${ref("fct_headcount_monthly")}
+  UNION DISTINCT
+  SELECT employee_id, org_unit_id, 'fct_movements' FROM ${ref("fct_movements")}
+  UNION DISTINCT
+  SELECT employee_id, org_unit_id, 'fct_worktime_monthly' FROM ${ref("fct_worktime_monthly")}
+  UNION DISTINCT
+  SELECT employee_id, org_unit_id, 'fct_absence_monthly' FROM ${ref("fct_absence_monthly")}
+)
+SELECT f.source, f.employee_id, f.org_unit_id
+FROM facts AS f
+JOIN ${ref("dim_employee")} AS e USING (employee_id)
+WHERE STRPOS(e.org_unit_ids_history, CONCAT('|', f.org_unit_id, '|')) = 0

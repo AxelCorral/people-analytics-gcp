@@ -59,7 +59,7 @@
   },
   "dim_employee": {
     "rows": 1250,
-    "bytes": 153536,
+    "bytes": 153550,
     "columns": {
       "employee_id": "STRING",
       "display_name": "STRING",
@@ -89,8 +89,8 @@
       "current_employee_group_code": "PERSG at the extraction date",
       "current_employee_subgroup_code": "PERSK at the extraction date",
       "is_active_at_extraction": "Employed at the extraction date",
-      "org_unit_ids_history": "Departments where the employee worked in the reporting window, '|id1|id2|' (RLS on this table)",
-      "site_codes_history": "Sites where the employee worked in the reporting window, '|S100|S200|' (RLS on this table)"
+      "org_unit_ids_history": "Departments where the employee worked or has a movement in the reporting window, '|id1|id2|' (RLS on this table)",
+      "site_codes_history": "Sites where the employee worked or has a movement in the reporting window, '|S100|S200|' (RLS on this table)"
     },
     "table_description": "Employees (pseudonyms). current_org_unit_id = department at the extraction date (last department for leavers), used by the RLS filter on this table."
   },
@@ -261,7 +261,7 @@
   },
   "fct_worktime_monthly": {
     "rows": 29542,
-    "bytes": 1540844,
+    "bytes": 1540696,
     "columns": {
       "month_start": "DATE",
       "employee_id": "STRING",
@@ -284,7 +284,7 @@
   },
   "fct_absence_monthly": {
     "rows": 32023,
-    "bytes": 1667560,
+    "bytes": 1667771,
     "columns": {
       "month_start": "DATE",
       "employee_id": "STRING",
@@ -307,7 +307,7 @@
   },
   "rpt_kpi_monthly": {
     "rows": 612,
-    "bytes": 178727,
+    "bytes": 178976,
     "columns": {
       "scope_level": "STRING",
       "scope_value": "STRING",

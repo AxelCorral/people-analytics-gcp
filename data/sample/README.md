@@ -17,6 +17,6 @@ Les tables du bac à sable BigQuery expirent 60 jours après leur création : ce
 | `fct_headcount_monthly.csv` | 29056 | 2393 Kio |
 | `fct_movements.csv` | 1072 | 134 Kio |
 | `fct_worktime_monthly.csv` | 29542 | 1505 Kio |
-| `fct_absence_monthly.csv` | 32023 | 1628 Kio |
+| `fct_absence_monthly.csv` | 32023 | 1629 Kio |
 | `rpt_kpi_monthly.csv` | 612 | 175 Kio |
 | **Total** | | **5.9 Mio** |

@@ -73,22 +73,31 @@ publish("dim_employee", {
     current_org_unit_id: "Department at the extraction date", current_site_code: "Site at the extraction date",
     current_employee_group_code: "PERSG at the extraction date", current_employee_subgroup_code: "PERSK at the extraction date",
     is_active_at_extraction: "Employed at the extraction date",
-    org_unit_ids_history: "Departments where the employee worked in the reporting window, '|id1|id2|' (RLS on this table)",
-    site_codes_history: "Sites where the employee worked in the reporting window, '|S100|S200|' (RLS on this table)",
+    org_unit_ids_history: "Departments where the employee worked or has a movement in the reporting window, '|id1|id2|' (RLS on this table)",
+    site_codes_history: "Sites where the employee worked or has a movement in the reporting window, '|S100|S200|' (RLS on this table)",
   },
   assertions: { uniqueKey: ["employee_id"], nonNull: ["employee_id", "display_name", "current_org_unit_id"] },
 }).query((ctx) => `
-  WITH history AS (
-    SELECT
-      p.employee_id,
-      CONCAT('|', STRING_AGG(DISTINCT p.org_unit_id, '|' ORDER BY p.org_unit_id), '|') AS org_unit_ids_history,
-      CONCAT('|', STRING_AGG(DISTINCT p.site_code, '|' ORDER BY p.site_code), '|') AS site_codes_history
+  WITH worked_in AS (
+    SELECT p.employee_id, p.org_unit_id, p.site_code
     FROM ${ctx.ref("int_employee_periods")} AS p
     CROSS JOIN ${ctx.ref("int_extraction_context")} AS x
     WHERE p.is_active
       AND p.period_start <= x.as_of_date
       AND COALESCE(p.period_end, ${constants.OPEN_END}) >= x.snapshot_start_date
-    GROUP BY p.employee_id
+    UNION DISTINCT
+    -- a transfer on the first day of the window leaves a department the employee never worked in
+    -- during the window: its transfer_out row must stay visible to that department's scope
+    SELECT employee_id, org_unit_id, site_code
+    FROM ${ctx.ref("fct_movements")}
+  ),
+  history AS (
+    SELECT
+      employee_id,
+      CONCAT('|', STRING_AGG(DISTINCT org_unit_id, '|' ORDER BY org_unit_id), '|') AS org_unit_ids_history,
+      CONCAT('|', STRING_AGG(DISTINCT site_code, '|' ORDER BY site_code), '|') AS site_codes_history
+    FROM worked_in
+    GROUP BY employee_id
   ),
   current_period AS (
     SELECT p.*

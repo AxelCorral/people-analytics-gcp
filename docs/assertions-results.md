@@ -5,12 +5,13 @@ Exécutions de `dataform run --full-refresh` (CLI locale, bac à sable BigQuery)
 ## Exécution de référence (extraction du 2026-09-30)
 
 - Objets créés (vues et tables) : **33**
-- Assertions passées : **70** ; échouées : **0**
+- Assertions passées : **71** ; échouées : **0**
 
 <details><summary>Liste des assertions passées</summary>
 
 - `hr_assertions.assert_absence_within_employment`
 - `hr_assertions.assert_action_sequence`
+- `hr_assertions.assert_employee_history_covers_facts`
 - `hr_assertions.assert_movements_balance_headcount`
 - `hr_assertions.assert_no_future_dates`
 - `hr_assertions.assert_no_overlap_pa0000_actions`
