@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "e1d8ed66b83951aab311",
+  "position": {
+    "x": 857,
+    "y": 80,
+    "z": 7000,
+    "height": 100,
+    "width": 202,
+    "tabOrder": 7000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_headcount_monthly"
+                    }
+                  },
+                  "Property": "Part-Time Share %"
+                }
+              },
+              "queryRef": "fct_headcount_monthly.Part-Time Share %",
+              "nativeQueryRef": "Part-Time Share %",
+              "displayName": "Part de temps partiel"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

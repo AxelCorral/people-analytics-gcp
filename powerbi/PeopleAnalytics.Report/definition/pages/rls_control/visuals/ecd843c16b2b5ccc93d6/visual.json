@@ -1,0 +1,106 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "ecd843c16b2b5ccc93d6",
+  "position": {
+    "x": 645,
+    "y": 300,
+    "z": 9000,
+    "height": 410,
+    "width": 625,
+    "tabOrder": 9000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "sec_user_scope"
+                    }
+                  },
+                  "Property": "user_upn"
+                }
+              },
+              "queryRef": "sec_user_scope.user_upn",
+              "nativeQueryRef": "user_upn",
+              "displayName": "Utilisateur"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "sec_user_scope"
+                    }
+                  },
+                  "Property": "role_label"
+                }
+              },
+              "queryRef": "sec_user_scope.role_label",
+              "nativeQueryRef": "role_label",
+              "displayName": "Profil"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "sec_user_scope"
+                    }
+                  },
+                  "Property": "scope_type"
+                }
+              },
+              "queryRef": "sec_user_scope.scope_type",
+              "nativeQueryRef": "scope_type",
+              "displayName": "Type"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "sec_user_scope"
+                    }
+                  },
+                  "Property": "scope_value"
+                }
+              },
+              "queryRef": "sec_user_scope.scope_value",
+              "nativeQueryRef": "scope_value",
+              "displayName": "Valeur"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Table de correspondance visible (sec_user_scope)'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

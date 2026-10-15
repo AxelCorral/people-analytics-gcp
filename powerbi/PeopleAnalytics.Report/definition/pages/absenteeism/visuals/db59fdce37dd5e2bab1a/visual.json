@@ -1,0 +1,99 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "db59fdce37dd5e2bab1a",
+  "position": {
+    "x": 10,
+    "y": 190,
+    "z": 7000,
+    "height": 255,
+    "width": 625,
+    "tabOrder": 7000
+  },
+  "visual": {
+    "visualType": "columnChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_date"
+                    }
+                  },
+                  "Property": "month_start"
+                }
+              },
+              "queryRef": "dim_date.month_start",
+              "nativeQueryRef": "month_start",
+              "displayName": "Mois"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_absence_monthly"
+                    }
+                  },
+                  "Property": "Absence Hours (all incl. leave)"
+                }
+              },
+              "queryRef": "fct_absence_monthly.Absence Hours (all incl. leave)",
+              "nativeQueryRef": "Absence Hours (all incl. leave)",
+              "displayName": "Heures d'absence"
+            }
+          ]
+        },
+        "Series": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_absence_type"
+                    }
+                  },
+                  "Property": "absence_scope"
+                }
+              },
+              "queryRef": "dim_absence_type.absence_scope",
+              "nativeQueryRef": "absence_scope",
+              "displayName": "Périmètre"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Heures d''absence par mois, absentéisme et autres absences'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

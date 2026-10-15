@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "71fe5182b25d5c62bc1e",
+  "position": {
+    "x": 433,
+    "y": 80,
+    "z": 2000,
+    "height": 100,
+    "width": 413,
+    "tabOrder": 2000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_headcount_monthly"
+                    }
+                  },
+                  "Property": "RLS Status"
+                }
+              },
+              "queryRef": "fct_headcount_monthly.RLS Status",
+              "nativeQueryRef": "RLS Status",
+              "displayName": "Rôle"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

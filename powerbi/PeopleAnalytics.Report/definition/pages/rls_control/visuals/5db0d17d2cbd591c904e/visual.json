@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "5db0d17d2cbd591c904e",
+  "position": {
+    "x": 328,
+    "y": 190,
+    "z": 5000,
+    "height": 100,
+    "width": 308,
+    "tabOrder": 5000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_headcount_monthly"
+                    }
+                  },
+                  "Property": "Visible Employees"
+                }
+              },
+              "queryRef": "fct_headcount_monthly.Visible Employees",
+              "nativeQueryRef": "Visible Employees",
+              "displayName": "Salariés visibles"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

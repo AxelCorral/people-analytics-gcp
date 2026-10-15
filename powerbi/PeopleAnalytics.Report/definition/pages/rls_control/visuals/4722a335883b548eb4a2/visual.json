@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "4722a335883b548eb4a2",
+  "position": {
+    "x": 645,
+    "y": 190,
+    "z": 6000,
+    "height": 100,
+    "width": 308,
+    "tabOrder": 6000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_headcount_monthly"
+                    }
+                  },
+                  "Property": "Visible Sites"
+                }
+              },
+              "queryRef": "fct_headcount_monthly.Visible Sites",
+              "nativeQueryRef": "Visible Sites",
+              "displayName": "Sites visibles"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

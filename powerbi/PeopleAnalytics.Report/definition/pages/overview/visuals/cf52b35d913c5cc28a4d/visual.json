@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "cf52b35d913c5cc28a4d",
+  "position": {
+    "x": 222,
+    "y": 80,
+    "z": 4000,
+    "height": 100,
+    "width": 202,
+    "tabOrder": 4000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_headcount_monthly"
+                    }
+                  },
+                  "Property": "FTE EoP"
+                }
+              },
+              "queryRef": "fct_headcount_monthly.FTE EoP",
+              "nativeQueryRef": "FTE EoP",
+              "displayName": "ETP fin de mois"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

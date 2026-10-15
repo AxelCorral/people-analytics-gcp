@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "9d421a47a468576c9b6c",
+  "position": {
+    "x": 10,
+    "y": 80,
+    "z": 3000,
+    "height": 100,
+    "width": 244,
+    "tabOrder": 3000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_movements"
+                    }
+                  },
+                  "Property": "Hires"
+                }
+              },
+              "queryRef": "fct_movements.Hires",
+              "nativeQueryRef": "Hires",
+              "displayName": "Entrées du mois"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

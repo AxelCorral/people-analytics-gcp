@@ -4,5 +4,17 @@
   "displayName": "Vue globale",
   "displayOption": "FitToPage",
   "height": 720,
-  "width": 1280
+  "width": 1280,
+  "visualInteractions": [
+    {
+      "source": "8cf3a17282c95bd5a7bf",
+      "target": "5e2d7e1413de5613be50",
+      "type": "NoFilter"
+    },
+    {
+      "source": "8cf3a17282c95bd5a7bf",
+      "target": "7ad472f59699530ba523",
+      "type": "NoFilter"
+    }
+  ]
 }

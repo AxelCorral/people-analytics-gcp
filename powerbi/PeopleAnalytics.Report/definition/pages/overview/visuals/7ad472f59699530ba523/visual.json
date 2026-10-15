@@ -1,0 +1,95 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "7ad472f59699530ba523",
+  "position": {
+    "x": 645,
+    "y": 300,
+    "z": 16000,
+    "height": 410,
+    "width": 625,
+    "tabOrder": 16000
+  },
+  "visual": {
+    "visualType": "lineChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_date"
+                    }
+                  },
+                  "Property": "month_start"
+                }
+              },
+              "queryRef": "dim_date.month_start",
+              "nativeQueryRef": "month_start",
+              "displayName": "Mois"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_movements"
+                    }
+                  },
+                  "Property": "Turnover CDI 12M %"
+                }
+              },
+              "queryRef": "fct_movements.Turnover CDI 12M %",
+              "nativeQueryRef": "Turnover CDI 12M %",
+              "displayName": "Turnover CDI 12 mois"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_absence_monthly"
+                    }
+                  },
+                  "Property": "Absenteeism 12M %"
+                }
+              },
+              "queryRef": "fct_absence_monthly.Absenteeism 12M %",
+              "nativeQueryRef": "Absenteeism 12M %",
+              "displayName": "Absentéisme 12 mois"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Turnover CDI et absentéisme, 12 mois glissants'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "57f7cff35cea5bfb8181",
+  "position": {
+    "x": 1068,
+    "y": 190,
+    "z": 14000,
+    "height": 100,
+    "width": 202,
+    "tabOrder": 14000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_headcount_monthly"
+                    }
+                  },
+                  "Property": "Avg Tenure (years)"
+                }
+              },
+              "queryRef": "fct_headcount_monthly.Avg Tenure (years)",
+              "nativeQueryRef": "Avg Tenure (years)",
+              "displayName": "Ancienneté moyenne (ans)"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

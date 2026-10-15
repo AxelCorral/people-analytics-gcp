@@ -1,0 +1,151 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "c85c128f74455e8e8af2",
+  "position": {
+    "x": 10,
+    "y": 420,
+    "z": 5000,
+    "height": 290,
+    "width": 1260,
+    "tabOrder": 5000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_employee"
+                    }
+                  },
+                  "Property": "display_name"
+                }
+              },
+              "queryRef": "dim_employee.display_name",
+              "nativeQueryRef": "display_name",
+              "displayName": "Salarié"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_level"
+                    }
+                  },
+                  "Property": "level_label"
+                }
+              },
+              "queryRef": "dim_level.level_label",
+              "nativeQueryRef": "level_label",
+              "displayName": "Niveau"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_contract_type"
+                    }
+                  },
+                  "Property": "contract_type"
+                }
+              },
+              "queryRef": "dim_contract_type.contract_type",
+              "nativeQueryRef": "contract_type",
+              "displayName": "Contrat"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_org_unit"
+                    }
+                  },
+                  "Property": "department_name"
+                }
+              },
+              "queryRef": "dim_org_unit.department_name",
+              "nativeQueryRef": "department_name",
+              "displayName": "Département"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_headcount_monthly"
+                    }
+                  },
+                  "Property": "Headcount EoP"
+                }
+              },
+              "queryRef": "fct_headcount_monthly.Headcount EoP",
+              "nativeQueryRef": "Headcount EoP",
+              "displayName": "Effectif"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_headcount_monthly"
+                    }
+                  },
+                  "Property": "Avg Tenure (years)"
+                }
+              },
+              "queryRef": "fct_headcount_monthly.Avg Tenure (years)",
+              "nativeQueryRef": "Avg Tenure (years)",
+              "displayName": "Ancienneté (ans)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_headcount_monthly"
+                    }
+                  },
+                  "Property": "Avg Age"
+                }
+              },
+              "queryRef": "fct_headcount_monthly.Avg Age",
+              "nativeQueryRef": "Avg Age",
+              "displayName": "Âge"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Liste nominative (preuve du filtrage de dim_employee par la RLS)'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

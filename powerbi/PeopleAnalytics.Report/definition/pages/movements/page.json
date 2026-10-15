@@ -4,5 +4,17 @@
   "displayName": "Mouvements",
   "displayOption": "FitToPage",
   "height": 720,
-  "width": 1280
+  "width": 1280,
+  "visualInteractions": [
+    {
+      "source": "735353d795a255fa87de",
+      "target": "f3e1ab9b592950bf8234",
+      "type": "NoFilter"
+    },
+    {
+      "source": "735353d795a255fa87de",
+      "target": "738d7ffd74c85e329fef",
+      "type": "NoFilter"
+    }
+  ]
 }

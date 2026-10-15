@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "172d0ca354c453d29228",
+  "position": {
+    "x": 264,
+    "y": 80,
+    "z": 4000,
+    "height": 100,
+    "width": 244,
+    "tabOrder": 4000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_movements"
+                    }
+                  },
+                  "Property": "Exits"
+                }
+              },
+              "queryRef": "fct_movements.Exits",
+              "nativeQueryRef": "Exits",
+              "displayName": "Sorties du mois"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "a3005b0329e85601967a",
+  "position": {
+    "x": 645,
+    "y": 80,
+    "z": 6000,
+    "height": 100,
+    "width": 202,
+    "tabOrder": 6000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_headcount_monthly"
+                    }
+                  },
+                  "Property": "Headcount Max 12M"
+                }
+              },
+              "queryRef": "fct_headcount_monthly.Headcount Max 12M",
+              "nativeQueryRef": "Headcount Max 12M",
+              "displayName": "Effectif max 12 mois"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

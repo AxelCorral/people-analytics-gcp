@@ -1,0 +1,95 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "f3e1ab9b592950bf8234",
+  "position": {
+    "x": 10,
+    "y": 190,
+    "z": 8000,
+    "height": 255,
+    "width": 625,
+    "tabOrder": 8000
+  },
+  "visual": {
+    "visualType": "clusteredColumnChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_date"
+                    }
+                  },
+                  "Property": "month_start"
+                }
+              },
+              "queryRef": "dim_date.month_start",
+              "nativeQueryRef": "month_start",
+              "displayName": "Mois"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_movements"
+                    }
+                  },
+                  "Property": "Hires"
+                }
+              },
+              "queryRef": "fct_movements.Hires",
+              "nativeQueryRef": "Hires",
+              "displayName": "Entrées"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_movements"
+                    }
+                  },
+                  "Property": "Exits"
+                }
+              },
+              "queryRef": "fct_movements.Exits",
+              "nativeQueryRef": "Exits",
+              "displayName": "Sorties"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Entrées et sorties par mois'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "8f64a5a59f14531dbe91",
+  "position": {
+    "x": 433,
+    "y": 80,
+    "z": 5000,
+    "height": 100,
+    "width": 202,
+    "tabOrder": 5000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_headcount_monthly"
+                    }
+                  },
+                  "Property": "Headcount Min 12M"
+                }
+              },
+              "queryRef": "fct_headcount_monthly.Headcount Min 12M",
+              "nativeQueryRef": "Headcount Min 12M",
+              "displayName": "Effectif min 12 mois"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

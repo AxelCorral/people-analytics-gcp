@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "f61b97666d0850df9db7",
+  "position": {
+    "x": 10,
+    "y": 80,
+    "z": 3000,
+    "height": 100,
+    "width": 202,
+    "tabOrder": 3000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_headcount_monthly"
+                    }
+                  },
+                  "Property": "Headcount EoP"
+                }
+              },
+              "queryRef": "fct_headcount_monthly.Headcount EoP",
+              "nativeQueryRef": "Headcount EoP",
+              "displayName": "Effectif fin de mois"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

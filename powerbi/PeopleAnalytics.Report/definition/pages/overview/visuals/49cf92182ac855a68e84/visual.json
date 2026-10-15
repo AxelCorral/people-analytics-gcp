@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "49cf92182ac855a68e84",
+  "position": {
+    "x": 1068,
+    "y": 80,
+    "z": 8000,
+    "height": 100,
+    "width": 202,
+    "tabOrder": 8000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_headcount_monthly"
+                    }
+                  },
+                  "Property": "Female Share %"
+                }
+              },
+              "queryRef": "fct_headcount_monthly.Female Share %",
+              "nativeQueryRef": "Female Share %",
+              "displayName": "Part des femmes"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

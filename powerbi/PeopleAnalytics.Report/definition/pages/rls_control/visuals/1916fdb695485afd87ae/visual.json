@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "1916fdb695485afd87ae",
+  "position": {
+    "x": 10,
+    "y": 80,
+    "z": 1000,
+    "height": 100,
+    "width": 413,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_headcount_monthly"
+                    }
+                  },
+                  "Property": "Current User"
+                }
+              },
+              "queryRef": "fct_headcount_monthly.Current User",
+              "nativeQueryRef": "Current User",
+              "displayName": "Utilisateur (USERPRINCIPALNAME)"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

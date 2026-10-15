@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "c379dc6464a65b92ada0",
+  "position": {
+    "x": 1026,
+    "y": 80,
+    "z": 7000,
+    "height": 100,
+    "width": 244,
+    "tabOrder": 7000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_movements"
+                    }
+                  },
+                  "Property": "Total Exit Rate 12M %"
+                }
+              },
+              "queryRef": "fct_movements.Total Exit Rate 12M %",
+              "nativeQueryRef": "Total Exit Rate 12M %",
+              "displayName": "Sorties totales 12 mois (CDD et alternants compris)"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

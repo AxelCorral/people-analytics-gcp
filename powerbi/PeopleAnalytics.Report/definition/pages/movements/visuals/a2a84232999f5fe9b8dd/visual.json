@@ -1,0 +1,121 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "a2a84232999f5fe9b8dd",
+  "position": {
+    "x": 10,
+    "y": 455,
+    "z": 10000,
+    "height": 255,
+    "width": 1260,
+    "tabOrder": 10000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_org_unit"
+                    }
+                  },
+                  "Property": "department_name"
+                }
+              },
+              "queryRef": "dim_org_unit.department_name",
+              "nativeQueryRef": "department_name",
+              "displayName": "Département"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_headcount_monthly"
+                    }
+                  },
+                  "Property": "Avg Headcount CDI 12M"
+                }
+              },
+              "queryRef": "fct_headcount_monthly.Avg Headcount CDI 12M",
+              "nativeQueryRef": "Avg Headcount CDI 12M",
+              "displayName": "Effectif moyen CDI 12 mois"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_movements"
+                    }
+                  },
+                  "Property": "Exits CDI"
+                }
+              },
+              "queryRef": "fct_movements.Exits CDI",
+              "nativeQueryRef": "Exits CDI",
+              "displayName": "Sorties CDI du mois"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_movements"
+                    }
+                  },
+                  "Property": "Turnover CDI 12M %"
+                }
+              },
+              "queryRef": "fct_movements.Turnover CDI 12M %",
+              "nativeQueryRef": "Turnover CDI 12M %",
+              "displayName": "Turnover CDI 12 mois"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_movements"
+                    }
+                  },
+                  "Property": "Resignation Rate 12M %"
+                }
+              },
+              "queryRef": "fct_movements.Resignation Rate 12M %",
+              "nativeQueryRef": "Resignation Rate 12M %",
+              "displayName": "Taux de démission 12 mois"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Turnover CDI par département'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

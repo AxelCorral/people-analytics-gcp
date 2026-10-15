@@ -1,0 +1,80 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "89a8b4b45d3954199843",
+  "position": {
+    "x": 10,
+    "y": 455,
+    "z": 9000,
+    "height": 255,
+    "width": 625,
+    "tabOrder": 9000
+  },
+  "visual": {
+    "visualType": "clusteredBarChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_org_unit"
+                    }
+                  },
+                  "Property": "department_name"
+                }
+              },
+              "queryRef": "dim_org_unit.department_name",
+              "nativeQueryRef": "department_name",
+              "displayName": "Département"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_absence_monthly"
+                    }
+                  },
+                  "Property": "Absenteeism 12M %"
+                }
+              },
+              "queryRef": "fct_absence_monthly.Absenteeism 12M %",
+              "nativeQueryRef": "Absenteeism 12M %",
+              "displayName": "Absentéisme 12 mois"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Absentéisme 12 mois par département'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

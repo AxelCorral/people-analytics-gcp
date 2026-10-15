@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "9d0b6ed06e205f3d981f",
+  "position": {
+    "x": 518,
+    "y": 80,
+    "z": 5000,
+    "height": 100,
+    "width": 244,
+    "tabOrder": 5000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_movements"
+                    }
+                  },
+                  "Property": "Turnover CDI 12M %"
+                }
+              },
+              "queryRef": "fct_movements.Turnover CDI 12M %",
+              "nativeQueryRef": "Turnover CDI 12M %",
+              "displayName": "Turnover CDI 12 mois"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

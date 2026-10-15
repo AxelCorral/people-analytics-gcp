@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "6db3527aa7e45223879e",
+  "position": {
+    "x": 645,
+    "y": 80,
+    "z": 5000,
+    "height": 100,
+    "width": 308,
+    "tabOrder": 5000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_absence_monthly"
+                    }
+                  },
+                  "Property": "Total Absence incl. Leave %"
+                }
+              },
+              "queryRef": "fct_absence_monthly.Total Absence incl. Leave %",
+              "nativeQueryRef": "Total Absence incl. Leave %",
+              "displayName": "Absences totales, congés inclus (mois)"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

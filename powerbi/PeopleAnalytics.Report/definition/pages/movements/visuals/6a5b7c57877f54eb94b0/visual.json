@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "6a5b7c57877f54eb94b0",
+  "position": {
+    "x": 772,
+    "y": 80,
+    "z": 6000,
+    "height": 100,
+    "width": 244,
+    "tabOrder": 6000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_movements"
+                    }
+                  },
+                  "Property": "Resignation Rate 12M %"
+                }
+              },
+              "queryRef": "fct_movements.Resignation Rate 12M %",
+              "nativeQueryRef": "Resignation Rate 12M %",
+              "displayName": "Taux de démission 12 mois"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

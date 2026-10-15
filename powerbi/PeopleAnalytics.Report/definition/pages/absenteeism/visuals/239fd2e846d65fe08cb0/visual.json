@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "239fd2e846d65fe08cb0",
+  "position": {
+    "x": 10,
+    "y": 80,
+    "z": 3000,
+    "height": 100,
+    "width": 308,
+    "tabOrder": 3000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_absence_monthly"
+                    }
+                  },
+                  "Property": "Absenteeism %"
+                }
+              },
+              "queryRef": "fct_absence_monthly.Absenteeism %",
+              "nativeQueryRef": "Absenteeism %",
+              "displayName": "Absentéisme du mois"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

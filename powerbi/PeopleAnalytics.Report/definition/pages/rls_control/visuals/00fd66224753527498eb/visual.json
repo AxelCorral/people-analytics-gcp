@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "00fd66224753527498eb",
+  "position": {
+    "x": 10,
+    "y": 190,
+    "z": 4000,
+    "height": 100,
+    "width": 308,
+    "tabOrder": 4000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_headcount_monthly"
+                    }
+                  },
+                  "Property": "Visible Headcount EoP"
+                }
+              },
+              "queryRef": "fct_headcount_monthly.Visible Headcount EoP",
+              "nativeQueryRef": "Visible Headcount EoP",
+              "displayName": "Effectif visible"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

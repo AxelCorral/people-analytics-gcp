@@ -1,0 +1,113 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "312bd73a3c9553d6b1c5",
+  "position": {
+    "x": 10,
+    "y": 80,
+    "z": 3000,
+    "height": 330,
+    "width": 625,
+    "tabOrder": 3000
+  },
+  "visual": {
+    "visualType": "clusteredBarChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_headcount_monthly"
+                    }
+                  },
+                  "Property": "age_band"
+                }
+              },
+              "queryRef": "fct_headcount_monthly.age_band",
+              "nativeQueryRef": "age_band",
+              "displayName": "Tranche d'âge"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_headcount_monthly"
+                    }
+                  },
+                  "Property": "Headcount EoP Women"
+                }
+              },
+              "queryRef": "fct_headcount_monthly.Headcount EoP Women",
+              "nativeQueryRef": "Headcount EoP Women",
+              "displayName": "Femmes"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_headcount_monthly"
+                    }
+                  },
+                  "Property": "Headcount EoP Men (negative)"
+                }
+              },
+              "queryRef": "fct_headcount_monthly.Headcount EoP Men (negative)",
+              "nativeQueryRef": "Headcount EoP Men (negative)",
+              "displayName": "Hommes"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "fct_headcount_monthly"
+                  }
+                },
+                "Property": "age_band"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": false
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Pyramide des âges'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -4,5 +4,17 @@
   "displayName": "Absentéisme",
   "displayOption": "FitToPage",
   "height": 720,
-  "width": 1280
+  "width": 1280,
+  "visualInteractions": [
+    {
+      "source": "935f5ffa2cd05ea6a913",
+      "target": "db59fdce37dd5e2bab1a",
+      "type": "NoFilter"
+    },
+    {
+      "source": "935f5ffa2cd05ea6a913",
+      "target": "6fb56781ef9d54cb9f15",
+      "type": "NoFilter"
+    }
+  ]
 }

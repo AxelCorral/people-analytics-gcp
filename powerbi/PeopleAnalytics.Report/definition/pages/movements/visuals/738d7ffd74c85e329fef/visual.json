@@ -1,0 +1,80 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "738d7ffd74c85e329fef",
+  "position": {
+    "x": 645,
+    "y": 190,
+    "z": 9000,
+    "height": 255,
+    "width": 625,
+    "tabOrder": 9000
+  },
+  "visual": {
+    "visualType": "clusteredBarChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_action_type"
+                    }
+                  },
+                  "Property": "exit_category_label"
+                }
+              },
+              "queryRef": "dim_action_type.exit_category_label",
+              "nativeQueryRef": "exit_category_label",
+              "displayName": "Motif"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_movements"
+                    }
+                  },
+                  "Property": "Exits"
+                }
+              },
+              "queryRef": "fct_movements.Exits",
+              "nativeQueryRef": "Exits",
+              "displayName": "Sorties"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Sorties par motif (toute la période)'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

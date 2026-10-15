@@ -1,0 +1,91 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "916aad830a1551c1b24a",
+  "position": {
+    "x": 10,
+    "y": 300,
+    "z": 8000,
+    "height": 410,
+    "width": 625,
+    "tabOrder": 8000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_org_unit"
+                    }
+                  },
+                  "Property": "site_name"
+                }
+              },
+              "queryRef": "dim_org_unit.site_name",
+              "nativeQueryRef": "site_name",
+              "displayName": "Site"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_org_unit"
+                    }
+                  },
+                  "Property": "department_name"
+                }
+              },
+              "queryRef": "dim_org_unit.department_name",
+              "nativeQueryRef": "department_name",
+              "displayName": "Département"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_headcount_monthly"
+                    }
+                  },
+                  "Property": "Visible Headcount EoP"
+                }
+              },
+              "queryRef": "fct_headcount_monthly.Visible Headcount EoP",
+              "nativeQueryRef": "Visible Headcount EoP",
+              "displayName": "Effectif visible"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Effectif visible par département'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

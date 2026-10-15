@@ -1,0 +1,80 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "3ad9e00611a15f29a8b5",
+  "position": {
+    "x": 645,
+    "y": 190,
+    "z": 8000,
+    "height": 255,
+    "width": 625,
+    "tabOrder": 8000
+  },
+  "visual": {
+    "visualType": "pivotTable",
+    "query": {
+      "queryState": {
+        "Rows": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_absence_type"
+                    }
+                  },
+                  "Property": "absence_type_label"
+                }
+              },
+              "queryRef": "dim_absence_type.absence_type_label",
+              "nativeQueryRef": "absence_type_label",
+              "displayName": "Type d'absence"
+            }
+          ]
+        },
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fct_absence_monthly"
+                    }
+                  },
+                  "Property": "Absence Hours (all incl. leave)"
+                }
+              },
+              "queryRef": "fct_absence_monthly.Absence Hours (all incl. leave)",
+              "nativeQueryRef": "Absence Hours (all incl. leave)",
+              "displayName": "Heures d'absence"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Heures d''absence par type (mois sélectionné)'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
