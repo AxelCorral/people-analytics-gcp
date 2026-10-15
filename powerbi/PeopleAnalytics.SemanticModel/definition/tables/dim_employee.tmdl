@@ -113,7 +113,7 @@ table dim_employee
 
 		annotation SummarizationSetBy = User
 
-	/// Departments where the employee worked in the reporting window, '|id1|id2|' (RLS on this table)
+	/// Departments where the employee worked or has a movement in the reporting window, '|id1|id2|' (RLS on this table)
 	column org_unit_ids_history
 		dataType: string
 		isHidden
@@ -123,7 +123,7 @@ table dim_employee
 
 		annotation SummarizationSetBy = User
 
-	/// Sites where the employee worked in the reporting window, '|S100|S200|' (RLS on this table)
+	/// Sites where the employee worked or has a movement in the reporting window, '|S100|S200|' (RLS on this table)
 	column site_codes_history
 		dataType: string
 		isHidden

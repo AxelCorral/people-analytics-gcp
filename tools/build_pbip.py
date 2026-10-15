@@ -1,14 +1,16 @@
-"""Generate the Power BI project (PBIP, TMDL semantic model + PBIR report shell) in powerbi/.
+"""Generate the Power BI project (PBIP: TMDL semantic model, PBIR report with 5 pages of visuals) in powerbi/.
 
 Columns and types come from data/sample/manifest.json (written by export_samples.py from the
 BigQuery mart schemas), so the model always matches the marts. Measures, relationships and the
-RLS role are declared below. Run after export_samples.py; Power BI Desktop is needed only to
-open, refresh and lay out the report.
+RLS role, pages and visuals are declared below (also written as docs/report-spec.md). Run after
+export_samples.py; Power BI Desktop is needed only to open, refresh and check the report.
 """
 
 from __future__ import annotations
 
+import argparse
 import json
+import shutil
 import uuid
 
 from common import PROJECT, ROOT
@@ -71,6 +73,13 @@ WINDOW = END + "\nVAR _start = EDATE ( _end, -11 )"
 IN_WINDOW = "REMOVEFILTERS ( dim_date ),\n        dim_date[month_start] >= _start,\n        dim_date[month_start] <= _end"
 MONTHS_IN_WINDOW = ("VAR _months =\n    CALCULATE (\n        DISTINCTCOUNT ( dim_date[month_start] ),\n        "
                     + IN_WINDOW + "\n    )")
+# the 12 month-end headcounts of the window, for min / max
+MONTHLY_HC = ("VAR _hc =\n    CALCULATETABLE (\n        ADDCOLUMNS (\n            VALUES ( dim_date[month_start] ),\n"
+              "            \"@hc\", CALCULATE ( COUNTROWS ( fct_headcount_monthly ) )\n        ),\n        "
+              + IN_WINDOW + "\n    )")
+SCOPE_ROWS = """VAR _upn = LOWER ( USERPRINCIPALNAME () )
+VAR _others =
+    COUNTROWS ( FILTER ( ALL ( sec_user_scope ), sec_user_scope[user_upn] <> _upn ) )"""
 
 PCT = "0.0 %"
 INT = "#,0"
@@ -117,6 +126,54 @@ MEASURES = [
     ("fct_headcount_monthly", "Female Share %", "Effectifs", PCT,
      "Part des femmes dans l'effectif fin de période.",
      "DIVIDE ( CALCULATE ( [Headcount EoP], dim_employee[gender_code] = \"2\" ), [Headcount EoP] )"),
+
+    ("fct_headcount_monthly", "Part-Time Share %", "Effectifs", PCT,
+     "Part de temps partiel : actifs fin de période dont le taux d'activité (EMPCT) est inférieur à 100 / effectif fin de période.",
+     END + "\nRETURN\n    DIVIDE (\n        CALCULATE (\n            COUNTROWS ( fct_headcount_monthly ),\n"
+     "            dim_date[month_start] = _end,\n            fct_headcount_monthly[employment_pct] < 100\n        ),\n"
+     "        [Headcount EoP]\n    )"),
+    ("fct_headcount_monthly", "Headcount Min 12M", "Effectifs", INT,
+     "Plus petit des 12 effectifs de fin de mois de la fenêtre glissante (vide si moins de 12 mois d'historique).",
+     WINDOW + "\n" + MONTHS_IN_WINDOW + "\n" + MONTHLY_HC + "\nRETURN\n    IF ( _months = 12, MINX ( _hc, [@hc] ) )"),
+    ("fct_headcount_monthly", "Headcount Max 12M", "Effectifs", INT,
+     "Plus grand des 12 effectifs de fin de mois de la fenêtre glissante (vide si moins de 12 mois d'historique).",
+     WINDOW + "\n" + MONTHS_IN_WINDOW + "\n" + MONTHLY_HC + "\nRETURN\n    IF ( _months = 12, MAXX ( _hc, [@hc] ) )"),
+
+    ("fct_headcount_monthly", "Current User", "Contrôle RLS", None,
+     "Utilisateur vu par le modèle (USERPRINCIPALNAME, en minuscules) : l'adresse simulée sous « Afficher en tant que ».",
+     "LOWER ( USERPRINCIPALNAME () )"),
+    ("fct_headcount_monthly", "RLS Status", "Contrôle RLS", None,
+     "Rôle actif ou non : sans rôle, la table de correspondance contient d'autres utilisateurs que l'utilisateur courant.",
+     SCOPE_ROWS + "\nRETURN\n    IF ( _others > 0, \"Aucun rôle actif : modèle complet\", \"Rôle dynamic_scope actif\" )"),
+    ("fct_headcount_monthly", "Visible Scope", "Contrôle RLS", None,
+     "Périmètre lu dans sec_user_scope pour l'utilisateur courant.",
+     SCOPE_ROWS + """
+VAR _mine = FILTER ( ALL ( sec_user_scope ), sec_user_scope[user_upn] = _upn )
+RETURN
+    SWITCH (
+        TRUE (),
+        _others > 0, "Tous les périmètres (aucun rôle)",
+        ISEMPTY ( _mine ), "Aucun périmètre : accès refusé",
+        CONCATENATEX (
+            _mine,
+            sec_user_scope[role_label] & " : "
+                & IF ( sec_user_scope[scope_type] = "ALL", "ALL", sec_user_scope[scope_type] & " " & sec_user_scope[scope_value] ),
+            ", ",
+            sec_user_scope[scope_value], ASC
+        )
+    )"""),
+    ("fct_headcount_monthly", "Visible Headcount EoP", "Contrôle RLS", INT,
+     "Effectif fin de période visible, 0 au lieu de vide.",
+     "COALESCE ( [Headcount EoP], 0 )"),
+    ("fct_headcount_monthly", "Visible Employees", "Contrôle RLS", INT,
+     "Salariés visibles dans dim_employee, tous mois confondus (ALL ignore les segments mais respecte la RLS).",
+     "COALESCE ( COUNTROWS ( ALL ( dim_employee ) ), 0 )"),
+    ("fct_headcount_monthly", "Visible Sites", "Contrôle RLS", INT,
+     "Sites visibles dans dim_org_unit.",
+     "COALESCE ( COUNTROWS ( ALL ( dim_org_unit[site_code] ) ), 0 )"),
+    ("fct_headcount_monthly", "Visible Departments", "Contrôle RLS", INT,
+     "Départements visibles dans dim_org_unit.",
+     "COALESCE ( COUNTROWS ( ALL ( dim_org_unit ) ), 0 )"),
 
     ("fct_movements", "Hires", "Mouvements", INT, "Entrées : embauches et réintégrations.",
      "CALCULATE ( COUNTROWS ( fct_movements ), fct_movements[is_entry] = TRUE () )"),
@@ -230,7 +287,8 @@ def table_tmdl(name: str, spec: dict) -> str:
             continue
         lines.append(desc(text, 1) + f"\tmeasure {q(mname)} =")
         lines.append(indent(dax, 3))
-        lines.append(f"\t\tformatString: {fmt}")
+        if fmt:
+            lines.append(f"\t\tformatString: {fmt}")
         lines.append(f"\t\tdisplayFolder: {folder}")
         lines.append(f"\t\tlineageTag: {tag(name, 'measure', mname)}")
         lines.append("")
@@ -364,14 +422,239 @@ RETURN
         "absenteeism_rate_12m", CALCULATE ( [Absenteeism 12M %], dim_date[month_start] = [month_start] ),
         "female_share", CALCULATE ( [Female Share %], dim_date[month_start] = [month_start] ),
         "avg_tenure_years", CALCULATE ( [Avg Tenure (years)], dim_date[month_start] = [month_start] ),
-        "avg_age_years", CALCULATE ( [Avg Age], dim_date[month_start] = [month_start] )
+        "avg_age_years", CALCULATE ( [Avg Age], dim_date[month_start] = [month_start] ),
+        "total_absence_rate_12m", CALCULATE ( [Total Absence incl. Leave 12M %], dim_date[month_start] = [month_start] ),
+        "part_time_share", CALCULATE ( [Part-Time Share %], dim_date[month_start] = [month_start] ),
+        "headcount_min_12m", CALCULATE ( [Headcount Min 12M], dim_date[month_start] = [month_start] ),
+        "headcount_max_12m", CALCULATE ( [Headcount Max 12M], dim_date[month_start] = [month_start] )
     )
 ORDER BY [month_start]
+
+// Contrôle RLS (2026-09). Sans rôle : modèle complet, 820 / 1250 / 4 / 12. Valeurs attendues par
+// utilisateur simulé : docs/reference-values.md et docs/rls-tests.md.
+EVALUATE
+ROW (
+    "current_user", [Current User],
+    "rls_status", [RLS Status],
+    "visible_scope", [Visible Scope],
+    "headcount_2026_09", CALCULATE ( [Visible Headcount EoP], dim_date[month_start] = DATE ( 2026, 9, 1 ) ),
+    "visible_employees", [Visible Employees],
+    "visible_sites", [Visible Sites],
+    "visible_departments", [Visible Departments]
+)
 """
 
 
-PAGES = [("overview", "Vue globale"), ("absenteeism", "Absentéisme"), ("movements", "Mouvements"),
-         ("workforce", "Effectifs détaillés")]
+# --- Report (PBIR): pages and visuals, also written as docs/report-spec.md ------------------------------------------
+MEASURE_TABLE = {m[1]: m[0] for m in MEASURES}
+PBIR = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition"
+VISUAL_LABELS = {"card": "Carte", "slicer": "Segment (liste déroulante)", "lineChart": "Graphique en courbes",
+                 "columnChart": "Histogramme empilé", "clusteredColumnChart": "Histogramme groupé",
+                 "clusteredBarChart": "Graphique à barres groupées", "tableEx": "Tableau", "pivotTable": "Matrice"}
+ROLE_LABELS = {"Values": "Valeurs", "Category": "Axe", "Y": "Valeurs", "Series": "Légende", "Rows": "Lignes",
+               "Columns": "Colonnes"}
+W, H, GAP = 1280, 720, 10
+
+
+def C(table: str, column: str, label: str | None = None) -> tuple:
+    return ("Column", table, column, label)
+
+
+def M(name: str, label: str | None = None) -> tuple:
+    return ("Measure", MEASURE_TABLE[name], name, label)
+
+
+def V(kind: str, box: tuple, roles: dict, title: str | None = None, sort: tuple | None = None,
+      ignore_month: bool = False, note: str = "") -> dict:
+    return {"type": kind, "box": box, "roles": roles, "title": title, "sort": sort, "ignore_month": ignore_month,
+            "note": note}
+
+
+def slicers(full: bool = True) -> list[dict]:
+    fields = [C("dim_date", "month_label", "Mois")]
+    if full:
+        fields += [C("dim_org_unit", "site_name", "Site"), C("dim_org_unit", "department_name", "Département")]
+    return [V("slicer", (GAP + i * 310, GAP, 300, 60), {"Values": [f]}) for i, f in enumerate(fields)]
+
+
+def cards(y: int, h: int, items: list[tuple]) -> list[dict]:
+    n = len(items)
+    w = (W - GAP * (n + 1)) / n
+    return [V("card", (round(GAP + i * (w + GAP)), y, round(w), h), {"Values": [f]}) for i, f in enumerate(items)]
+
+
+LEFT, RIGHT, HALF = GAP, W / 2 + GAP / 2, W / 2 - GAP * 1.5
+MONTH_AXIS = C("dim_date", "month_start", "Mois")
+NO_MONTH = "non filtré par le segment Mois (tendance complète)"
+
+PAGES = [
+    ("overview", "Vue globale", [
+        *slicers(),
+        *cards(80, 100, [M("Headcount EoP", "Effectif fin de mois"), M("FTE EoP", "ETP fin de mois"),
+                         M("Headcount Min 12M", "Effectif min 12 mois"), M("Headcount Max 12M", "Effectif max 12 mois"),
+                         M("Part-Time Share %", "Part de temps partiel"), M("Female Share %", "Part des femmes")]),
+        *cards(190, 100, [M("Turnover CDI 12M %", "Turnover CDI 12 mois"),
+                          M("Resignation Rate 12M %", "Taux de démission 12 mois"),
+                          M("Total Exit Rate 12M %", "Sorties totales 12 mois (CDD compris)"),
+                          M("Absenteeism 12M %", "Absentéisme 12 mois"),
+                          M("Total Absence incl. Leave 12M %", "Absences totales, congés inclus, 12 mois"),
+                          M("Avg Tenure (years)", "Ancienneté moyenne (ans)")]),
+        V("lineChart", (LEFT, 300, HALF, 410), {"Category": [MONTH_AXIS], "Y": [M("Headcount EoP", "Effectif fin de mois")]},
+          "Évolution de l'effectif fin de mois", ignore_month=True),
+        V("lineChart", (RIGHT, 300, HALF, 410), {"Category": [MONTH_AXIS], "Y": [
+            M("Turnover CDI 12M %", "Turnover CDI 12 mois"), M("Absenteeism 12M %", "Absentéisme 12 mois")]},
+          "Turnover CDI et absentéisme, 12 mois glissants", ignore_month=True),
+    ]),
+    ("absenteeism", "Absentéisme", [
+        *slicers(),
+        *cards(80, 100, [M("Absenteeism %", "Absentéisme du mois"), M("Absenteeism 12M %", "Absentéisme 12 mois"),
+                         M("Total Absence incl. Leave %", "Absences totales, congés inclus (mois)"),
+                         M("Total Absence incl. Leave 12M %", "Absences totales, congés inclus, 12 mois")]),
+        V("columnChart", (LEFT, 190, HALF, 255), {"Category": [MONTH_AXIS], "Y": [
+            M("Absence Hours (all incl. leave)", "Heures d'absence")], "Series": [C("dim_absence_type", "absence_scope", "Périmètre")]},
+          "Heures d'absence par mois, absentéisme et autres absences", ignore_month=True),
+        V("pivotTable", (RIGHT, 190, HALF, 255), {"Rows": [C("dim_absence_type", "absence_type_label", "Type d'absence")],
+                                                 "Values": [M("Absence Hours (all incl. leave)", "Heures d'absence")]},
+          "Heures d'absence par type (mois sélectionné)"),
+        V("clusteredBarChart", (LEFT, 455, HALF, 255), {"Category": [C("dim_org_unit", "department_name", "Département")],
+                                                       "Y": [M("Absenteeism 12M %", "Absentéisme 12 mois")]},
+          "Absentéisme 12 mois par département"),
+        V("pivotTable", (RIGHT, 455, HALF, 255), {"Rows": [C("dim_date", "year", "Année")],
+                                                 "Columns": [C("dim_date", "month_short_fr", "Mois")],
+                                                 "Values": [M("Absenteeism %", "Absentéisme")]},
+          "Saisonnalité de l'absentéisme", ignore_month=True,
+          note="ajouter à la main la mise en forme conditionnelle (échelle de couleurs) sur la valeur"),
+    ]),
+    ("movements", "Mouvements", [
+        *slicers(),
+        *cards(80, 100, [M("Hires", "Entrées du mois"), M("Exits", "Sorties du mois"),
+                         M("Turnover CDI 12M %", "Turnover CDI 12 mois"),
+                         M("Resignation Rate 12M %", "Taux de démission 12 mois"),
+                         M("Total Exit Rate 12M %", "Sorties totales 12 mois (CDD et alternants compris)")]),
+        V("clusteredColumnChart", (LEFT, 190, HALF, 255), {"Category": [MONTH_AXIS], "Y": [
+            M("Hires", "Entrées"), M("Exits", "Sorties")]}, "Entrées et sorties par mois", ignore_month=True),
+        V("clusteredBarChart", (RIGHT, 190, HALF, 255), {"Category": [C("dim_action_type", "exit_category_label", "Motif")],
+                                                        "Y": [M("Exits", "Sorties")]},
+          "Sorties par motif (toute la période)", ignore_month=True),
+        V("tableEx", (LEFT, 455, W - 2 * GAP, 255), {"Values": [
+            C("dim_org_unit", "department_name", "Département"), M("Avg Headcount CDI 12M", "Effectif moyen CDI 12 mois"),
+            M("Exits CDI", "Sorties CDI du mois"), M("Turnover CDI 12M %", "Turnover CDI 12 mois"),
+            M("Resignation Rate 12M %", "Taux de démission 12 mois")]}, "Turnover CDI par département"),
+    ]),
+    ("workforce", "Effectifs détaillés", [
+        *slicers(),
+        V("clusteredBarChart", (LEFT, 80, HALF, 330), {"Category": [C("fct_headcount_monthly", "age_band", "Tranche d'âge")],
+                                                      "Y": [M("Headcount EoP Women", "Femmes"),
+                                                            M("Headcount EoP Men (negative)", "Hommes")]},
+          "Pyramide des âges", sort=(C("fct_headcount_monthly", "age_band"), "Descending"),
+          note="Format → Barres → chevauchement des séries à 100 % (hommes à gauche, en valeur absolue grâce au format)"),
+        V("pivotTable", (RIGHT, 80, HALF, 330), {"Rows": [C("dim_level", "level_label", "Niveau")],
+                                                "Columns": [C("dim_employee", "gender_label", "Sexe")],
+                                                "Values": [M("Headcount EoP (masked < 5)", "Effectif (masqué < 5)")]},
+          "Répartition F/H par niveau"),
+        V("tableEx", (LEFT, 420, W - 2 * GAP, 290), {"Values": [
+            C("dim_employee", "display_name", "Salarié"), C("dim_level", "level_label", "Niveau"),
+            C("dim_contract_type", "contract_type", "Contrat"), C("dim_org_unit", "department_name", "Département"),
+            M("Headcount EoP", "Effectif"), M("Avg Tenure (years)", "Ancienneté (ans)"), M("Avg Age", "Âge")]},
+          "Liste nominative (preuve du filtrage de dim_employee par la RLS)",
+          note="lignes limitées aux salariés actifs du mois par la mesure Effectif"),
+    ]),
+    ("rls_control", "Contrôle RLS", [
+        *slicers(full=False),
+        *cards(80, 100, [M("Current User", "Utilisateur (USERPRINCIPALNAME)"), M("RLS Status", "Rôle"),
+                         M("Visible Scope", "Périmètre lu dans sec_user_scope")]),
+        *cards(190, 100, [M("Visible Headcount EoP", "Effectif visible"), M("Visible Employees", "Salariés visibles"),
+                          M("Visible Sites", "Sites visibles"), M("Visible Departments", "Départements visibles")]),
+        V("tableEx", (LEFT, 300, HALF, 410), {"Values": [
+            C("dim_org_unit", "site_name", "Site"), C("dim_org_unit", "department_name", "Département"),
+            M("Visible Headcount EoP", "Effectif visible")]}, "Effectif visible par département"),
+        V("tableEx", (RIGHT, 300, HALF, 410), {"Values": [
+            C("sec_user_scope", "user_upn", "Utilisateur"), C("sec_user_scope", "role_label", "Profil"),
+            C("sec_user_scope", "scope_type", "Type"), C("sec_user_scope", "scope_value", "Valeur")]},
+          "Table de correspondance visible (sec_user_scope)",
+          note="sans rôle : les 36 lignes ; sous un rôle : les seules lignes de l'utilisateur simulé"),
+    ]),
+]
+
+
+def literal(value: str) -> dict:
+    return {"expr": {"Literal": {"Value": value}}}
+
+
+def field_expr(f: tuple) -> dict:
+    kind, table, prop, _ = f
+    return {kind: {"Expression": {"SourceRef": {"Entity": table}}, "Property": prop}}
+
+
+def projection(f: tuple) -> dict:
+    out = {"field": field_expr(f), "queryRef": f"{f[1]}.{f[2]}", "nativeQueryRef": f[2]}
+    if f[3]:
+        out["displayName"] = f[3]
+    return out
+
+
+def visual_name(page: str, i: int) -> str:
+    return tag(page, "visual", str(i)).replace("-", "")[:20]
+
+
+def visual_json(page: str, i: int, v: dict) -> dict:
+    x, y, w, h = v["box"]
+    visual = {"visualType": v["type"],
+              "query": {"queryState": {role: {"projections": [projection(f) for f in fields]}
+                                       for role, fields in v["roles"].items()}},
+              "drillFilterOtherVisuals": True}
+    if v["sort"]:
+        f, direction = v["sort"]
+        visual["query"]["sortDefinition"] = {"sort": [{"field": field_expr(f), "direction": direction}],
+                                             "isDefaultSort": False}
+    if v["type"] == "slicer":
+        visual["objects"] = {"data": [{"properties": {"mode": literal("'Dropdown'")}}]}
+    if v["title"]:
+        visual["visualContainerObjects"] = {"title": [{"properties": {
+            "show": literal("true"), "text": literal("'" + v["title"].replace("'", "''") + "'")}}]}
+    return {"$schema": f"{PBIR}/visualContainer/2.0.0/schema.json", "name": visual_name(page, i),
+            "position": {"x": round(x), "y": round(y), "z": i * 1000, "height": round(h), "width": round(w),
+                         "tabOrder": i * 1000},
+            "visual": visual}
+
+
+def page_json(page: str, label: str, visuals: list[dict], with_visuals: bool) -> dict:
+    out = {"$schema": f"{PBIR}/page/2.0.0/schema.json", "name": page, "displayName": label,
+           "displayOption": "FitToPage", "height": H, "width": W}
+    if with_visuals:
+        month_slicer = visual_name(page, 0)
+        out["visualInteractions"] = [{"source": month_slicer, "target": visual_name(page, i), "type": "NoFilter"}
+                                     for i, v in enumerate(visuals) if v["ignore_month"]]
+    return out
+
+
+def field_label(f: tuple) -> str:
+    kind, table, prop, label = f
+    ref = f"[{prop}]" if kind == "Measure" else f"{table}[{prop}]"
+    return f"`{ref}`" + (f" « {label} »" if label else "")
+
+
+def report_spec() -> str:
+    lines = ["# Spécification du rapport Power BI", "",
+             "Généré par `tools/build_pbip.py` à partir de la même définition que les visuels PBIR "
+             "(`powerbi/PeopleAnalytics.Report/definition/pages/*/visuals/`). Sert de plan de reconstruction à la main "
+             "si Desktop refuse les visuels générés (`python tools/build_pbip.py --no-visuals` produit alors des pages vides).",
+             "", f"Pages de {W} × {H} px. Position = x, y, largeur, hauteur. Les mesures sont rangées par dossier "
+             "d'affichage (Effectifs, Mouvements, Absences, Contrôle RLS). Sans sélection, le segment Mois retient le "
+             "dernier mois (2026-09) : les mesures prennent le dernier mois du contexte.", ""]
+    for page, label, visuals in PAGES:
+        lines += [f"## {label} (`{page}`)", "", "| # | Visuel | Position | Champs | Titre | Remarques |",
+                  "|---:|---|---|---|---|---|"]
+        for i, v in enumerate(visuals):
+            fields = "<br>".join(f"{ROLE_LABELS.get(r, r)} : " + ", ".join(field_label(f) for f in fs)
+                                 for r, fs in v["roles"].items())
+            notes = "; ".join(n for n in [NO_MONTH if v["ignore_month"] else "",
+                                          f"tri {field_label(v['sort'][0])} {v['sort'][1].lower()}" if v["sort"] else "",
+                                          v["note"]] if n)
+            box = ", ".join(str(round(b)) for b in v["box"])
+            lines.append(f"| {i + 1} | {VISUAL_LABELS[v['type']]} | {box} | {fields} | {v['title'] or ''} | {notes} |")
+        lines.append("")
+    return "\n".join(lines)
 
 
 def write(path, text: str, crlf: bool = True) -> None:
@@ -383,8 +666,23 @@ def write_json(path, data) -> None:
     write(path, json.dumps(data, indent=2, ensure_ascii=False) + "\n")
 
 
+def check_fields(manifest: dict) -> None:
+    """Every field used by a visual must exist in the model (fails before writing a report Desktop would reject)."""
+    for page, _, visuals in PAGES:
+        for v in visuals:
+            for f in [f for fs in v["roles"].values() for f in fs] + ([v["sort"][0]] if v["sort"] else []):
+                kind, table, prop, _ = f
+                ok = (MEASURE_TABLE.get(prop) == table) if kind == "Measure" else prop in manifest[table]["columns"]
+                if not ok or table not in TABLES:
+                    raise SystemExit(f"{page}: unknown field {table}[{prop}]")
+
+
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--no-visuals", action="store_true", help="empty pages (fallback if Desktop rejects the visuals)")
+    with_visuals = not parser.parse_args().no_visuals
     manifest = json.loads((ROOT / "data" / "sample" / "manifest.json").read_text(encoding="utf-8"))
+    check_fields(manifest)
     definition = SEMANTIC / "definition"
     write(definition / "database.tmdl", "database\n\tcompatibilityLevel: 1567\n")
     write(definition / "model.tmdl", model_tmdl())
@@ -412,11 +710,16 @@ def main() -> None:
             "reportVersionAtImport": {"visual": "2.0.0", "page": "2.0.0", "report": "3.0.0"}}}})
     write_json(rdef / "pages" / "pages.json", {
         "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/pagesMetadata/1.0.0/schema.json",
-        "pageOrder": [p for p, _ in PAGES], "activePageName": PAGES[0][0]})
-    for page, label in PAGES:
-        write_json(rdef / "pages" / page / "page.json", {
-            "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.0.0/schema.json",
-            "name": page, "displayName": label, "displayOption": "FitToPage", "height": 720, "width": 1280})
+        "pageOrder": [p for p, _, _ in PAGES], "activePageName": PAGES[0][0]})
+    for page, label, visuals in PAGES:
+        page_dir = rdef / "pages" / page
+        if page_dir.exists():
+            shutil.rmtree(page_dir)  # generated output: stale visuals must not survive a rebuild
+        write_json(page_dir / "page.json", page_json(page, label, visuals, with_visuals))
+        if with_visuals:
+            for i, v in enumerate(visuals):
+                write_json(page_dir / "visuals" / visual_name(page, i) / "visual.json", visual_json(page, i, v))
+    write(ROOT / "docs" / "report-spec.md", report_spec() + "\n", crlf=False)
 
     write_json(OUT / f"{NAME}.pbip", {
         "$schema": "https://developer.microsoft.com/json-schemas/fabric/pbip/pbipProperties/1.0.0/schema.json",

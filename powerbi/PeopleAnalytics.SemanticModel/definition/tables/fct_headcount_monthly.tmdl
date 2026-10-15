@@ -131,6 +131,142 @@ table fct_headcount_monthly
 		displayFolder: Effectifs
 		lineageTag: 3d7fd554-2ffa-59ea-8826-2a087e6e1336
 
+	/// Part de temps partiel : actifs fin de période dont le taux d'activité (EMPCT) est inférieur à 100 / effectif fin de période.
+	measure 'Part-Time Share %' =
+			VAR _end = MAX ( dim_date[month_start] )
+			RETURN
+			    DIVIDE (
+			        CALCULATE (
+			            COUNTROWS ( fct_headcount_monthly ),
+			            dim_date[month_start] = _end,
+			            fct_headcount_monthly[employment_pct] < 100
+			        ),
+			        [Headcount EoP]
+			    )
+		formatString: 0.0 %
+		displayFolder: Effectifs
+		lineageTag: c2c5d13b-e468-5b76-b30d-22f0c47b8bed
+
+	/// Plus petit des 12 effectifs de fin de mois de la fenêtre glissante (vide si moins de 12 mois d'historique).
+	measure 'Headcount Min 12M' =
+			VAR _end = MAX ( dim_date[month_start] )
+			VAR _start = EDATE ( _end, -11 )
+			VAR _months =
+			    CALCULATE (
+			        DISTINCTCOUNT ( dim_date[month_start] ),
+			        REMOVEFILTERS ( dim_date ),
+			        dim_date[month_start] >= _start,
+			        dim_date[month_start] <= _end
+			    )
+			VAR _hc =
+			    CALCULATETABLE (
+			        ADDCOLUMNS (
+			            VALUES ( dim_date[month_start] ),
+			            "@hc", CALCULATE ( COUNTROWS ( fct_headcount_monthly ) )
+			        ),
+			        REMOVEFILTERS ( dim_date ),
+			        dim_date[month_start] >= _start,
+			        dim_date[month_start] <= _end
+			    )
+			RETURN
+			    IF ( _months = 12, MINX ( _hc, [@hc] ) )
+		formatString: #,0
+		displayFolder: Effectifs
+		lineageTag: 44e026c0-1638-5e21-9656-2667aae026eb
+
+	/// Plus grand des 12 effectifs de fin de mois de la fenêtre glissante (vide si moins de 12 mois d'historique).
+	measure 'Headcount Max 12M' =
+			VAR _end = MAX ( dim_date[month_start] )
+			VAR _start = EDATE ( _end, -11 )
+			VAR _months =
+			    CALCULATE (
+			        DISTINCTCOUNT ( dim_date[month_start] ),
+			        REMOVEFILTERS ( dim_date ),
+			        dim_date[month_start] >= _start,
+			        dim_date[month_start] <= _end
+			    )
+			VAR _hc =
+			    CALCULATETABLE (
+			        ADDCOLUMNS (
+			            VALUES ( dim_date[month_start] ),
+			            "@hc", CALCULATE ( COUNTROWS ( fct_headcount_monthly ) )
+			        ),
+			        REMOVEFILTERS ( dim_date ),
+			        dim_date[month_start] >= _start,
+			        dim_date[month_start] <= _end
+			    )
+			RETURN
+			    IF ( _months = 12, MAXX ( _hc, [@hc] ) )
+		formatString: #,0
+		displayFolder: Effectifs
+		lineageTag: ec20e875-14cf-52ed-b609-3a282ae53b68
+
+	/// Utilisateur vu par le modèle (USERPRINCIPALNAME, en minuscules) : l'adresse simulée sous « Afficher en tant que ».
+	measure 'Current User' =
+			LOWER ( USERPRINCIPALNAME () )
+		displayFolder: Contrôle RLS
+		lineageTag: 7af25561-4ca1-5479-b0f1-b982393c522d
+
+	/// Rôle actif ou non : sans rôle, la table de correspondance contient d'autres utilisateurs que l'utilisateur courant.
+	measure 'RLS Status' =
+			VAR _upn = LOWER ( USERPRINCIPALNAME () )
+			VAR _others =
+			    COUNTROWS ( FILTER ( ALL ( sec_user_scope ), sec_user_scope[user_upn] <> _upn ) )
+			RETURN
+			    IF ( _others > 0, "Aucun rôle actif : modèle complet", "Rôle dynamic_scope actif" )
+		displayFolder: Contrôle RLS
+		lineageTag: 822a15cc-d993-5f36-8984-19fefd703b27
+
+	/// Périmètre lu dans sec_user_scope pour l'utilisateur courant.
+	measure 'Visible Scope' =
+			VAR _upn = LOWER ( USERPRINCIPALNAME () )
+			VAR _others =
+			    COUNTROWS ( FILTER ( ALL ( sec_user_scope ), sec_user_scope[user_upn] <> _upn ) )
+			VAR _mine = FILTER ( ALL ( sec_user_scope ), sec_user_scope[user_upn] = _upn )
+			RETURN
+			    SWITCH (
+			        TRUE (),
+			        _others > 0, "Tous les périmètres (aucun rôle)",
+			        ISEMPTY ( _mine ), "Aucun périmètre : accès refusé",
+			        CONCATENATEX (
+			            _mine,
+			            sec_user_scope[role_label] & " : "
+			                & IF ( sec_user_scope[scope_type] = "ALL", "ALL", sec_user_scope[scope_type] & " " & sec_user_scope[scope_value] ),
+			            ", ",
+			            sec_user_scope[scope_value], ASC
+			        )
+			    )
+		displayFolder: Contrôle RLS
+		lineageTag: 59a19766-81e2-5479-9a25-d6021dfeb00a
+
+	/// Effectif fin de période visible, 0 au lieu de vide.
+	measure 'Visible Headcount EoP' =
+			COALESCE ( [Headcount EoP], 0 )
+		formatString: #,0
+		displayFolder: Contrôle RLS
+		lineageTag: 5dca7a79-ee1b-5a5f-ae08-8f379eee089a
+
+	/// Salariés visibles dans dim_employee, tous mois confondus (ALL ignore les segments mais respecte la RLS).
+	measure 'Visible Employees' =
+			COALESCE ( COUNTROWS ( ALL ( dim_employee ) ), 0 )
+		formatString: #,0
+		displayFolder: Contrôle RLS
+		lineageTag: fb8c60e6-e722-5785-baac-0bfa08523a33
+
+	/// Sites visibles dans dim_org_unit.
+	measure 'Visible Sites' =
+			COALESCE ( COUNTROWS ( ALL ( dim_org_unit[site_code] ) ), 0 )
+		formatString: #,0
+		displayFolder: Contrôle RLS
+		lineageTag: 764c34c0-f664-5397-a5dc-c869add04f97
+
+	/// Départements visibles dans dim_org_unit.
+	measure 'Visible Departments' =
+			COALESCE ( COUNTROWS ( ALL ( dim_org_unit ) ), 0 )
+		formatString: #,0
+		displayFolder: Contrôle RLS
+		lineageTag: f71e7a39-e9c6-59ef-897f-4e507536a612
+
 	/// Last day of the month (or extraction date for a partial month)
 	column month_end_date
 		dataType: dateTime

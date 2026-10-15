@@ -1,6 +1,6 @@
 # Réconciliation des KPI : SQL (`rpt_kpi_monthly`) et DAX
 
-Valeurs de référence calculées en SQL par Dataform (niveau entreprise). Dans Power BI Desktop, exécuter `powerbi/PeopleAnalytics.SemanticModel/DAXQueries/Reconciliation.dax` (vue Requête DAX, aucun rôle actif) et reporter les valeurs DAX dans la dernière colonne de chaque bloc.
+Valeurs de référence calculées en SQL par Dataform (niveau entreprise). Dans Power BI Desktop, exécuter `powerbi/PeopleAnalytics.SemanticModel/DAXQueries/Reconciliation.dax` (vue Requête DAX, aucun rôle actif) et reporter les valeurs DAX dans la dernière colonne de chaque bloc. Les indicateurs absents de `rpt_kpi_monthly` (part de temps partiel, effectif min / max 12 mois) sont recalculés en Python dans [`docs/reference-values.md`](reference-values.md).
 
 Contrôle indépendant : au 2026-09-30, le générateur Python (`hr_generator.stats`) donne un turnover CDI de 10.95 %, une démission de 7.25 %, des sorties totales de 18.36 %, un absentéisme 12 mois de 4.92 % et des absences totales (congés inclus) de 18.23 %, soit les valeurs SQL ci-dessous à l'arrondi près.
 

@@ -17,6 +17,23 @@ RETURN
         "absenteeism_rate_12m", CALCULATE ( [Absenteeism 12M %], dim_date[month_start] = [month_start] ),
         "female_share", CALCULATE ( [Female Share %], dim_date[month_start] = [month_start] ),
         "avg_tenure_years", CALCULATE ( [Avg Tenure (years)], dim_date[month_start] = [month_start] ),
-        "avg_age_years", CALCULATE ( [Avg Age], dim_date[month_start] = [month_start] )
+        "avg_age_years", CALCULATE ( [Avg Age], dim_date[month_start] = [month_start] ),
+        "total_absence_rate_12m", CALCULATE ( [Total Absence incl. Leave 12M %], dim_date[month_start] = [month_start] ),
+        "part_time_share", CALCULATE ( [Part-Time Share %], dim_date[month_start] = [month_start] ),
+        "headcount_min_12m", CALCULATE ( [Headcount Min 12M], dim_date[month_start] = [month_start] ),
+        "headcount_max_12m", CALCULATE ( [Headcount Max 12M], dim_date[month_start] = [month_start] )
     )
 ORDER BY [month_start]
+
+// Contrôle RLS (2026-09). Sans rôle : modèle complet, 820 / 1250 / 4 / 12. Valeurs attendues par
+// utilisateur simulé : docs/reference-values.md et docs/rls-tests.md.
+EVALUATE
+ROW (
+    "current_user", [Current User],
+    "rls_status", [RLS Status],
+    "visible_scope", [Visible Scope],
+    "headcount_2026_09", CALCULATE ( [Visible Headcount EoP], dim_date[month_start] = DATE ( 2026, 9, 1 ) ),
+    "visible_employees", [Visible Employees],
+    "visible_sites", [Visible Sites],
+    "visible_departments", [Visible Departments]
+)

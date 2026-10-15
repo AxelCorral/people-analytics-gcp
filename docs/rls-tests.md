@@ -2,7 +2,7 @@
 
 Rôle `dynamic_scope` (`powerbi/PeopleAnalytics.SemanticModel/definition/roles/dynamic_scope.tmdl`), filtres sur `dim_org_unit`, `dim_employee` et `sec_user_scope`. Test dans **Power BI Desktop uniquement** : *Modélisation → Afficher en tant que → Autre utilisateur* (adresse ci-dessous) **et** rôle `dynamic_scope` coché. Sans publication sur Power BI Service, ce test prouve la logique du filtre, pas la gestion des accès.
 
-Valeurs attendues au **2026-09** (effectif fin de mois issu de `rpt_kpi_monthly`, salariés visibles dans `dim_employee` = salariés ayant travaillé dans le périmètre sur la fenêtre) :
+Valeurs attendues au **2026-09** (effectif fin de mois issu de `rpt_kpi_monthly`, salariés visibles dans `dim_employee` = salariés ayant travaillé ou ayant un mouvement dans le périmètre sur la fenêtre ; recalcul indépendant dans [`docs/reference-values.md`](reference-values.md)). Les trois dernières valeurs se lisent sur la page « Contrôle RLS » du rapport (cartes « Effectif visible », « Sites visibles », « Salariés visibles ») :
 
 | Utilisateur simulé | Périmètre | Attendu | Effectif 2026-09 attendu | Sites visibles | Salariés visibles (`dim_employee`) | Résultat observé | Capture |
 |---|---|---|---:|---:|---:|---|---|
@@ -17,5 +17,5 @@ Points de vigilance vérifiés par ces cas :
 - `dim_employee` est filtré lui aussi : sans cela, la liste nominative de la page « Effectifs détaillés » afficherait tous les salariés à un manager ;
 - périmètre historique : un salarié muté hors du département reste visible pour ses faits passés dans le département, pas pour ceux de son nouveau département (filtre de `dim_org_unit` sur les faits) ;
 - un utilisateur absent de `sec_user_scope` ne voit rien ;
-- bordure de fenêtre : une salariée mutée de S200 vers S400 le premier jour de la fenêtre (2023-10-01) n'a jamais travaillé dans S200 pendant la fenêtre, mais sa ligne `transfer_out` y est datée. Les colonnes d'historique incluent donc aussi les départements de `fct_movements` ; sinon le directeur de S200 perdrait cette ligne (filtre de `dim_employee` propagé aux faits). L'assertion `assert_employee_history_covers_facts` le garantit pour les quatre tables de faits, et `docs/reference-values.md` recompte les salariés visibles de deux façons ;
+- bordure de fenêtre : une salariée mutée de S200 vers S400 le premier jour de la fenêtre (2023-10-01) n'a jamais travaillé dans S200 pendant la fenêtre, mais sa ligne `transfer_out` y est datée. Les colonnes d'historique incluent donc aussi les départements de `fct_movements` ; sinon le directeur de S200 perdrait cette ligne (filtre de `dim_employee` propagé aux faits). L'assertion `assert_employee_history_covers_facts` le garantit pour les quatre tables de faits ;
 - la table `rpt_kpi_monthly` (agrégats entreprise) n'est pas importée dans le modèle, car la RLS ne pourrait pas la restreindre.

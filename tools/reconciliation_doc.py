@@ -44,7 +44,9 @@ def main() -> None:
         "",
         "Valeurs de référence calculées en SQL par Dataform (niveau entreprise). Dans Power BI Desktop, exécuter "
         "`powerbi/PeopleAnalytics.SemanticModel/DAXQueries/Reconciliation.dax` (vue Requête DAX, aucun rôle actif) "
-        "et reporter les valeurs DAX dans la dernière colonne de chaque bloc.",
+        "et reporter les valeurs DAX dans la dernière colonne de chaque bloc. Les indicateurs absents de "
+        "`rpt_kpi_monthly` (part de temps partiel, effectif min / max 12 mois) sont recalculés en Python dans "
+        "[`docs/reference-values.md`](reference-values.md).",
         "",
         "Contrôle indépendant : au 2026-09-30, le générateur Python (`hr_generator.stats`) donne un turnover CDI de "
         f"{gen['turnover_cdi'] * 100:.2f} %, une démission de {gen['resignation_rate'] * 100:.2f} %, des sorties totales "
@@ -91,7 +93,9 @@ def main() -> None:
         "publication sur Power BI Service, ce test prouve la logique du filtre, pas la gestion des accès.",
         "",
         "Valeurs attendues au **2026-09** (effectif fin de mois issu de `rpt_kpi_monthly`, salariés visibles dans "
-        "`dim_employee` = salariés ayant travaillé dans le périmètre sur la fenêtre) :",
+        "`dim_employee` = salariés ayant travaillé ou ayant un mouvement dans le périmètre sur la fenêtre ; recalcul "
+        "indépendant dans [`docs/reference-values.md`](reference-values.md)). Les trois dernières valeurs se lisent "
+        "sur la page « Contrôle RLS » du rapport (cartes « Effectif visible », « Sites visibles », « Salariés visibles ») :",
         "",
         "| Utilisateur simulé | Périmètre | Attendu | Effectif 2026-09 attendu | Sites visibles | Salariés visibles (`dim_employee`) | Résultat observé | Capture |",
         "|---|---|---|---:|---:|---:|---|---|",
@@ -105,6 +109,11 @@ def main() -> None:
         "- périmètre historique : un salarié muté hors du département reste visible pour ses faits passés dans le "
         "département, pas pour ceux de son nouveau département (filtre de `dim_org_unit` sur les faits) ;",
         "- un utilisateur absent de `sec_user_scope` ne voit rien ;",
+        "- bordure de fenêtre : une salariée mutée de S200 vers S400 le premier jour de la fenêtre (2023-10-01) n'a "
+        "jamais travaillé dans S200 pendant la fenêtre, mais sa ligne `transfer_out` y est datée. Les colonnes "
+        "d'historique incluent donc aussi les départements de `fct_movements` ; sinon le directeur de S200 perdrait "
+        "cette ligne (filtre de `dim_employee` propagé aux faits). L'assertion `assert_employee_history_covers_facts` "
+        "le garantit pour les quatre tables de faits ;",
         "- la table `rpt_kpi_monthly` (agrégats entreprise) n'est pas importée dans le modèle, car la RLS ne pourrait pas la restreindre.",
         "",
     ]
