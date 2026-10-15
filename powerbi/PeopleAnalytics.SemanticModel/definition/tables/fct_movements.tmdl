@@ -1,0 +1,228 @@
+/// Workforce movements in the reporting window: hires, rehires, exits (dated on the last worked day), transfers (one row out, one row in), promotions and contract changes. Department and contract are those of the event day (last worked day for an exit).
+table fct_movements
+	lineageTag: a511ea6b-16a3-5cb3-a79e-676a9e4cf746
+
+	/// Entrées : embauches et réintégrations.
+	measure Hires =
+			CALCULATE ( COUNTROWS ( fct_movements ), fct_movements[is_entry] = TRUE () )
+		formatString: #,0
+		displayFolder: Mouvements
+		lineageTag: b25d7581-c1c6-56fd-aad1-6546eb9351a4
+
+	/// Sorties, datées du dernier jour travaillé.
+	measure Exits =
+			CALCULATE ( COUNTROWS ( fct_movements ), fct_movements[is_exit] = TRUE () )
+		formatString: #,0
+		displayFolder: Mouvements
+		lineageTag: cecceb2f-547b-53f5-aa92-194985e469ee
+
+	/// Sorties de salariés en CDI, toutes causes.
+	measure 'Exits CDI' =
+			CALCULATE ( COUNTROWS ( fct_movements ), fct_movements[is_cdi_exit] = TRUE () )
+		formatString: #,0
+		displayFolder: Mouvements
+		lineageTag: 338fc384-e060-5e0e-8eff-140beb5669a6
+
+	/// Démissions de salariés en CDI.
+	measure 'Resignations CDI' =
+			CALCULATE ( COUNTROWS ( fct_movements ), fct_movements[is_cdi_exit] = TRUE (), fct_movements[is_resignation] = TRUE () )
+		formatString: #,0
+		displayFolder: Mouvements
+		lineageTag: 6e448645-031b-5bc7-a29d-f39fd3de5dfd
+
+	/// Indicateur principal : sorties de CDI toutes causes sur 12 mois / effectif moyen CDI sur 12 mois. Fins de CDD exclues.
+	measure 'Turnover CDI 12M %' =
+			VAR _end = MAX ( dim_date[month_start] )
+			VAR _start = EDATE ( _end, -11 )
+			VAR _exits =
+			    CALCULATE ( [Exits CDI], REMOVEFILTERS ( dim_date ), dim_date[month_start] >= _start, dim_date[month_start] <= _end )
+			RETURN
+			    DIVIDE ( _exits, [Avg Headcount CDI 12M] )
+		formatString: 0.0 %
+		displayFolder: Mouvements
+		lineageTag: 6b1e53aa-4ea9-590b-aa5b-66eda461ec35
+
+	/// Démissions de CDI sur 12 mois / effectif moyen CDI sur 12 mois.
+	measure 'Resignation Rate 12M %' =
+			VAR _end = MAX ( dim_date[month_start] )
+			VAR _start = EDATE ( _end, -11 )
+			VAR _n =
+			    CALCULATE ( [Resignations CDI], REMOVEFILTERS ( dim_date ), dim_date[month_start] >= _start, dim_date[month_start] <= _end )
+			RETURN
+			    DIVIDE ( _n, [Avg Headcount CDI 12M] )
+		formatString: 0.0 %
+		displayFolder: Mouvements
+		lineageTag: 86bcb847-7add-5dba-a0d0-a95ac6611c2d
+
+	/// Toutes sorties sur 12 mois, CDD et alternants compris / effectif moyen sur 12 mois. Ne pas comparer au turnover CDI.
+	measure 'Total Exit Rate 12M %' =
+			VAR _end = MAX ( dim_date[month_start] )
+			VAR _start = EDATE ( _end, -11 )
+			VAR _n =
+			    CALCULATE ( [Exits], REMOVEFILTERS ( dim_date ), dim_date[month_start] >= _start, dim_date[month_start] <= _end )
+			RETURN
+			    DIVIDE ( _n, [Avg Headcount 12M] )
+		formatString: 0.0 %
+		displayFolder: Mouvements
+		lineageTag: 4adc5b1c-e556-5ad0-9f85-3fa14037ca91
+
+	/// employee_id + event date + movement type
+	column movement_id
+		dataType: string
+		isHidden
+		lineageTag: 8fc8ef4a-30af-511b-b5d9-11b2a31953cb
+		summarizeBy: none
+		sourceColumn: movement_id
+
+		annotation SummarizationSetBy = User
+
+	/// Movement date; for an exit, last worked day (BEGDA - 1)
+	column event_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 3e3ff14c-931b-5545-87db-a0e040027af4
+		summarizeBy: none
+		sourceColumn: event_date
+
+		annotation SummarizationSetBy = User
+
+	/// First day of the event month (relationship key to dim_date)
+	column month_start
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		isHidden
+		lineageTag: 0936e9ae-bafd-5156-8d37-a0cf7a61985a
+		summarizeBy: none
+		sourceColumn: month_start
+
+		annotation SummarizationSetBy = User
+
+	/// Personnel number
+	column employee_id
+		dataType: string
+		isHidden
+		lineageTag: 867633e8-b522-5525-90f8-20440d45646b
+		summarizeBy: none
+		sourceColumn: employee_id
+
+		annotation SummarizationSetBy = User
+
+	/// hire, rehire, exit, transfer_in, transfer_out, promotion, contract_change
+	column movement_type
+		dataType: string
+		lineageTag: d937bdb3-ae3b-51ce-a608-c6c849edba64
+		summarizeBy: none
+		sourceColumn: movement_type
+
+		annotation SummarizationSetBy = User
+
+	/// MASSN-MASSG
+	column action_key
+		dataType: string
+		isHidden
+		lineageTag: 34d3eb65-a6b9-5a83-b4a8-cb898c946fdf
+		summarizeBy: none
+		sourceColumn: action_key
+
+		annotation SummarizationSetBy = User
+
+	/// Department concerned
+	column org_unit_id
+		dataType: string
+		isHidden
+		lineageTag: 9710396e-2610-5898-8177-83596539c2b3
+		summarizeBy: none
+		sourceColumn: org_unit_id
+
+		annotation SummarizationSetBy = User
+
+	/// Site concerned
+	column site_code
+		dataType: string
+		isHidden
+		lineageTag: 787dbe11-e55c-50fb-87ff-35a3291982b4
+		summarizeBy: none
+		sourceColumn: site_code
+
+		annotation SummarizationSetBy = User
+
+	/// PERSG on the event day
+	column employee_group_code
+		dataType: string
+		isHidden
+		lineageTag: 6f665d89-014b-5fdd-9b2c-c59ccb080ff4
+		summarizeBy: none
+		sourceColumn: employee_group_code
+
+		annotation SummarizationSetBy = User
+
+	/// PERSK on the event day
+	column employee_subgroup_code
+		dataType: string
+		isHidden
+		lineageTag: 424399b1-5430-5133-bf29-3c9fcba96aa6
+		summarizeBy: none
+		sourceColumn: employee_subgroup_code
+
+		annotation SummarizationSetBy = User
+
+	/// Hire or rehire
+	column is_entry
+		dataType: boolean
+		isHidden
+		lineageTag: 0365b542-db0a-568d-ad71-f6717846e951
+		summarizeBy: none
+		sourceColumn: is_entry
+
+		annotation SummarizationSetBy = User
+
+	/// Exit
+	column is_exit
+		dataType: boolean
+		isHidden
+		lineageTag: 1e244fae-ef30-530b-b02e-f4baf0869271
+		summarizeBy: none
+		sourceColumn: is_exit
+
+		annotation SummarizationSetBy = User
+
+	/// Exit of a permanent contract (CDI) employee
+	column is_cdi_exit
+		dataType: boolean
+		isHidden
+		lineageTag: 2ab2e279-db53-51a9-851f-7eb357080a5b
+		summarizeBy: none
+		sourceColumn: is_cdi_exit
+
+		annotation SummarizationSetBy = User
+
+	/// Exit by resignation
+	column is_resignation
+		dataType: boolean
+		isHidden
+		lineageTag: 8caf6a7c-ceea-57fb-aed8-6e49ea3aaaac
+		summarizeBy: none
+		sourceColumn: is_resignation
+
+		annotation SummarizationSetBy = User
+
+	/// +1 entry or transfer in, -1 exit or transfer out, 0 otherwise
+	column headcount_delta
+		dataType: int64
+		isHidden
+		lineageTag: 85b6c9ec-ebb5-5197-93ac-8108f67a9375
+		summarizeBy: none
+		sourceColumn: headcount_delta
+
+		annotation SummarizationSetBy = User
+
+	partition fct_movements = m
+		mode: import
+		source =
+			let
+			    Source = LoadMart("fct_movements"),
+			    Typed = Table.TransformColumnTypes(Source, {{"movement_id", type text}, {"event_date", type date}, {"month_start", type date}, {"employee_id", type text}, {"movement_type", type text}, {"action_key", type text}, {"org_unit_id", type text}, {"site_code", type text}, {"employee_group_code", type text}, {"employee_subgroup_code", type text}, {"is_entry", type logical}, {"is_exit", type logical}, {"is_cdi_exit", type logical}, {"is_resignation", type logical}, {"headcount_delta", Int64.Type}}, "en-US")
+			in
+			    Typed
+
+	annotation PBI_ResultType = Table

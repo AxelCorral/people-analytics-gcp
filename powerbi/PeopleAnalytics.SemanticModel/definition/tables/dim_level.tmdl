@@ -1,0 +1,43 @@
+/// Employee levels (PERSK).
+table dim_level
+	lineageTag: 493f25e8-ac38-56db-b1db-aab73511c465
+
+	/// PERSK (key)
+	column employee_subgroup_code
+		dataType: string
+		isKey
+		lineageTag: 9bd31884-815c-5169-b305-9dbe105d021c
+		summarizeBy: none
+		sourceColumn: employee_subgroup_code
+
+		annotation SummarizationSetBy = User
+
+	/// Cadre, Agent de maîtrise, Employé / ouvrier
+	column level_label
+		dataType: string
+		lineageTag: 0accd3ca-662d-51cc-bf59-6b9b33241f5b
+		summarizeBy: none
+		sourceColumn: level_label
+		sortByColumn: level_rank
+
+		annotation SummarizationSetBy = User
+
+	/// 1 to 3
+	column level_rank
+		dataType: int64
+		lineageTag: c8f6f1c5-d483-54f5-9482-7fcb07b3ad83
+		summarizeBy: none
+		sourceColumn: level_rank
+
+		annotation SummarizationSetBy = User
+
+	partition dim_level = m
+		mode: import
+		source =
+			let
+			    Source = LoadMart("dim_level"),
+			    Typed = Table.TransformColumnTypes(Source, {{"employee_subgroup_code", type text}, {"level_label", type text}, {"level_rank", Int64.Type}}, "en-US")
+			in
+			    Typed
+
+	annotation PBI_ResultType = Table

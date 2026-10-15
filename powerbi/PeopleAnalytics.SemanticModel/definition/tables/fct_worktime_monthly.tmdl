@@ -1,0 +1,92 @@
+/// Theoretical working time per employee, month and department: denominator of the absenteeism and total absence rates. Working days exclude weekends and metropolitan French public holidays; hours = WOSTD / 5 per working day.
+table fct_worktime_monthly
+	lineageTag: d108847d-849a-5924-99e4-510b38ea5933
+
+	/// Heures théoriques : jours ouvrés (fériés de métropole exclus) x WOSTD / 5.
+	measure 'Theoretical Hours' =
+			SUM ( fct_worktime_monthly[theoretical_hours] )
+		formatString: #,0
+		displayFolder: Absences
+		lineageTag: edbcbb34-cdf5-50c1-abd5-d5f6f3f37d6e
+
+	/// First day of the month (relationship key to dim_date)
+	column month_start
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		isHidden
+		lineageTag: 8f271616-4883-52b4-86a4-c1099fd49500
+		summarizeBy: none
+		sourceColumn: month_start
+
+		annotation SummarizationSetBy = User
+
+	/// Personnel number
+	column employee_id
+		dataType: string
+		isHidden
+		lineageTag: 68731abd-a8ff-5fcc-8203-030309322ebd
+		summarizeBy: none
+		sourceColumn: employee_id
+
+		annotation SummarizationSetBy = User
+
+	/// Department
+	column org_unit_id
+		dataType: string
+		isHidden
+		lineageTag: d766011b-4436-51aa-ba90-6d0dbe25a121
+		summarizeBy: none
+		sourceColumn: org_unit_id
+
+		annotation SummarizationSetBy = User
+
+	/// Site
+	column site_code
+		dataType: string
+		isHidden
+		lineageTag: 53446326-0dc3-52a3-9eff-52168bdaa309
+		summarizeBy: none
+		sourceColumn: site_code
+
+		annotation SummarizationSetBy = User
+
+	/// PERSG
+	column employee_group_code
+		dataType: string
+		isHidden
+		lineageTag: d8d70c3e-5d86-5ce6-b79a-28dcd0f5bcc9
+		summarizeBy: none
+		sourceColumn: employee_group_code
+
+		annotation SummarizationSetBy = User
+
+	/// Working days employed in the month
+	column working_days
+		dataType: int64
+		isHidden
+		lineageTag: 87882ff8-e54f-5e48-9cfc-03cf253ecb1f
+		summarizeBy: none
+		sourceColumn: working_days
+
+		annotation SummarizationSetBy = User
+
+	/// Theoretical hours in the month
+	column theoretical_hours
+		dataType: double
+		isHidden
+		lineageTag: fba87ad5-5d5f-5ff7-b58f-1e2469b3f9a3
+		summarizeBy: none
+		sourceColumn: theoretical_hours
+
+		annotation SummarizationSetBy = User
+
+	partition fct_worktime_monthly = m
+		mode: import
+		source =
+			let
+			    Source = LoadMart("fct_worktime_monthly"),
+			    Typed = Table.TransformColumnTypes(Source, {{"month_start", type date}, {"employee_id", type text}, {"org_unit_id", type text}, {"site_code", type text}, {"employee_group_code", type text}, {"working_days", Int64.Type}, {"theoretical_hours", type number}}, "en-US")
+			in
+			    Typed
+
+	annotation PBI_ResultType = Table

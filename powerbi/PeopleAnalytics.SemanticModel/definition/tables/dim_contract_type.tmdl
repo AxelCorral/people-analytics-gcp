@@ -1,0 +1,42 @@
+/// Contract types (PERSG).
+table dim_contract_type
+	lineageTag: 7c7b8b2a-2e72-5f6d-abd6-77334eb3910d
+
+	/// PERSG (key)
+	column employee_group_code
+		dataType: string
+		isKey
+		lineageTag: e6e3efa5-1918-5b49-871a-726c7f99e94b
+		summarizeBy: none
+		sourceColumn: employee_group_code
+
+		annotation SummarizationSetBy = User
+
+	/// CDI, CDD, Alternant
+	column contract_type
+		dataType: string
+		lineageTag: aa9e9332-2c98-5b35-bc22-5d7e856cffed
+		summarizeBy: none
+		sourceColumn: contract_type
+
+		annotation SummarizationSetBy = User
+
+	/// permanent, fixed_term, apprentice
+	column contract_category
+		dataType: string
+		lineageTag: 54a55bc9-c210-57a1-b742-1fc09f867af3
+		summarizeBy: none
+		sourceColumn: contract_category
+
+		annotation SummarizationSetBy = User
+
+	partition dim_contract_type = m
+		mode: import
+		source =
+			let
+			    Source = LoadMart("dim_contract_type"),
+			    Typed = Table.TransformColumnTypes(Source, {{"employee_group_code", type text}, {"contract_type", type text}, {"contract_category", type text}}, "en-US")
+			in
+			    Typed
+
+	annotation PBI_ResultType = Table

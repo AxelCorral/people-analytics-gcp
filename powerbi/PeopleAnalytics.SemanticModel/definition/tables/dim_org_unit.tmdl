@@ -1,0 +1,78 @@
+/// Departments (grain of every fact) with their site. Target of the RLS filter.
+table dim_org_unit
+	lineageTag: 81d93fe3-8892-514d-bd9b-192fe8b5f5f4
+
+	/// Department org unit (key)
+	column org_unit_id
+		dataType: string
+		isKey
+		lineageTag: a275df2c-17d9-58b6-a5bf-51f7c2972284
+		summarizeBy: none
+		sourceColumn: org_unit_id
+
+		annotation SummarizationSetBy = User
+
+	/// D01 to D12
+	column department_code
+		dataType: string
+		lineageTag: 29a82aa8-c791-558e-8802-04f6ef30c61f
+		summarizeBy: none
+		sourceColumn: department_code
+
+		annotation SummarizationSetBy = User
+
+	/// Department name
+	column department_name
+		dataType: string
+		lineageTag: 2ed1240c-b6a8-5ac4-9e62-e9fc085f85f3
+		summarizeBy: none
+		sourceColumn: department_name
+
+		annotation SummarizationSetBy = User
+
+	/// Site code
+	column site_code
+		dataType: string
+		lineageTag: e1b631d6-6be1-5e26-b121-e7ebda948991
+		summarizeBy: none
+		sourceColumn: site_code
+
+		annotation SummarizationSetBy = User
+
+	/// Site name
+	column site_name
+		dataType: string
+		lineageTag: 3bdebeef-0454-5c02-8395-2fbbe0787fea
+		summarizeBy: none
+		sourceColumn: site_name
+
+		annotation SummarizationSetBy = User
+
+	/// Site org unit
+	column site_org_unit_id
+		dataType: string
+		lineageTag: 9c0bb1d1-1a20-5d89-bb2f-cf51475d6ba6
+		summarizeBy: none
+		sourceColumn: site_org_unit_id
+
+		annotation SummarizationSetBy = User
+
+	/// Head of department at the extraction date
+	column head_employee_id
+		dataType: string
+		lineageTag: 812fa44c-184b-5c36-8b75-1ff8440d9e9e
+		summarizeBy: none
+		sourceColumn: head_employee_id
+
+		annotation SummarizationSetBy = User
+
+	partition dim_org_unit = m
+		mode: import
+		source =
+			let
+			    Source = LoadMart("dim_org_unit"),
+			    Typed = Table.TransformColumnTypes(Source, {{"org_unit_id", type text}, {"department_code", type text}, {"department_name", type text}, {"site_code", type text}, {"site_name", type text}, {"site_org_unit_id", type text}, {"head_employee_id", type text}}, "en-US")
+			in
+			    Typed
+
+	annotation PBI_ResultType = Table

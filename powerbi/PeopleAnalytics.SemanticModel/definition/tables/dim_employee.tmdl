@@ -1,0 +1,145 @@
+/// Employees (pseudonyms). current_org_unit_id = department at the extraction date (last department for leavers), used by the RLS filter on this table.
+table dim_employee
+	lineageTag: 9e0c2857-ab2a-55bf-821f-78e7e28ed987
+
+	/// Personnel number (key)
+	column employee_id
+		dataType: string
+		isKey
+		lineageTag: e3ed4823-af9f-54fa-b7be-f7a95a714be2
+		summarizeBy: none
+		sourceColumn: employee_id
+
+		annotation SummarizationSetBy = User
+
+	/// Pseudonym 'Salarié 000123'
+	column display_name
+		dataType: string
+		lineageTag: 69dada3b-8991-5253-87fd-8722fa512218
+		summarizeBy: none
+		sourceColumn: display_name
+
+		annotation SummarizationSetBy = User
+
+	/// 1 male, 2 female
+	column gender_code
+		dataType: string
+		lineageTag: 7dc4ef4c-9bae-5fe9-b3ae-bac872e2b522
+		summarizeBy: none
+		sourceColumn: gender_code
+
+		annotation SummarizationSetBy = User
+
+	/// Femme / Homme
+	column gender_label
+		dataType: string
+		lineageTag: 30f0111a-9d8d-5d34-b39b-54273b5c4c00
+		summarizeBy: none
+		sourceColumn: gender_label
+
+		annotation SummarizationSetBy = User
+
+	/// Date of birth (fictitious)
+	column birth_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: c50d0725-ee7d-5afc-bc39-ec6610287f01
+		summarizeBy: none
+		sourceColumn: birth_date
+
+		annotation SummarizationSetBy = User
+
+	/// ISO 3166-1 alpha-2
+	column nationality_code
+		dataType: string
+		lineageTag: ccd30e0d-e4ea-5320-931c-5e85e6c35297
+		summarizeBy: none
+		sourceColumn: nationality_code
+
+		annotation SummarizationSetBy = User
+
+	/// First hire date
+	column first_hire_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 85d3dd2c-a579-5fe4-920a-3a97e982ea39
+		summarizeBy: none
+		sourceColumn: first_hire_date
+
+		annotation SummarizationSetBy = User
+
+	/// Department at the extraction date
+	column current_org_unit_id
+		dataType: string
+		lineageTag: fc210c65-433d-5e35-b8e2-8f68b54037b1
+		summarizeBy: none
+		sourceColumn: current_org_unit_id
+
+		annotation SummarizationSetBy = User
+
+	/// Site at the extraction date
+	column current_site_code
+		dataType: string
+		lineageTag: 77b1f289-319b-50e7-b8e9-8654b5900786
+		summarizeBy: none
+		sourceColumn: current_site_code
+
+		annotation SummarizationSetBy = User
+
+	/// PERSG at the extraction date
+	column current_employee_group_code
+		dataType: string
+		lineageTag: 860300d7-aed9-502e-9257-4ab5f687b075
+		summarizeBy: none
+		sourceColumn: current_employee_group_code
+
+		annotation SummarizationSetBy = User
+
+	/// PERSK at the extraction date
+	column current_employee_subgroup_code
+		dataType: string
+		lineageTag: 73fc7c24-e033-5f7e-9c19-2f57ebc89b11
+		summarizeBy: none
+		sourceColumn: current_employee_subgroup_code
+
+		annotation SummarizationSetBy = User
+
+	/// Employed at the extraction date
+	column is_active_at_extraction
+		dataType: boolean
+		lineageTag: 49e45023-12e6-5470-9716-e720d3d9252f
+		summarizeBy: none
+		sourceColumn: is_active_at_extraction
+
+		annotation SummarizationSetBy = User
+
+	/// Departments where the employee worked in the reporting window, '|id1|id2|' (RLS on this table)
+	column org_unit_ids_history
+		dataType: string
+		isHidden
+		lineageTag: 61d8a2e9-5827-51af-bc8d-644f2fcf7e5e
+		summarizeBy: none
+		sourceColumn: org_unit_ids_history
+
+		annotation SummarizationSetBy = User
+
+	/// Sites where the employee worked in the reporting window, '|S100|S200|' (RLS on this table)
+	column site_codes_history
+		dataType: string
+		isHidden
+		lineageTag: 95a32387-d41a-5b81-af4a-a392e2a8403d
+		summarizeBy: none
+		sourceColumn: site_codes_history
+
+		annotation SummarizationSetBy = User
+
+	partition dim_employee = m
+		mode: import
+		source =
+			let
+			    Source = LoadMart("dim_employee"),
+			    Typed = Table.TransformColumnTypes(Source, {{"employee_id", type text}, {"display_name", type text}, {"gender_code", type text}, {"gender_label", type text}, {"birth_date", type date}, {"nationality_code", type text}, {"first_hire_date", type date}, {"current_org_unit_id", type text}, {"current_site_code", type text}, {"current_employee_group_code", type text}, {"current_employee_subgroup_code", type text}, {"is_active_at_extraction", type logical}, {"org_unit_ids_history", type text}, {"site_codes_history", type text}}, "en-US")
+			in
+			    Typed
+
+	annotation PBI_ResultType = Table

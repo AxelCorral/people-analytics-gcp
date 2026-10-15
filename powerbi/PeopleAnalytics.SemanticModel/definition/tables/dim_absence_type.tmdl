@@ -1,0 +1,60 @@
+/// Absence types. counts_in_absenteeism separates the absenteeism rate from total absences (paid leave included).
+table dim_absence_type
+	lineageTag: 248743dc-e3e8-56ec-9ede-71f159d15d3a
+
+	/// AWART (key)
+	column absence_type_code
+		dataType: string
+		isKey
+		lineageTag: 2e7b41c8-de12-58b6-b675-39f0cfb12c34
+		summarizeBy: none
+		sourceColumn: absence_type_code
+
+		annotation SummarizationSetBy = User
+
+	/// Label
+	column absence_type_label
+		dataType: string
+		lineageTag: b332f8a4-2cfb-5bcf-92a4-35d55c93aaf1
+		summarizeBy: none
+		sourceColumn: absence_type_label
+
+		annotation SummarizationSetBy = User
+
+	/// leave, health, family, training, unjustified
+	column absence_category
+		dataType: string
+		lineageTag: e85e71e0-c3fb-56f3-ab50-96dac954ca0e
+		summarizeBy: none
+		sourceColumn: absence_category
+
+		annotation SummarizationSetBy = User
+
+	/// Included in the absenteeism rate
+	column counts_in_absenteeism
+		dataType: boolean
+		lineageTag: 6f3bfef4-0235-52b2-94e7-acab3b132221
+		summarizeBy: none
+		sourceColumn: counts_in_absenteeism
+
+		annotation SummarizationSetBy = User
+
+	/// « Absentéisme » or « Autres absences (congés inclus) »
+	column absence_scope
+		dataType: string
+		lineageTag: c133c13e-b736-5eba-9924-a77fa3a0d345
+		summarizeBy: none
+		sourceColumn: absence_scope
+
+		annotation SummarizationSetBy = User
+
+	partition dim_absence_type = m
+		mode: import
+		source =
+			let
+			    Source = LoadMart("dim_absence_type"),
+			    Typed = Table.TransformColumnTypes(Source, {{"absence_type_code", type text}, {"absence_type_label", type text}, {"absence_category", type text}, {"counts_in_absenteeism", type logical}, {"absence_scope", type text}}, "en-US")
+			in
+			    Typed
+
+	annotation PBI_ResultType = Table

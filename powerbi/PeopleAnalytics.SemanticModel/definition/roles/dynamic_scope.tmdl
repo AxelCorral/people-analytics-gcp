@@ -1,0 +1,41 @@
+/// Périmètre dynamique : DRH tout, directeur de site son site, manager son ou ses départements.
+/// Table sec_user_scope ; testé dans Power BI Desktop avec « Afficher en tant que ».
+role dynamic_scope
+	modelPermission: read
+
+	tablePermission sec_user_scope =
+			sec_user_scope[user_upn] = LOWER ( USERPRINCIPALNAME () )
+
+	tablePermission dim_org_unit =
+			VAR _upn = LOWER ( USERPRINCIPALNAME () )
+			VAR _scope = FILTER ( sec_user_scope, sec_user_scope[user_upn] = _upn )
+			VAR _all = NOT ISEMPTY ( FILTER ( _scope, sec_user_scope[scope_type] = "ALL" ) )
+			VAR _sites = SELECTCOLUMNS ( FILTER ( _scope, sec_user_scope[scope_type] = "SITE" ), "v", sec_user_scope[scope_value] )
+			VAR _depts = SELECTCOLUMNS ( FILTER ( _scope, sec_user_scope[scope_type] = "DEPT" ), "v", sec_user_scope[scope_value] )
+			RETURN
+			    _all
+			        || dim_org_unit[site_code] IN _sites
+			        || dim_org_unit[org_unit_id] IN _depts
+
+	tablePermission dim_employee =
+			VAR _upn = LOWER ( USERPRINCIPALNAME () )
+			VAR _scope = FILTER ( sec_user_scope, sec_user_scope[user_upn] = _upn )
+			VAR _all = NOT ISEMPTY ( FILTER ( _scope, sec_user_scope[scope_type] = "ALL" ) )
+			RETURN
+			    _all
+			        || NOT ISEMPTY (
+			            FILTER (
+			                _scope,
+			                sec_user_scope[scope_type] = "SITE"
+			                    && CONTAINSSTRING ( dim_employee[site_codes_history], "|" & sec_user_scope[scope_value] & "|" )
+			            )
+			        )
+			        || NOT ISEMPTY (
+			            FILTER (
+			                _scope,
+			                sec_user_scope[scope_type] = "DEPT"
+			                    && CONTAINSSTRING ( dim_employee[org_unit_ids_history], "|" & sec_user_scope[scope_value] & "|" )
+			            )
+			        )
+
+	annotation PBI_Id = 6086b5012d45525c8cb4f462b64e2e20

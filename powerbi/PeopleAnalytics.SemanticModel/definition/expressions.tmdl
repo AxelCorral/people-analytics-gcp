@@ -1,0 +1,43 @@
+/// Source des données : Local (CSV de data/sample, par défaut) ou BigQuery (démonstration en direct).
+expression DataSource = "Local" meta [IsParameterQuery = true, List = {"Local", "BigQuery"}, DefaultValue = "Local", Type = "Text", IsParameterQueryRequired = true]
+	lineageTag: be82f871-c4d1-5054-b414-b864d0db4d4f
+
+	annotation PBI_ResultType = Text
+
+/// Chemin absolu du dossier data/sample du dépôt cloné (à adapter sur un autre poste).
+expression SampleFolder = "D:\Project_claude_code\people-analytics-gcp\data\sample" meta [IsParameterQuery = true, Type = "Text", IsParameterQueryRequired = true]
+	lineageTag: 4f5502fe-75cc-5d4a-b52f-ac07a93615f6
+
+	annotation PBI_ResultType = Text
+
+/// Projet GCP (BillingProject du connecteur).
+expression BigQueryProject = "people-analytics-ac26" meta [IsParameterQuery = true, Type = "Text", IsParameterQueryRequired = true]
+	lineageTag: 5755a38c-12c3-5242-a7ab-252915ba5ea6
+
+	annotation PBI_ResultType = Text
+
+/// Dataset des marts.
+expression BigQueryDataset = "hr_marts" meta [IsParameterQuery = true, Type = "Text", IsParameterQueryRequired = true]
+	lineageTag: 7f0debe5-ff40-5aca-94e5-ea6af8929ea3
+
+	annotation PBI_ResultType = Text
+
+/// Charge une table des marts depuis BigQuery ou depuis les CSV, selon DataSource.
+expression LoadMart =
+		(tableName as text) as table =>
+		let
+		    Source =
+		        if DataSource = "BigQuery" then
+		            GoogleBigQuery.Database([BillingProject = BigQueryProject]){[Name = BigQueryProject]}[Data]{[Name = BigQueryDataset, Kind = "Schema"]}[Data]{[Name = tableName, Kind = "Table"]}[Data]
+		        else
+		            let
+		                Csv = Csv.Document(File.Contents(SampleFolder & "\" & tableName & ".csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+		                Promoted = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]),
+		                Nulls = Table.ReplaceValue(Promoted, "", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted))
+		            in
+		                Nulls
+		in
+		    Source
+	lineageTag: 12bc8440-7403-5a4e-981a-40a162d80d0d
+
+	annotation PBI_ResultType = Function

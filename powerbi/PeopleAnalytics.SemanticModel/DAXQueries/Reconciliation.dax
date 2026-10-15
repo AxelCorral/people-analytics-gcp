@@ -1,0 +1,22 @@
+// Réconciliation DAX vs SQL (rpt_kpi_monthly) : exécuter dans la vue Requête DAX de Power BI Desktop,
+// sans rôle actif, et comparer avec docs/kpi-reconciliation.md.
+EVALUATE
+VAR _months = { DATE ( 2025, 9, 1 ), DATE ( 2026, 3, 1 ), DATE ( 2026, 9, 1 ) }
+RETURN
+    ADDCOLUMNS (
+        SELECTCOLUMNS ( _months, "month_start", [Value] ),
+        "headcount", CALCULATE ( [Headcount EoP], dim_date[month_start] = [month_start] ),
+        "fte", CALCULATE ( [FTE EoP], dim_date[month_start] = [month_start] ),
+        "hires", CALCULATE ( [Hires], dim_date[month_start] = [month_start] ),
+        "exits", CALCULATE ( [Exits], dim_date[month_start] = [month_start] ),
+        "cdi_turnover_12m", CALCULATE ( [Turnover CDI 12M %], dim_date[month_start] = [month_start] ),
+        "resignation_rate_12m", CALCULATE ( [Resignation Rate 12M %], dim_date[month_start] = [month_start] ),
+        "total_exit_rate_12m", CALCULATE ( [Total Exit Rate 12M %], dim_date[month_start] = [month_start] ),
+        "absenteeism_rate", CALCULATE ( [Absenteeism %], dim_date[month_start] = [month_start] ),
+        "total_absence_rate", CALCULATE ( [Total Absence incl. Leave %], dim_date[month_start] = [month_start] ),
+        "absenteeism_rate_12m", CALCULATE ( [Absenteeism 12M %], dim_date[month_start] = [month_start] ),
+        "female_share", CALCULATE ( [Female Share %], dim_date[month_start] = [month_start] ),
+        "avg_tenure_years", CALCULATE ( [Avg Tenure (years)], dim_date[month_start] = [month_start] ),
+        "avg_age_years", CALCULATE ( [Avg Age], dim_date[month_start] = [month_start] )
+    )
+ORDER BY [month_start]

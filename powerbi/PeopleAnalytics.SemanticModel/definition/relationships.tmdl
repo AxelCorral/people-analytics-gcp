@@ -1,0 +1,75 @@
+relationship aabb3cf7-7841-5d0c-8e16-73e28b9b8a55
+	fromColumn: fct_headcount_monthly.month_start
+	toColumn: dim_date.date
+
+relationship 5f2822ed-a1e8-5e30-94be-3e0b0bddbc4f
+	fromColumn: fct_headcount_monthly.org_unit_id
+	toColumn: dim_org_unit.org_unit_id
+
+relationship 2e0a55f6-6603-5b44-b790-2301d8fd4b7b
+	fromColumn: fct_headcount_monthly.employee_id
+	toColumn: dim_employee.employee_id
+
+relationship 4b14a36a-5912-5dd7-8231-0b13479c4869
+	fromColumn: fct_headcount_monthly.employee_group_code
+	toColumn: dim_contract_type.employee_group_code
+
+relationship cfad88ed-e28c-5677-9648-a7c6daa272ce
+	fromColumn: fct_headcount_monthly.employee_subgroup_code
+	toColumn: dim_level.employee_subgroup_code
+
+relationship 62c37edf-6e0d-55a0-866c-737676864297
+	fromColumn: fct_movements.month_start
+	toColumn: dim_date.date
+
+relationship b74971ba-9f20-52f2-a55c-2301e3250d7f
+	fromColumn: fct_movements.org_unit_id
+	toColumn: dim_org_unit.org_unit_id
+
+relationship 846b3b1e-26ce-5ebb-bca3-635dec7689e6
+	fromColumn: fct_movements.employee_id
+	toColumn: dim_employee.employee_id
+
+relationship dd6c6b1f-ac49-546d-96f2-e01d18812983
+	fromColumn: fct_movements.employee_group_code
+	toColumn: dim_contract_type.employee_group_code
+
+relationship 18819754-0db5-5bb9-8b42-7f16f68d7d3f
+	fromColumn: fct_movements.employee_subgroup_code
+	toColumn: dim_level.employee_subgroup_code
+
+relationship b1674cdb-99d9-5bdf-8a3d-f7247b497575
+	fromColumn: fct_movements.action_key
+	toColumn: dim_action_type.action_key
+
+relationship 412113bd-b50a-539d-8180-eb17dad438ae
+	fromColumn: fct_worktime_monthly.month_start
+	toColumn: dim_date.date
+
+relationship 278b6bd5-40f1-5556-948c-34b3927fc4a0
+	fromColumn: fct_worktime_monthly.org_unit_id
+	toColumn: dim_org_unit.org_unit_id
+
+relationship 82c469d9-9913-5339-861b-0031f51e6e06
+	fromColumn: fct_worktime_monthly.employee_id
+	toColumn: dim_employee.employee_id
+
+relationship b2f46b0d-8b68-5655-a1f0-56692f47b8e2
+	fromColumn: fct_worktime_monthly.employee_group_code
+	toColumn: dim_contract_type.employee_group_code
+
+relationship 17cf4be4-392e-5a8c-9953-68a54264f0e8
+	fromColumn: fct_absence_monthly.month_start
+	toColumn: dim_date.date
+
+relationship a7532ce4-2e6d-5a53-a3ac-8d89eb4278d8
+	fromColumn: fct_absence_monthly.org_unit_id
+	toColumn: dim_org_unit.org_unit_id
+
+relationship d7aa5deb-237b-52c4-aed6-72acbeaefed0
+	fromColumn: fct_absence_monthly.employee_id
+	toColumn: dim_employee.employee_id
+
+relationship abe8ae74-6644-5924-a610-d170a4fd2e5c
+	fromColumn: fct_absence_monthly.absence_type_code
+	toColumn: dim_absence_type.absence_type_code

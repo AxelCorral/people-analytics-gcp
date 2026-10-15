@@ -1,0 +1,26 @@
+model Model
+	culture: fr-FR
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: fr-FR
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["DataSource", "SampleFolder", "BigQueryProject", "BigQueryDataset", "LoadMart", "dim_date", "dim_org_unit", "dim_employee", "dim_contract_type", "dim_level", "dim_absence_type", "dim_action_type", "sec_user_scope", "fct_headcount_monthly", "fct_movements", "fct_worktime_monthly", "fct_absence_monthly"]
+
+ref table dim_date
+ref table dim_org_unit
+ref table dim_employee
+ref table dim_contract_type
+ref table dim_level
+ref table dim_absence_type
+ref table dim_action_type
+ref table sec_user_scope
+ref table fct_headcount_monthly
+ref table fct_movements
+ref table fct_worktime_monthly
+ref table fct_absence_monthly
+
+ref role dynamic_scope

@@ -140,13 +140,17 @@ Tags : `staging`, `intermediate`, `marts`, `pii`, `security`, `incremental`, `da
 | intermediate | `int_employee_periods` | Découpage temporel consolidé PA0000 × PA0001 × PA0007 | table |
 | intermediate | `int_calendar` | Jours ouvrés, fériés de métropole | table |
 | intermediate | `int_absence_days` | Salarié × jour ouvré d'absence ; absences à cheval sur deux mois découpées | table |
-| marts | `dim_date`, `dim_employee`, `dim_org_unit`, `dim_absence_type`, `dim_action_type` | Dimensions | table |
+| intermediate | `int_extraction_context` | Date d'extraction et début de la fenêtre de reporting (rien n'est publié au-delà) | table |
+| marts | `dim_date`, `dim_employee`, `dim_org_unit`, `dim_contract_type`, `dim_level`, `dim_absence_type`, `dim_action_type` | Dimensions | table |
 | marts | `fct_headcount_daily` | Instantané quotidien des effectifs, regroupé par date et `org_unit_id` (pas de partition, voir §2) | **incremental**, exécuté en `--full-refresh` (plan B) |
 | marts | `fct_headcount_monthly` | Instantané au dernier jour du mois, importé dans Power BI | table |
 | marts | `fct_movements` | Entrées, sorties, mutations, `exit_category`, groupe de contrat | table |
-| marts | `fct_absence_monthly` | Salarié × mois × type : heures théoriques, heures d'absence | table |
+| marts | `fct_worktime_monthly` | Salarié × mois × département : jours ouvrés et heures théoriques (dénominateur des taux d'absence) | table |
+| marts | `fct_absence_monthly` | Salarié × mois × département × type : jours et heures d'absence | table |
 | marts | `sec_user_scope` | Table de sécurité pour la RLS | table |
-| marts | `rpt_kpi_monthly` | KPI calculés en SQL, référence de **réconciliation** des mesures DAX | table |
+| marts | `rpt_kpi_monthly` | KPI calculés en SQL par mois et par périmètre (entreprise, site, département), référence de **réconciliation** des mesures DAX ; **non importé dans Power BI** (agrégats que la RLS ne pourrait pas restreindre) | table |
+
+Réalisé (2026-10-15) : 14 vues, 18 tables, 1 table incrémentale, 70 assertions dont 10 personnalisées, toutes passantes sur l'extraction du 2026-09-30 ; les 4 anomalies injectées sont détectées ([docs/assertions-results.md](docs/assertions-results.md)) ; graphe dans [docs/lineage.md](docs/lineage.md). Les KPI SQL concordent avec le calcul indépendant du générateur Python (turnover CDI 10,95 %, absentéisme 12 mois 4,92 %).
 
 **Incrémental** : `fct_headcount_daily` ne recalcule que les dates postérieures au maximum déjà chargé, moins une **fenêtre de relecture** (31 jours) pour absorber les corrections rétroactives. Le snapshot s'arrête à la date d'extraction, jamais au-delà. Une exécution incrémentale exige des instructions DML (`MERGE` ou `INSERT`), que le bac à sable refuse ([BigQuery sandbox](https://docs.cloud.google.com/bigquery/docs/sandbox)). **Plan B appliqué** : le modèle reste déclaré `type: "incremental"` (clé unique, filtre `when(incremental(), …)` avec fenêtre de relecture), mais **toutes les exécutions se font en `--full-refresh`**, qui le reconstruit par `CREATE OR REPLACE TABLE`. `docs/incremental.md` montre le SQL compilé des deux chemins (reconstruction et incrémental) et explique la limite : le chemin incrémental est écrit et compilé, il n'est pas exécuté. Les deux extractions passées (2026-08-31 puis 2026-09-30) servent à montrer, par deux reconstructions complètes, quelles lignes la fenêtre de relecture aurait dû retraiter.
 
@@ -210,7 +214,7 @@ La table `sec_user_scope` est déconnectée et masquée. Masquer n'est pas sécu
 
 **Pièges à traiter** :
 
-- Le filtre sur `dim_org_unit` se propage aux faits mais **pas à `dim_employee`** : sans protection, un manager verrait la liste de tous les salariés. Solution : filtre RLS supplémentaire sur `dim_employee` par l'unité d'affectation courante, ou propagation bidirectionnelle avec application du filtre de sécurité dans les deux sens. Choix documenté en phase 4.
+- Le filtre sur `dim_org_unit` se propage aux faits mais **pas à `dim_employee`** : sans protection, un manager verrait la liste de tous les salariés. **Solution retenue** : un second filtre RLS sur `dim_employee`, fondé sur deux colonnes calculées en SQL, `org_unit_ids_history` et `site_codes_history` (`|50100001|50300007|`), qui listent les départements et sites où le salarié a travaillé dans la fenêtre. Un manager voit ainsi ses salariés actuels et passés, et rien d'autre. Ce choix évite à la fois la propagation bidirectionnelle et un filtre RLS qui lirait une table de faits elle-même filtrée (risque de dépendance circulaire). `sec_user_scope` est aussi filtrée sur l'utilisateur courant.
 - Périmètre historique : un manager voit les faits rattachés à son département **à la date du fait**, et non les salariés actuellement dans son équipe. À énoncer dans le README.
 - Utilisateur absent de la table : aucune ligne visible.
 
@@ -234,8 +238,14 @@ Résultats dans `docs/rls-tests.md`, captures dans `docs/img/`. Les trois premie
 
 - **Format PBIP**, modèle sémantique en **TMDL** dans le dossier `definition/` : tables, relations, mesures et rôle RLS lisibles dans le dépôt ([Power BI Desktop projects](https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-overview)). Fichiers en UTF-8 sans BOM, fins de ligne CRLF gérées par `.gitattributes`, chemin racine court (limite de 260 caractères sous Windows).
 - **Mode import** via le connecteur Google BigQuery, authentification par compte Google dans le navigateur ([connecteur Google BigQuery](https://learn.microsoft.com/en-us/power-query/connectors/google-bigquery)). `BillingProject` renseigné explicitement par un paramètre Power Query, sans identifiant écrit en dur dans les requêtes. Implémentation du connecteur : celle par défaut, bascule ODBC/ADBC en cas d'erreur.
-- **Modèle en étoile** : faits `fct_headcount_monthly`, `fct_movements`, `fct_absence_monthly` ; dimensions `dim_date` (table de dates), `dim_org_unit`, `dim_employee`, `dim_absence_type`, `dim_action_type` ; relations un-à-plusieurs à sens unique, sauf exception justifiée par la RLS ; `sec_user_scope` déconnectée.
-- **Mesures DAX** (dossiers d'affichage par thème) : `Headcount EoP`, `FTE EoP`, `Avg Headcount 12M`, `Avg Headcount CDI 12M`, `Hires`, `Exits`, `Exits CDI`, `Resignations CDI`, `Turnover CDI 12M %` (principal), `Resignation Rate 12M %`, `Total Exit Rate 12M %`, `Theoretical Hours`, `Absence Hours (counted)`, `Absence Hours (all incl. leave)`, `Absenteeism %`, `Total Absence incl. Leave %` (libellé du rapport : « Absences totales, congés inclus »), `Avg Tenure (years)`, `Avg Age`, `Female Share %`, `Headcount PY`, `Headcount Δ`. Libellés d'affichage en français dans le rapport.
+- **Modèle en étoile** : faits `fct_headcount_monthly`, `fct_movements`, `fct_worktime_monthly`, `fct_absence_monthly` ; dimensions `dim_date` (table de dates), `dim_org_unit`, `dim_employee`, `dim_contract_type`, `dim_level`, `dim_absence_type`, `dim_action_type` ; 19 relations plusieurs-à-un à sens unique, sans exception ; `sec_user_scope` déconnectée et masquée.
+- **Génération et validation** : le TMDL est produit par `tools/build_pbip.py` à partir des schémas réels des marts. Il est validé hors Desktop par le désérialiseur officiel `TmdlSerializer` (`Microsoft.AnalysisServices` 19.84.1) et par `Model.Validate()`, sans erreur. Les fichiers JSON du rapport sont validés contre leurs schémas publics. Le rapport est livré avec 4 pages vides ; la mise en page se fait dans Desktop ([docs/powerbi-checklist.md](docs/powerbi-checklist.md)).
+- **Mesures DAX (26)**, rangées par dossier d'affichage :
+  - **Effectifs** : `Headcount EoP`, `Headcount EoP (masked < 5)`, `Headcount EoP Women`, `Headcount EoP Men (negative)`, `FTE EoP`, `Headcount PY`, `Headcount Δ`, `Avg Headcount 12M`, `Avg Headcount CDI 12M`, `Avg Tenure (years)`, `Avg Age`, `Female Share %` ;
+  - **Mouvements** : `Hires`, `Exits`, `Exits CDI`, `Resignations CDI`, `Turnover CDI 12M %` (principal), `Resignation Rate 12M %`, `Total Exit Rate 12M %` ;
+  - **Absences** : `Theoretical Hours`, `Absence Hours (counted)`, `Absence Hours (all incl. leave)`, `Absenteeism %`, `Absenteeism 12M %`, `Total Absence incl. Leave %`, `Total Absence incl. Leave 12M %` (libellé du rapport : « Absences totales, congés inclus »).
+
+  Les mesures de stock prennent le dernier mois du contexte ; les taux sur 12 mois sont vides tant que 12 mois d'historique ne sont pas disponibles. Les libellés d'affichage sont en français dans le rapport.
 - **Pages** : **Vue globale**, **Absentéisme**, **Mouvements**, **Effectifs détaillés** (pyramide, F/H par niveau, ancienneté, table nominative soumise à la RLS).
 - **Mode hors ligne, source prioritaire** : un paramètre Power Query `DataSource` (`"Local"` ou `"BigQuery"`) bascule toutes les requêtes entre les CSV versionnés de `data/sample/` (exports des tables marts importées, quelques Mo, fictifs) et BigQuery. **Valeur par défaut : `Local`**, car les tables du bac à sable expirent 60 jours après leur création ; `BigQuery` ne sert qu'à la démonstration de la chaîne en direct. Le cache `.pbi/cache.abf` n'est pas versionné.
 

@@ -1,0 +1,275 @@
+/// End-of-month headcount snapshot (imported into Power BI). Stock measures are semi-additive: never sum across months.
+table fct_headcount_monthly
+	lineageTag: 68556c6d-cd0a-5d69-8cd7-ee671e4b3757
+
+	/// Effectif fin de période : salariés actifs au dernier mois du contexte (semi-additif, jamais sommé dans le temps).
+	measure 'Headcount EoP' =
+			VAR _end = MAX ( dim_date[month_start] )
+			RETURN
+			    CALCULATE ( COUNTROWS ( fct_headcount_monthly ), dim_date[month_start] = _end )
+		formatString: #,0
+		displayFolder: Effectifs
+		lineageTag: 2cceedfb-d3ae-5ba3-91bd-5d85c958ccd1
+
+	/// Effectif fin de période, masqué sous 5 personnes (répartition F/H par niveau).
+	measure 'Headcount EoP (masked < 5)' =
+			VAR _n = [Headcount EoP]
+			RETURN
+			    IF ( _n >= 5, _n )
+		formatString: #,0
+		displayFolder: Effectifs
+		lineageTag: ba1eb251-ce03-588d-9948-5a8d01415325
+
+	/// Effectif fin de période, femmes (pyramide des âges).
+	measure 'Headcount EoP Women' =
+			CALCULATE ( [Headcount EoP], dim_employee[gender_code] = "2" )
+		formatString: #,0
+		displayFolder: Effectifs
+		lineageTag: f47c6ba9-04b2-5665-a48f-f46218aa6a4a
+
+	/// Effectif fin de période, hommes, en négatif pour la pyramide des âges (affiché en valeur absolue).
+	measure 'Headcount EoP Men (negative)' =
+			- CALCULATE ( [Headcount EoP], dim_employee[gender_code] = "1" )
+		formatString: #,0;#,0;0
+		displayFolder: Effectifs
+		lineageTag: 51916e91-e31b-5bf3-95e8-896d7c183e5f
+
+	/// ETP fin de période : somme des taux d'activité / 100 au dernier mois du contexte.
+	measure 'FTE EoP' =
+			VAR _end = MAX ( dim_date[month_start] )
+			RETURN
+			    CALCULATE ( SUM ( fct_headcount_monthly[fte] ), dim_date[month_start] = _end )
+		formatString: #,0.0
+		displayFolder: Effectifs
+		lineageTag: da7872be-3c06-57d0-83c4-52dea49a5efd
+
+	/// Effectif fin de période douze mois plus tôt.
+	measure 'Headcount PY' =
+			CALCULATE ( [Headcount EoP], DATEADD ( dim_date[date], -12, MONTH ) )
+		formatString: #,0
+		displayFolder: Effectifs
+		lineageTag: e939f623-1b32-5d05-b1f5-5e493a290fd1
+
+	/// Variation de l'effectif sur douze mois.
+	measure 'Headcount Δ' =
+			IF ( NOT ISBLANK ( [Headcount PY] ), [Headcount EoP] - [Headcount PY] )
+		formatString: +#,0;-#,0;0
+		displayFolder: Effectifs
+		lineageTag: e62555ad-c953-5ba9-a327-ec4de9dcc3d3
+
+	/// Effectif moyen sur 12 mois : moyenne des 12 effectifs de fin de mois (vide si moins de 12 mois d'historique).
+	measure 'Avg Headcount 12M' =
+			VAR _end = MAX ( dim_date[month_start] )
+			VAR _start = EDATE ( _end, -11 )
+			VAR _months =
+			    CALCULATE (
+			        DISTINCTCOUNT ( dim_date[month_start] ),
+			        REMOVEFILTERS ( dim_date ),
+			        dim_date[month_start] >= _start,
+			        dim_date[month_start] <= _end
+			    )
+			VAR _sum =
+			    CALCULATE (
+			        COUNTROWS ( fct_headcount_monthly ),
+			        REMOVEFILTERS ( dim_date ),
+			        dim_date[month_start] >= _start,
+			        dim_date[month_start] <= _end
+			    )
+			RETURN
+			    IF ( _months = 12, DIVIDE ( _sum, 12 ) )
+		formatString: #,0.0
+		displayFolder: Effectifs
+		lineageTag: 36cd8e4c-c55b-537b-852c-065a2d3a8b4d
+
+	/// Effectif moyen CDI sur 12 mois : dénominateur du turnover CDI.
+	measure 'Avg Headcount CDI 12M' =
+			VAR _end = MAX ( dim_date[month_start] )
+			VAR _start = EDATE ( _end, -11 )
+			VAR _months =
+			    CALCULATE (
+			        DISTINCTCOUNT ( dim_date[month_start] ),
+			        REMOVEFILTERS ( dim_date ),
+			        dim_date[month_start] >= _start,
+			        dim_date[month_start] <= _end
+			    )
+			VAR _sum =
+			    CALCULATE (
+			        COUNTROWS ( fct_headcount_monthly ),
+			        dim_contract_type[contract_category] = "permanent",
+			        REMOVEFILTERS ( dim_date ),
+			        dim_date[month_start] >= _start,
+			        dim_date[month_start] <= _end
+			    )
+			RETURN
+			    IF ( _months = 12, DIVIDE ( _sum, 12 ) )
+		formatString: #,0.0
+		displayFolder: Effectifs
+		lineageTag: 3e1f7fba-d40e-5251-9144-e1c4eefff390
+
+	/// Ancienneté moyenne au dernier mois du contexte (depuis l'entrée du parcours en cours).
+	measure 'Avg Tenure (years)' =
+			VAR _end = MAX ( dim_date[month_start] )
+			RETURN
+			    CALCULATE ( AVERAGE ( fct_headcount_monthly[tenure_years] ), dim_date[month_start] = _end )
+		formatString: #,0.0
+		displayFolder: Effectifs
+		lineageTag: 671a2cd9-bd91-5da3-bfe2-a4bcfc2bf9bd
+
+	/// Âge moyen au dernier mois du contexte.
+	measure 'Avg Age' =
+			VAR _end = MAX ( dim_date[month_start] )
+			RETURN
+			    CALCULATE ( AVERAGE ( fct_headcount_monthly[age_years] ), dim_date[month_start] = _end )
+		formatString: #,0.0
+		displayFolder: Effectifs
+		lineageTag: de0c3e54-f1bf-5b42-bf2d-8fa9960a7376
+
+	/// Part des femmes dans l'effectif fin de période.
+	measure 'Female Share %' =
+			DIVIDE ( CALCULATE ( [Headcount EoP], dim_employee[gender_code] = "2" ), [Headcount EoP] )
+		formatString: 0.0 %
+		displayFolder: Effectifs
+		lineageTag: 3d7fd554-2ffa-59ea-8826-2a087e6e1336
+
+	/// Last day of the month (or extraction date for a partial month)
+	column month_end_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		isHidden
+		lineageTag: 5c42f2ad-cb33-5205-9c40-11c29812aca8
+		summarizeBy: none
+		sourceColumn: month_end_date
+
+		annotation SummarizationSetBy = User
+
+	/// First day of the month (relationship key to dim_date)
+	column month_start
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		isHidden
+		lineageTag: 620b87f7-c805-5add-af88-3bc2c9e35def
+		summarizeBy: none
+		sourceColumn: month_start
+
+		annotation SummarizationSetBy = User
+
+	/// Personnel number
+	column employee_id
+		dataType: string
+		isHidden
+		lineageTag: 73213fac-f52b-54cc-a244-e747b75c11c5
+		summarizeBy: none
+		sourceColumn: employee_id
+
+		annotation SummarizationSetBy = User
+
+	/// Department at month end
+	column org_unit_id
+		dataType: string
+		isHidden
+		lineageTag: 85397cd8-5466-5436-80d4-f03a1594b649
+		summarizeBy: none
+		sourceColumn: org_unit_id
+
+		annotation SummarizationSetBy = User
+
+	/// Site at month end
+	column site_code
+		dataType: string
+		isHidden
+		lineageTag: 96f7ee18-8221-5f2f-b8da-f77e426058c5
+		summarizeBy: none
+		sourceColumn: site_code
+
+		annotation SummarizationSetBy = User
+
+	/// PERSG at month end
+	column employee_group_code
+		dataType: string
+		isHidden
+		lineageTag: a5dabc69-eaf1-5cc5-9abe-2052c6816b28
+		summarizeBy: none
+		sourceColumn: employee_group_code
+
+		annotation SummarizationSetBy = User
+
+	/// PERSK at month end
+	column employee_subgroup_code
+		dataType: string
+		isHidden
+		lineageTag: 4366e0d7-e26a-5aa0-806d-9930a108adac
+		summarizeBy: none
+		sourceColumn: employee_subgroup_code
+
+		annotation SummarizationSetBy = User
+
+	/// EMPCT at month end
+	column employment_pct
+		dataType: double
+		isHidden
+		lineageTag: 875ada7e-019c-5a71-827e-1c23080d19a0
+		summarizeBy: none
+		sourceColumn: employment_pct
+
+		annotation SummarizationSetBy = User
+
+	/// Full-time equivalent at month end
+	column fte
+		dataType: double
+		isHidden
+		lineageTag: 7c8f1955-7411-5e41-a906-f88baf7eb71c
+		summarizeBy: none
+		sourceColumn: fte
+
+		annotation SummarizationSetBy = User
+
+	/// Years since the start of the current spell, at month end
+	column tenure_years
+		dataType: double
+		isHidden
+		lineageTag: 75b93d97-6f51-590f-8278-91852ac03e2e
+		summarizeBy: none
+		sourceColumn: tenure_years
+
+		annotation SummarizationSetBy = User
+
+	/// Age in completed years at month end
+	column age_years
+		dataType: int64
+		isHidden
+		lineageTag: b148e078-ddca-553e-a429-9869399f9f38
+		summarizeBy: none
+		sourceColumn: age_years
+
+		annotation SummarizationSetBy = User
+
+	/// 5-year age band at month end
+	column age_band
+		dataType: string
+		lineageTag: 7ab35078-3bd6-5764-942c-d498e40cd1cb
+		summarizeBy: none
+		sourceColumn: age_band
+		sortByColumn: age_band_order
+
+		annotation SummarizationSetBy = User
+
+	/// Sort key of the age band
+	column age_band_order
+		dataType: int64
+		isHidden
+		lineageTag: fc848dea-c2c8-5cac-81cc-afa6ee4582bc
+		summarizeBy: none
+		sourceColumn: age_band_order
+
+		annotation SummarizationSetBy = User
+
+	partition fct_headcount_monthly = m
+		mode: import
+		source =
+			let
+			    Source = LoadMart("fct_headcount_monthly"),
+			    Typed = Table.TransformColumnTypes(Source, {{"month_end_date", type date}, {"month_start", type date}, {"employee_id", type text}, {"org_unit_id", type text}, {"site_code", type text}, {"employee_group_code", type text}, {"employee_subgroup_code", type text}, {"employment_pct", type number}, {"fte", type number}, {"tenure_years", type number}, {"age_years", Int64.Type}, {"age_band", type text}, {"age_band_order", Int64.Type}}, "en-US")
+			in
+			    Typed
+
+	annotation PBI_ResultType = Table

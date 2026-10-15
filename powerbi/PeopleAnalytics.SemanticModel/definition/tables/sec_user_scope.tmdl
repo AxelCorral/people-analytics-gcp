@@ -1,0 +1,55 @@
+/// RLS table: fictitious UPN to scope. Disconnected and hidden in the Power BI model.
+table sec_user_scope
+	isHidden
+	lineageTag: 6229d381-0734-523a-8c51-1f681d47fcb3
+
+	/// UPN (@example.com)
+	column user_upn
+		dataType: string
+		isHidden
+		lineageTag: 135b5d91-7533-568c-8206-b36af28f4b59
+		summarizeBy: none
+		sourceColumn: user_upn
+
+		annotation SummarizationSetBy = User
+
+	/// ALL, SITE, DEPT
+	column scope_type
+		dataType: string
+		isHidden
+		lineageTag: 2e45df2e-3e4c-58db-bf71-af21ca8d3ea3
+		summarizeBy: none
+		sourceColumn: scope_type
+
+		annotation SummarizationSetBy = User
+
+	/// '*', site code or department org unit id
+	column scope_value
+		dataType: string
+		isHidden
+		lineageTag: 7fc69b1d-f98b-500e-b67f-659f2cac5beb
+		summarizeBy: none
+		sourceColumn: scope_value
+
+		annotation SummarizationSetBy = User
+
+	/// Business role
+	column role_label
+		dataType: string
+		isHidden
+		lineageTag: 3c44122f-1116-5603-9453-75b00bbe00e6
+		summarizeBy: none
+		sourceColumn: role_label
+
+		annotation SummarizationSetBy = User
+
+	partition sec_user_scope = m
+		mode: import
+		source =
+			let
+			    Source = LoadMart("sec_user_scope"),
+			    Typed = Table.TransformColumnTypes(Source, {{"user_upn", type text}, {"scope_type", type text}, {"scope_value", type text}, {"role_label", type text}}, "en-US")
+			in
+			    Typed
+
+	annotation PBI_ResultType = Table

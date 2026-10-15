@@ -1,0 +1,140 @@
+/// Date dimension, from the start of the reporting window to the extraction date (no future date).
+table dim_date
+	dataCategory: Time
+	lineageTag: f380957e-e57c-5bca-96bc-67f97d7d5923
+
+	/// Day (key)
+	column date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		isKey
+		lineageTag: dd53e420-1227-53c8-a919-fd3be5b2f1d7
+		summarizeBy: none
+		sourceColumn: date
+
+		annotation SummarizationSetBy = User
+
+	/// Year
+	column year
+		dataType: int64
+		lineageTag: ab2e7cd3-876f-5cc0-8fc8-3ff547b0555e
+		summarizeBy: none
+		sourceColumn: year
+
+		annotation SummarizationSetBy = User
+
+	/// Quarter number
+	column quarter
+		dataType: int64
+		lineageTag: 2d212139-3587-5b36-a1ce-685728788aac
+		summarizeBy: none
+		sourceColumn: quarter
+
+		annotation SummarizationSetBy = User
+
+	/// Month number
+	column month
+		dataType: int64
+		isHidden
+		lineageTag: 1699abc4-18d9-5504-b143-aa2d8ec67ab2
+		summarizeBy: none
+		sourceColumn: month
+
+		annotation SummarizationSetBy = User
+
+	/// First day of the month
+	column month_start
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 563f6879-cef7-5527-b7aa-235af84dbf68
+		summarizeBy: none
+		sourceColumn: month_start
+
+		annotation SummarizationSetBy = User
+
+	/// Last day of the month
+	column month_end
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: adcc3a77-5c4e-5ba3-92ed-8a1746b5c605
+		summarizeBy: none
+		sourceColumn: month_end
+
+		annotation SummarizationSetBy = User
+
+	/// YYYY-MM
+	column year_month
+		dataType: string
+		lineageTag: 5baff286-255e-50e0-ac35-3d7331a8f086
+		summarizeBy: none
+		sourceColumn: year_month
+		sortByColumn: month_start
+
+		annotation SummarizationSetBy = User
+
+	/// Month name (French) and year
+	column month_label
+		dataType: string
+		lineageTag: 3a2382b7-e761-5469-9b3d-c0031e191949
+		summarizeBy: none
+		sourceColumn: month_label
+		sortByColumn: month_start
+
+		annotation SummarizationSetBy = User
+
+	/// Short French month name
+	column month_short_fr
+		dataType: string
+		lineageTag: 81b23ded-82c6-58ef-98c5-65d4df4b7e55
+		summarizeBy: none
+		sourceColumn: month_short_fr
+		sortByColumn: month
+
+		annotation SummarizationSetBy = User
+
+	/// Last day of the month
+	column is_month_end
+		dataType: boolean
+		lineageTag: 3a21b568-8341-56ae-bbe5-f8d025da43ec
+		summarizeBy: none
+		sourceColumn: is_month_end
+
+		annotation SummarizationSetBy = User
+
+	/// Working day (metropolitan France)
+	column is_working_day
+		dataType: boolean
+		lineageTag: 7e5cdcd1-c671-59cd-99e1-e908a2c8bfd3
+		summarizeBy: none
+		sourceColumn: is_working_day
+
+		annotation SummarizationSetBy = User
+
+	/// Public holiday
+	column is_public_holiday
+		dataType: boolean
+		lineageTag: 140626c6-abd4-5e41-87f1-183e894e1e3e
+		summarizeBy: none
+		sourceColumn: is_public_holiday
+
+		annotation SummarizationSetBy = User
+
+	/// Holiday name
+	column holiday_name
+		dataType: string
+		lineageTag: e67f09b9-bc08-5da0-b476-9b5e0dba7089
+		summarizeBy: none
+		sourceColumn: holiday_name
+
+		annotation SummarizationSetBy = User
+
+	partition dim_date = m
+		mode: import
+		source =
+			let
+			    Source = LoadMart("dim_date"),
+			    Typed = Table.TransformColumnTypes(Source, {{"date", type date}, {"year", Int64.Type}, {"quarter", Int64.Type}, {"month", Int64.Type}, {"month_start", type date}, {"month_end", type date}, {"year_month", type text}, {"month_label", type text}, {"month_short_fr", type text}, {"is_month_end", type logical}, {"is_working_day", type logical}, {"is_public_holiday", type logical}, {"holiday_name", type text}}, "en-US")
+			in
+			    Typed
+
+	annotation PBI_ResultType = Table

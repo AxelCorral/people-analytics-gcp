@@ -1,0 +1,87 @@
+/// Personnel action type and reason, with the exit category.
+table dim_action_type
+	lineageTag: c9030056-5c57-5a5f-84e4-d7774f95fd1a
+
+	/// MASSN-MASSG (key)
+	column action_key
+		dataType: string
+		isKey
+		lineageTag: 404b1a9c-6939-5326-b87d-b2b4dcceb5be
+		summarizeBy: none
+		sourceColumn: action_key
+
+		annotation SummarizationSetBy = User
+
+	/// MASSN
+	column action_type_code
+		dataType: string
+		lineageTag: 23f333f0-abe5-5aec-93b1-9c6ae63b8f8b
+		summarizeBy: none
+		sourceColumn: action_type_code
+
+		annotation SummarizationSetBy = User
+
+	/// Action label
+	column action_type_label
+		dataType: string
+		lineageTag: d531aead-ba6f-5290-a097-b950b70105e1
+		summarizeBy: none
+		sourceColumn: action_type_label
+
+		annotation SummarizationSetBy = User
+
+	/// hire, rehire, org_change, contract_change, exit
+	column action_category
+		dataType: string
+		lineageTag: 3826ac50-2c2e-5647-a8e5-51f397afe185
+		summarizeBy: none
+		sourceColumn: action_category
+
+		annotation SummarizationSetBy = User
+
+	/// MASSG
+	column action_reason_code
+		dataType: string
+		lineageTag: dd4aa77d-4905-5eaf-8544-948e467f3767
+		summarizeBy: none
+		sourceColumn: action_reason_code
+
+		annotation SummarizationSetBy = User
+
+	/// Reason label
+	column action_reason_label
+		dataType: string
+		lineageTag: 7a96e658-31a6-5e9c-8fa5-c088443c52ed
+		summarizeBy: none
+		sourceColumn: action_reason_label
+
+		annotation SummarizationSetBy = User
+
+	/// Exit category (exits only)
+	column exit_category
+		dataType: string
+		lineageTag: 82fa7927-9f72-5ca7-9395-7f6bb6347f51
+		summarizeBy: none
+		sourceColumn: exit_category
+
+		annotation SummarizationSetBy = User
+
+	/// French label of the exit category
+	column exit_category_label
+		dataType: string
+		lineageTag: d3256b9a-2bba-5c6e-9517-1ca118fe0a54
+		summarizeBy: none
+		sourceColumn: exit_category_label
+
+		annotation SummarizationSetBy = User
+
+	partition dim_action_type = m
+		mode: import
+		source =
+			let
+			    Source = LoadMart("dim_action_type"),
+			    Typed = Table.TransformColumnTypes(Source, {{"action_key", type text}, {"action_type_code", type text}, {"action_type_label", type text}, {"action_category", type text}, {"action_reason_code", type text}, {"action_reason_label", type text}, {"exit_category", type text}, {"exit_category_label", type text}}, "en-US")
+			in
+			    Typed
+
+	annotation PBI_ResultType = Table

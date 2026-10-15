@@ -1,0 +1,151 @@
+/// Absence hours per employee, month, department and absence type (working days only). Numerator of the absenteeism rate (types with counts_in_absenteeism) and of the total absence rate (all types, paid leave and RTT included).
+table fct_absence_monthly
+	lineageTag: b3081b02-c6a1-54b1-9ded-b7ada59c4480
+
+	/// Heures d'absence des types de l'absentéisme (maladie, accident du travail, accident de trajet, maladie professionnelle, absence injustifiée).
+	measure 'Absence Hours (counted)' =
+			CALCULATE ( SUM ( fct_absence_monthly[absence_hours] ), dim_absence_type[counts_in_absenteeism] = TRUE () )
+		formatString: #,0
+		displayFolder: Absences
+		lineageTag: 6cc4718f-1475-5490-aa33-2bed55f68ba0
+
+	/// Heures d'absence de tous les types, congés payés et RTT inclus.
+	measure 'Absence Hours (all incl. leave)' =
+			SUM ( fct_absence_monthly[absence_hours] )
+		formatString: #,0
+		displayFolder: Absences
+		lineageTag: 0a8293ef-5be8-5b75-ada1-7a08eb1e7030
+
+	/// Taux d'absentéisme : heures des types comptés / heures théoriques. Congés payés, RTT, maternité, paternité et formation exclus.
+	measure 'Absenteeism %' =
+			DIVIDE ( [Absence Hours (counted)], [Theoretical Hours] )
+		formatString: 0.0 %
+		displayFolder: Absences
+		lineageTag: 3912afa4-4d77-53ed-ab47-d537eaa1152f
+
+	/// Absences totales, congés inclus : heures de tous les types / heures théoriques. Indicateur de disponibilité, jamais présenté comme de l'absentéisme.
+	measure 'Total Absence incl. Leave %' =
+			DIVIDE ( [Absence Hours (all incl. leave)], [Theoretical Hours] )
+		formatString: 0.0 %
+		displayFolder: Absences
+		lineageTag: cb36ec61-54f9-5208-a5b0-1499a340a06f
+
+	/// Taux d'absentéisme sur les 12 mois glissants se terminant au dernier mois du contexte.
+	measure 'Absenteeism 12M %' =
+			VAR _end = MAX ( dim_date[month_start] )
+			VAR _start = EDATE ( _end, -11 )
+			VAR _months =
+			    CALCULATE (
+			        DISTINCTCOUNT ( dim_date[month_start] ),
+			        REMOVEFILTERS ( dim_date ),
+			        dim_date[month_start] >= _start,
+			        dim_date[month_start] <= _end
+			    )
+			VAR _num = CALCULATE ( [Absence Hours (counted)], REMOVEFILTERS ( dim_date ), dim_date[month_start] >= _start, dim_date[month_start] <= _end )
+			VAR _den = CALCULATE ( [Theoretical Hours], REMOVEFILTERS ( dim_date ), dim_date[month_start] >= _start, dim_date[month_start] <= _end )
+			RETURN
+			    IF ( _months = 12, DIVIDE ( _num, _den ) )
+		formatString: 0.0 %
+		displayFolder: Absences
+		lineageTag: f61b605a-b847-5206-b1cd-60d3d4ce4688
+
+	/// Absences totales, congés inclus, sur 12 mois glissants.
+	measure 'Total Absence incl. Leave 12M %' =
+			VAR _end = MAX ( dim_date[month_start] )
+			VAR _start = EDATE ( _end, -11 )
+			VAR _months =
+			    CALCULATE (
+			        DISTINCTCOUNT ( dim_date[month_start] ),
+			        REMOVEFILTERS ( dim_date ),
+			        dim_date[month_start] >= _start,
+			        dim_date[month_start] <= _end
+			    )
+			VAR _num = CALCULATE ( [Absence Hours (all incl. leave)], REMOVEFILTERS ( dim_date ), dim_date[month_start] >= _start, dim_date[month_start] <= _end )
+			VAR _den = CALCULATE ( [Theoretical Hours], REMOVEFILTERS ( dim_date ), dim_date[month_start] >= _start, dim_date[month_start] <= _end )
+			RETURN
+			    IF ( _months = 12, DIVIDE ( _num, _den ) )
+		formatString: 0.0 %
+		displayFolder: Absences
+		lineageTag: 2671aceb-cb18-5061-8f73-6d36c071b57a
+
+	/// First day of the month (relationship key to dim_date)
+	column month_start
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		isHidden
+		lineageTag: 29b18c39-e374-578a-9680-1205b7967786
+		summarizeBy: none
+		sourceColumn: month_start
+
+		annotation SummarizationSetBy = User
+
+	/// Personnel number
+	column employee_id
+		dataType: string
+		isHidden
+		lineageTag: ea25652d-a1f0-582b-922d-bdb1ed2dd35b
+		summarizeBy: none
+		sourceColumn: employee_id
+
+		annotation SummarizationSetBy = User
+
+	/// Department on the absence day
+	column org_unit_id
+		dataType: string
+		isHidden
+		lineageTag: df9bd91c-33c2-544b-a685-a3ddfda7eef6
+		summarizeBy: none
+		sourceColumn: org_unit_id
+
+		annotation SummarizationSetBy = User
+
+	/// Site on the absence day
+	column site_code
+		dataType: string
+		isHidden
+		lineageTag: abc29f17-98fe-5900-bde5-664a23310ccf
+		summarizeBy: none
+		sourceColumn: site_code
+
+		annotation SummarizationSetBy = User
+
+	/// AWART
+	column absence_type_code
+		dataType: string
+		isHidden
+		lineageTag: f9d0bdda-a617-5289-9538-7aba86b72e97
+		summarizeBy: none
+		sourceColumn: absence_type_code
+
+		annotation SummarizationSetBy = User
+
+	/// Working days of absence in the month
+	column absence_days
+		dataType: int64
+		isHidden
+		lineageTag: 03179bc3-a182-5f9a-aa4b-2ce451a60b88
+		summarizeBy: none
+		sourceColumn: absence_days
+
+		annotation SummarizationSetBy = User
+
+	/// Hours of absence in the month
+	column absence_hours
+		dataType: double
+		isHidden
+		lineageTag: 489532fa-02ef-5a31-8133-b9489fbc0d6f
+		summarizeBy: none
+		sourceColumn: absence_hours
+
+		annotation SummarizationSetBy = User
+
+	partition fct_absence_monthly = m
+		mode: import
+		source =
+			let
+			    Source = LoadMart("fct_absence_monthly"),
+			    Typed = Table.TransformColumnTypes(Source, {{"month_start", type date}, {"employee_id", type text}, {"org_unit_id", type text}, {"site_code", type text}, {"absence_type_code", type text}, {"absence_days", Int64.Type}, {"absence_hours", type number}}, "en-US")
+			in
+			    Typed
+
+	annotation PBI_ResultType = Table
