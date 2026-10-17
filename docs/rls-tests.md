@@ -6,11 +6,11 @@ Valeurs attendues au **2026-09** (effectif fin de mois issu de `rpt_kpi_monthly`
 
 | Utilisateur simulé | Périmètre | Attendu | Effectif 2026-09 attendu | Sites visibles | Salariés visibles (`dim_employee`) | Résultat observé | Capture |
 |---|---|---|---:|---:|---:|---|---|
-| `drh@example.com` | ALL | Tout | 820 | 4 | 1250 | à remplir | `docs/img/rls-drh.png` |
-| `dir.s200@example.com` | SITE S200 | Site Est uniquement | 248 | 1 | 407 | à remplir | `docs/img/rls-dir.s200.png` |
-| `mgr.d07@example.com` | DEPT 50300007 | Commercial uniquement | 81 | 1 | 119 | à remplir | `docs/img/rls-mgr.d07.png` |
-| `mgr.multi@example.com` | DEPT 50100002 + 50200005 | Maintenance + Qualité | 77 | 2 | 110 | à remplir | `docs/img/rls-mgr.multi.png` |
-| `unknown@example.com` | aucun | Rapport vide | 0 | 0 | 0 | à remplir | `docs/img/rls-unknown.png` |
+| `drh@example.com` | ALL | Tout | 820 | 4 | 1250 | 820 / 4 / 1250 : conforme | `docs/img/rls-drh.png` |
+| `dir.s200@example.com` | SITE S200 | Site Est uniquement | 248 | 1 | 407 | 248 / 1 / 407 : conforme | `docs/img/rls-dir.s200.png` |
+| `mgr.d07@example.com` | DEPT 50300007 | Commercial uniquement | 81 | 1 | 119 | 81 / 1 / 119 : conforme | `docs/img/rls-mgr.d07.png` |
+| `mgr.multi@example.com` | DEPT 50100002 + 50200005 | Maintenance + Qualité | 77 | 2 | 110 | 77 / 2 / 110 : conforme | `docs/img/rls-mgr.multi.png` |
+| `unknown@example.com` | aucun | Rapport vide | 0 | 0 | 0 | 0 / 0 / 0 : conforme, accès refusé | `docs/img/rls-unknown.png` |
 
 Points de vigilance vérifiés par ces cas :
 

@@ -43,3 +43,7 @@ node_modules/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# --- Fichiers de travail (enregistrements, montage vidéo) -------------------
+captures/
+

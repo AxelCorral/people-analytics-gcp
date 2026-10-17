@@ -1,36 +1,67 @@
 # Script de la vidéo de démonstration (2 minutes)
 
-**Contraintes**
-- Durée : 2 min au plus.
-- Fichier : `docs/img/demo.mp4`, **moins de 10 Mo**, 1080p au maximum (720p suffit et pèse moins).
-- Pas de son obligatoire : des sous-titres ou les titres des visuels suffisent.
+Vidéo montée à partir de captures versionnées dans `docs/img/` et d'une voix off. Sortie : `docs/img/demo.mp4` (720p, moins de 10 Mo), sous-titres incrustés, et un GIF de secours sur la séquence RLS (`docs/img/demo.gif`).
 
-**Préparation (5 min)**
-- Ferme les notifications et les autres fenêtres. Masque la barre des favoris du navigateur.
-- Onglets du navigateur ouverts : README du dépôt, puis `docs/lineage.md`.
-- Un terminal ouvert dans le dépôt, la sortie de la dernière commande `dataform run` encore visible. Sinon, garde `docs/assertions-results.md` ouvert à la place.
-- Power BI Desktop ouvert sur la page « Vue globale », en mode `Local`, sans rôle, dernier mois sélectionné.
+## Consignes d'enregistrement
 
-**Enregistrement**
-- **Win + G** ouvre la Xbox Game Bar. **Win + Alt + R** démarre puis arrête l'enregistrement de la fenêtre active.
-- Fichier produit : `Vidéos\Captures`.
-- La Game Bar n'enregistre qu'une fenêtre à la fois : enregistre une séquence par fenêtre, puis assemble-les dans **Clipchamp** (inclus dans Windows, gratuit).
-- Export Clipchamp en 720p ou 1080p. Si le fichier dépasse 10 Mo, réexporte en 720p, ou recompresse avec HandBrake (gratuit, préréglage « Fast 720p30 »).
+- Environ 350 mots, nombres écrits en toutes lettres, soit 2 min 10 à 2 min 20 à un débit posé.
+- **Une seconde de silence entre deux séquences** : les pauses servent à caler les images sur la voix.
+- Lire les nombres en entier : « huit cent vingt », « dix virgule quatre-vingt-quinze pour cent ».
+- Si une phrase est ratée, marquer une pause et la reprendre : les doublons seront coupés au montage.
+- Format libre (MP3, WAV, M4A), pièce calme, micro proche.
 
-## Minutage
+## Voix off (texte à lire mot pour mot)
 
-| Temps | Écran | Action | Message (titre à l'écran ou voix) |
-|---|---|---|---|
-| 0:00–0:12 | README sur GitHub | Faire défiler le résumé et le schéma d'architecture | « Chaîne Analytics Engineering de bout en bout sur données RH fictives, coût nul. » |
-| 0:12–0:30 | Terminal ou `docs/assertions-results.md` | Montrer « 71 assertions passées » et les anomalies détectées | « Générateur à graine fixe, chargement BigQuery sans DML, Dataform et 71 assertions. » |
-| 0:30–0:42 | `docs/lineage.md` | Survoler le graphe Mermaid | « Couches staging → intermediate → marts, snapshot incrémental. » |
-| 0:42–1:05 | Power BI, page Vue globale | Montrer les cartes, puis choisir un autre mois dans le segment Mois | « Effectif 820, turnover CDI 10,95 %, absentéisme 4,92 % : réconciliés avec le SQL. » |
-| 1:05–1:20 | Page Absentéisme | Désigner côte à côte la carte « Absentéisme » et la carte « Absences totales, congés inclus » | « Deux indicateurs distincts, jamais confondus. » |
-| 1:20–1:50 | Page Contrôle RLS | « Afficher en tant que » : `drh@`, puis `dir.s200@`, puis `mgr.d07@` (rôle `dynamic_scope`) | « 820, puis 248, puis 81 : effectif et liste nominative filtrés par USERPRINCIPALNAME(). » |
-| 1:50–2:00 | README, section Limites | Arrêt sur la section | « Bac à sable BigQuery, RLS testée dans Desktop, pas de publication sur le Service. » |
+`[pause]` = une seconde de silence. Les nombres sont écrits comme ils se prononcent.
+
+### 1. Accroche (0:00–0:08) — titre sur la page « Vue globale »
+
+> Voici un projet de People Analytics sur Google Cloud : une chaîne Analytics Engineering complète, de la donnée brute jusqu'au rapport sécurisé, sur des données RH fictives, et pour un coût nul.
+
+`[pause]`
+
+### 2. Architecture (0:08–0:20) — schéma Python → BigQuery → Dataform → Power BI
+
+> Tout part d'un générateur Python, qui produit des données RH inspirées des infotypes SAP, avec une graine fixe pour être reproductible. Ces données sont ensuite chargées dans BigQuery, transformées avec Dataform, et enfin exploitées dans Power BI.
+
+`[pause]`
+
+### 3. BigQuery (0:20–0:35) — `gcp-capture.PNG`, ligne « Entreprise » mise en avant
+
+> Dans BigQuery, hébergé en Europe, chaque couche a son propre dataset : les données brutes, le staging, l'intermédiaire et les marts, plus un dataset réservé aux assertions. On voit ici l'indicateur mensuel par périmètre : en septembre deux mille vingt-six, l'entreprise compte huit cent vingt salariés.
+
+`[pause]`
+
+### 4. Dataform (0:35–0:50) — lignage, puis « 71 assertions passées, 0 échec »
+
+> Dataform construit trente-trois vues et tables, dont un modèle incrémental. Et surtout, soixante et onze assertions contrôlent la qualité des données : par exemple, aucune absence en dehors d'un contrat, des embauches et des sorties dans un ordre cohérent, et des mouvements qui expliquent bien l'évolution de l'effectif.
+
+`[pause]`
+
+### 5. Modèle et DAX (0:50–1:05) — `star-schema.PNG`, puis `requete-dax-et-resultats.PNG`
+
+> Côté Power BI, le modèle est en étoile : quatre tables de faits, des dimensions partagées, et une table de sécurité à part. Chaque mesure DAX a été recalculée en SQL, et sur trois mois de contrôle, les valeurs sont strictement identiques.
+
+`[pause]`
+
+### 6. Rapport (1:05–1:22) — pages Vue globale, Absentéisme, Mouvements, Effectifs détaillés
+
+> Le rapport compte cinq pages. Sur douze mois, le turnover des CDI est de dix virgule quatre-vingt-quinze pour cent, et l'absentéisme de quatre virgule quatre-vingt-douze pour cent, un indicateur qu'on distingue bien des absences totales, congés compris. Viennent ensuite les mouvements, puis le détail des effectifs.
+
+`[pause]`
+
+### 7. Sécurité RLS (1:22–1:50) — `rls-drh`, `rls-dir.s200`, `rls-mgr.d07`, `rls-mgr.multi`, `rls-unknown`
+
+> Pour la sécurité, un seul rôle dynamique suffit : il filtre les données selon l'utilisateur connecté. La DRH voit toute l'entreprise, soit huit cent vingt salariés. Le directeur du site Est n'en voit que deux cent quarante-huit. Un manager de département, quatre-vingt-un. Un manager qui gère deux départements, soixante-dix-sept. Et un utilisateur inconnu ne voit rien du tout. Ce filtre s'applique aussi à la liste nominative des salariés.
+
+`[pause]`
+
+### 8. Limites et dépôt (1:50–2:00) — limites, puis la page du dépôt GitHub
+
+> Les limites sont assumées : les données sont synthétiques, et le rapport n'est pas publié sur Power BI Service. Tout le reste, le code, les tests et les preuves, se trouve dans le dépôt GitHub.
 
 ## Après l'enregistrement
 
-1. Vérifie la taille : `docs/img/demo.mp4` doit faire moins de 10 Mo.
-2. Fais un GIF court (10 à 15 s, la séquence RLS) : `docs/img/demo.gif`, moins de 5 Mo. ScreenToGif, gratuit, fait l'affaire.
-3. Dans le README, GitHub n'affiche une vidéo que si elle est téléversée par son éditeur web : ouvre `README.md` sur github.com, glisse `demo.mp4` dans la section « Vidéo de démonstration », puis committe. Le GIF reste dans le dépôt comme secours.
+1. Déposer le fichier audio dans `captures/` (dossier non versionné).
+2. Montage : détection des silences, calage des séquences, sous-titres, export `docs/img/demo.mp4` et `docs/img/demo.gif`.
+3. GitHub n'affiche une vidéo dans le README que si elle est téléversée par son éditeur web : ouvrir `README.md` sur github.com, glisser `demo.mp4` dans la section « Vidéo de démonstration », puis committer. Le GIF reste dans le dépôt en secours.
