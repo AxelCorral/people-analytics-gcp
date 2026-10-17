@@ -73,3 +73,4 @@ relationship d7aa5deb-237b-52c4-aed6-72acbeaefed0
 relationship abe8ae74-6644-5924-a610-d170a4fd2e5c
 	fromColumn: fct_absence_monthly.absence_type_code
 	toColumn: dim_absence_type.absence_type_code
+

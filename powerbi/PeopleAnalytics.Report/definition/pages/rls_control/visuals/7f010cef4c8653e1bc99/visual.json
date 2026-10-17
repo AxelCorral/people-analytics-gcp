@@ -1,12 +1,12 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
   "name": "7f010cef4c8653e1bc99",
   "position": {
-    "x": 857,
-    "y": 80,
+    "x": 798.54103343465044,
+    "y": 79.756838905775084,
     "z": 3000,
-    "height": 100,
-    "width": 413,
+    "height": 100.18237082066869,
+    "width": 471.73252279635261,
     "tabOrder": 3000
   },
   "visual": {
@@ -34,6 +34,39 @@
         }
       }
     },
+    "objects": {
+      "labels": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "25D"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
     "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "9571d435f477cda9b20e",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fct_headcount_monthly"
+              }
+            },
+            "Property": "Visible Scope"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
   }
 }

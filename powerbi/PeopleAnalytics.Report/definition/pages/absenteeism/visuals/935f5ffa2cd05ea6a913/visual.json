@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
   "name": "935f5ffa2cd05ea6a913",
   "position": {
     "x": 10,
@@ -28,13 +28,13 @@
               },
               "queryRef": "dim_date.month_label",
               "nativeQueryRef": "month_label",
+              "active": true,
               "displayName": "Mois"
             }
           ]
         }
       }
     },
-    "drillFilterOtherVisuals": true,
     "objects": {
       "data": [
         {
@@ -49,6 +49,7 @@
           }
         }
       ]
-    }
+    },
+    "drillFilterOtherVisuals": true
   }
 }

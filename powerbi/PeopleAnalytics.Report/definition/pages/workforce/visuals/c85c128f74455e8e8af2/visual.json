@@ -1,12 +1,12 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
   "name": "c85c128f74455e8e8af2",
   "position": {
-    "x": 10,
-    "y": 420,
+    "x": 9.72644376899696,
+    "y": 427.96352583586628,
     "z": 5000,
-    "height": 290,
-    "width": 1260,
+    "height": 282.06686930091189,
+    "width": 1260.5471124620062,
     "tabOrder": 5000
   },
   "visual": {
@@ -124,7 +124,6 @@
         }
       }
     },
-    "drillFilterOtherVisuals": true,
     "visualContainerObjects": {
       "title": [
         {
@@ -146,6 +145,109 @@
           }
         }
       ]
-    }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "931a01f7f176ca2a0809",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_employee"
+              }
+            },
+            "Property": "display_name"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "5cb5be050cb2b4e2633a",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_level"
+              }
+            },
+            "Property": "level_label"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "31a45dc85365a06e396c",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_contract_type"
+              }
+            },
+            "Property": "contract_type"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "baaaacecb0f13c99252d",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_org_unit"
+              }
+            },
+            "Property": "department_name"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "bf585d4a2ecbc0e5e01c",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fct_headcount_monthly"
+              }
+            },
+            "Property": "Headcount EoP"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "c2fb9bb7bc7bad2c3535",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fct_headcount_monthly"
+              }
+            },
+            "Property": "Avg Tenure (years)"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "1fea18cf2bff9d166473",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fct_headcount_monthly"
+              }
+            },
+            "Property": "Avg Age"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
   }
 }

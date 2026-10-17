@@ -1,12 +1,12 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
   "name": "71fe5182b25d5c62bc1e",
   "position": {
-    "x": 433,
-    "y": 80,
+    "x": 285.95744680851067,
+    "y": 79.756838905775084,
     "z": 2000,
-    "height": 100,
-    "width": 413,
+    "height": 100.18237082066869,
+    "width": 512.58358662613989,
     "tabOrder": 2000
   },
   "visual": {
@@ -34,6 +34,39 @@
         }
       }
     },
+    "objects": {
+      "labels": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "25D"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
     "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "da48227ed20687d91de4",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fct_headcount_monthly"
+              }
+            },
+            "Property": "RLS Status"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
   }
 }

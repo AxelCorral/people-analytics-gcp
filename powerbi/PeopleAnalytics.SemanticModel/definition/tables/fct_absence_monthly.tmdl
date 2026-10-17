@@ -3,29 +3,25 @@ table fct_absence_monthly
 	lineageTag: b3081b02-c6a1-54b1-9ded-b7ada59c4480
 
 	/// Heures d'absence des types de l'absentéisme (maladie, accident du travail, accident de trajet, maladie professionnelle, absence injustifiée).
-	measure 'Absence Hours (counted)' =
-			CALCULATE ( SUM ( fct_absence_monthly[absence_hours] ), dim_absence_type[counts_in_absenteeism] = TRUE () )
+	measure 'Absence Hours (counted)' = CALCULATE ( SUM ( fct_absence_monthly[absence_hours] ), dim_absence_type[counts_in_absenteeism] = TRUE () )
 		formatString: #,0
 		displayFolder: Absences
 		lineageTag: 6cc4718f-1475-5490-aa33-2bed55f68ba0
 
 	/// Heures d'absence de tous les types, congés payés et RTT inclus.
-	measure 'Absence Hours (all incl. leave)' =
-			SUM ( fct_absence_monthly[absence_hours] )
+	measure 'Absence Hours (all incl. leave)' = SUM ( fct_absence_monthly[absence_hours] )
 		formatString: #,0
 		displayFolder: Absences
 		lineageTag: 0a8293ef-5be8-5b75-ada1-7a08eb1e7030
 
 	/// Taux d'absentéisme : heures des types comptés / heures théoriques. Congés payés, RTT, maternité, paternité et formation exclus.
-	measure 'Absenteeism %' =
-			DIVIDE ( [Absence Hours (counted)], [Theoretical Hours] )
+	measure 'Absenteeism %' = DIVIDE ( [Absence Hours (counted)], [Theoretical Hours] )
 		formatString: 0.0 %
 		displayFolder: Absences
 		lineageTag: 3912afa4-4d77-53ed-ab47-d537eaa1152f
 
 	/// Absences totales, congés inclus : heures de tous les types / heures théoriques. Indicateur de disponibilité, jamais présenté comme de l'absentéisme.
-	measure 'Total Absence incl. Leave %' =
-			DIVIDE ( [Absence Hours (all incl. leave)], [Theoretical Hours] )
+	measure 'Total Absence incl. Leave %' = DIVIDE ( [Absence Hours (all incl. leave)], [Theoretical Hours] )
 		formatString: 0.0 %
 		displayFolder: Absences
 		lineageTag: cb36ec61-54f9-5208-a5b0-1499a340a06f
@@ -71,13 +67,15 @@ table fct_absence_monthly
 	/// First day of the month (relationship key to dim_date)
 	column month_start
 		dataType: dateTime
-		formatString: yyyy-mm-dd
 		isHidden
+		formatString: yyyy-mm-dd
 		lineageTag: 29b18c39-e374-578a-9680-1205b7967786
 		summarizeBy: none
 		sourceColumn: month_start
 
 		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
 
 	/// Personnel number
 	column employee_id
@@ -142,10 +140,11 @@ table fct_absence_monthly
 	partition fct_absence_monthly = m
 		mode: import
 		source =
-			let
-			    Source = LoadMart("fct_absence_monthly"),
-			    Typed = Table.TransformColumnTypes(Source, {{"month_start", type date}, {"employee_id", type text}, {"org_unit_id", type text}, {"site_code", type text}, {"absence_type_code", type text}, {"absence_days", Int64.Type}, {"absence_hours", type number}}, "en-US")
-			in
-			    Typed
+				let
+				    Source = LoadMart("fct_absence_monthly"),
+				    Typed = Table.TransformColumnTypes(Source, {{"month_start", type date}, {"employee_id", type text}, {"org_unit_id", type text}, {"site_code", type text}, {"absence_type_code", type text}, {"absence_days", Int64.Type}, {"absence_hours", type number}}, "en-US")
+				in
+				    Typed
 
 	annotation PBI_ResultType = Table
+

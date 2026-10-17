@@ -21,15 +21,13 @@ table fct_headcount_monthly
 		lineageTag: ba1eb251-ce03-588d-9948-5a8d01415325
 
 	/// Effectif fin de période, femmes (pyramide des âges).
-	measure 'Headcount EoP Women' =
-			CALCULATE ( [Headcount EoP], dim_employee[gender_code] = "2" )
+	measure 'Headcount EoP Women' = CALCULATE ( [Headcount EoP], dim_employee[gender_code] = "2" )
 		formatString: #,0
 		displayFolder: Effectifs
 		lineageTag: f47c6ba9-04b2-5665-a48f-f46218aa6a4a
 
 	/// Effectif fin de période, hommes, en négatif pour la pyramide des âges (affiché en valeur absolue).
-	measure 'Headcount EoP Men (negative)' =
-			- CALCULATE ( [Headcount EoP], dim_employee[gender_code] = "1" )
+	measure 'Headcount EoP Men (negative)' = - CALCULATE ( [Headcount EoP], dim_employee[gender_code] = "1" )
 		formatString: #,0;#,0;0
 		displayFolder: Effectifs
 		lineageTag: 51916e91-e31b-5bf3-95e8-896d7c183e5f
@@ -44,15 +42,13 @@ table fct_headcount_monthly
 		lineageTag: da7872be-3c06-57d0-83c4-52dea49a5efd
 
 	/// Effectif fin de période douze mois plus tôt.
-	measure 'Headcount PY' =
-			CALCULATE ( [Headcount EoP], DATEADD ( dim_date[date], -12, MONTH ) )
+	measure 'Headcount PY' = CALCULATE ( [Headcount EoP], DATEADD ( dim_date[date], -12, MONTH ) )
 		formatString: #,0
 		displayFolder: Effectifs
 		lineageTag: e939f623-1b32-5d05-b1f5-5e493a290fd1
 
 	/// Variation de l'effectif sur douze mois.
-	measure 'Headcount Δ' =
-			IF ( NOT ISBLANK ( [Headcount PY] ), [Headcount EoP] - [Headcount PY] )
+	measure 'Headcount Δ' = IF ( NOT ISBLANK ( [Headcount PY] ), [Headcount EoP] - [Headcount PY] )
 		formatString: +#,0;-#,0;0
 		displayFolder: Effectifs
 		lineageTag: e62555ad-c953-5ba9-a327-ec4de9dcc3d3
@@ -125,8 +121,7 @@ table fct_headcount_monthly
 		lineageTag: de0c3e54-f1bf-5b42-bf2d-8fa9960a7376
 
 	/// Part des femmes dans l'effectif fin de période.
-	measure 'Female Share %' =
-			DIVIDE ( CALCULATE ( [Headcount EoP], dim_employee[gender_code] = "2" ), [Headcount EoP] )
+	measure 'Female Share %' = DIVIDE ( CALCULATE ( [Headcount EoP], dim_employee[gender_code] = "2" ), [Headcount EoP] )
 		formatString: 0.0 %
 		displayFolder: Effectifs
 		lineageTag: 3d7fd554-2ffa-59ea-8826-2a087e6e1336
@@ -202,8 +197,7 @@ table fct_headcount_monthly
 		lineageTag: ec20e875-14cf-52ed-b609-3a282ae53b68
 
 	/// Utilisateur vu par le modèle (USERPRINCIPALNAME, en minuscules) : l'adresse simulée sous « Afficher en tant que ».
-	measure 'Current User' =
-			LOWER ( USERPRINCIPALNAME () )
+	measure 'Current User' = LOWER ( USERPRINCIPALNAME () )
 		displayFolder: Contrôle RLS
 		lineageTag: 7af25561-4ca1-5479-b0f1-b982393c522d
 
@@ -240,29 +234,25 @@ table fct_headcount_monthly
 		lineageTag: 59a19766-81e2-5479-9a25-d6021dfeb00a
 
 	/// Effectif fin de période visible, 0 au lieu de vide.
-	measure 'Visible Headcount EoP' =
-			COALESCE ( [Headcount EoP], 0 )
+	measure 'Visible Headcount EoP' = COALESCE ( [Headcount EoP], 0 )
 		formatString: #,0
 		displayFolder: Contrôle RLS
 		lineageTag: 5dca7a79-ee1b-5a5f-ae08-8f379eee089a
 
 	/// Salariés visibles dans dim_employee, tous mois confondus (ALL ignore les segments mais respecte la RLS).
-	measure 'Visible Employees' =
-			COALESCE ( COUNTROWS ( ALL ( dim_employee ) ), 0 )
+	measure 'Visible Employees' = COALESCE ( COUNTROWS ( ALL ( dim_employee ) ), 0 )
 		formatString: #,0
 		displayFolder: Contrôle RLS
 		lineageTag: fb8c60e6-e722-5785-baac-0bfa08523a33
 
 	/// Sites visibles dans dim_org_unit.
-	measure 'Visible Sites' =
-			COALESCE ( COUNTROWS ( ALL ( dim_org_unit[site_code] ) ), 0 )
+	measure 'Visible Sites' = COALESCE ( COUNTROWS ( ALL ( dim_org_unit[site_code] ) ), 0 )
 		formatString: #,0
 		displayFolder: Contrôle RLS
 		lineageTag: 764c34c0-f664-5397-a5dc-c869add04f97
 
 	/// Départements visibles dans dim_org_unit.
-	measure 'Visible Departments' =
-			COALESCE ( COUNTROWS ( ALL ( dim_org_unit ) ), 0 )
+	measure 'Visible Departments' = COALESCE ( COUNTROWS ( ALL ( dim_org_unit ) ), 0 )
 		formatString: #,0
 		displayFolder: Contrôle RLS
 		lineageTag: f71e7a39-e9c6-59ef-897f-4e507536a612
@@ -270,24 +260,28 @@ table fct_headcount_monthly
 	/// Last day of the month (or extraction date for a partial month)
 	column month_end_date
 		dataType: dateTime
-		formatString: yyyy-mm-dd
 		isHidden
+		formatString: yyyy-mm-dd
 		lineageTag: 5c42f2ad-cb33-5205-9c40-11c29812aca8
 		summarizeBy: none
 		sourceColumn: month_end_date
 
 		annotation SummarizationSetBy = User
 
+		annotation UnderlyingDateTimeDataType = Date
+
 	/// First day of the month (relationship key to dim_date)
 	column month_start
 		dataType: dateTime
-		formatString: yyyy-mm-dd
 		isHidden
+		formatString: yyyy-mm-dd
 		lineageTag: 620b87f7-c805-5add-af88-3bc2c9e35def
 		summarizeBy: none
 		sourceColumn: month_start
 
 		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
 
 	/// Personnel number
 	column employee_id
@@ -402,10 +396,11 @@ table fct_headcount_monthly
 	partition fct_headcount_monthly = m
 		mode: import
 		source =
-			let
-			    Source = LoadMart("fct_headcount_monthly"),
-			    Typed = Table.TransformColumnTypes(Source, {{"month_end_date", type date}, {"month_start", type date}, {"employee_id", type text}, {"org_unit_id", type text}, {"site_code", type text}, {"employee_group_code", type text}, {"employee_subgroup_code", type text}, {"employment_pct", type number}, {"fte", type number}, {"tenure_years", type number}, {"age_years", Int64.Type}, {"age_band", type text}, {"age_band_order", Int64.Type}}, "en-US")
-			in
-			    Typed
+				let
+				    Source = LoadMart("fct_headcount_monthly"),
+				    Typed = Table.TransformColumnTypes(Source, {{"month_end_date", type date}, {"month_start", type date}, {"employee_id", type text}, {"org_unit_id", type text}, {"site_code", type text}, {"employee_group_code", type text}, {"employee_subgroup_code", type text}, {"employment_pct", type number}, {"fte", type number}, {"tenure_years", type number}, {"age_years", Int64.Type}, {"age_band", type text}, {"age_band_order", Int64.Type}}, "en-US")
+				in
+				    Typed
 
 	annotation PBI_ResultType = Table
+

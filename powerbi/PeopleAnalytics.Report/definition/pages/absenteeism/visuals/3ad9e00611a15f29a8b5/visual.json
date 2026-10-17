@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
   "name": "3ad9e00611a15f29a8b5",
   "position": {
     "x": 645,
@@ -28,6 +28,7 @@
               },
               "queryRef": "dim_absence_type.absence_type_label",
               "nativeQueryRef": "absence_type_label",
+              "active": true,
               "displayName": "Type d'absence"
             }
           ]
@@ -53,7 +54,6 @@
         }
       }
     },
-    "drillFilterOtherVisuals": true,
     "visualContainerObjects": {
       "title": [
         {
@@ -75,6 +75,7 @@
           }
         }
       ]
-    }
+    },
+    "drillFilterOtherVisuals": true
   }
 }

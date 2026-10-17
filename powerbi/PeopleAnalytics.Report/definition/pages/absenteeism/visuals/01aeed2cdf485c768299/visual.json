@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
   "name": "01aeed2cdf485c768299",
   "position": {
     "x": 630,
@@ -28,13 +28,13 @@
               },
               "queryRef": "dim_org_unit.department_name",
               "nativeQueryRef": "department_name",
+              "active": true,
               "displayName": "Département"
             }
           ]
         }
       }
     },
-    "drillFilterOtherVisuals": true,
     "objects": {
       "data": [
         {
@@ -49,6 +49,7 @@
           }
         }
       ]
-    }
+    },
+    "drillFilterOtherVisuals": true
   }
 }

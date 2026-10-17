@@ -3,8 +3,7 @@
 role dynamic_scope
 	modelPermission: read
 
-	tablePermission sec_user_scope =
-			sec_user_scope[user_upn] = LOWER ( USERPRINCIPALNAME () )
+	tablePermission sec_user_scope = sec_user_scope[user_upn] = LOWER ( USERPRINCIPALNAME () )
 
 	tablePermission dim_org_unit =
 			VAR _upn = LOWER ( USERPRINCIPALNAME () )
@@ -39,3 +38,4 @@ role dynamic_scope
 			        )
 
 	annotation PBI_Id = 6086b5012d45525c8cb4f462b64e2e20
+

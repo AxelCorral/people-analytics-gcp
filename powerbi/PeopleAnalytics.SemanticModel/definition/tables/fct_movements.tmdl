@@ -3,29 +3,25 @@ table fct_movements
 	lineageTag: a511ea6b-16a3-5cb3-a79e-676a9e4cf746
 
 	/// Entrées : embauches et réintégrations.
-	measure Hires =
-			CALCULATE ( COUNTROWS ( fct_movements ), fct_movements[is_entry] = TRUE () )
+	measure Hires = CALCULATE ( COUNTROWS ( fct_movements ), fct_movements[is_entry] = TRUE () )
 		formatString: #,0
 		displayFolder: Mouvements
 		lineageTag: b25d7581-c1c6-56fd-aad1-6546eb9351a4
 
 	/// Sorties, datées du dernier jour travaillé.
-	measure Exits =
-			CALCULATE ( COUNTROWS ( fct_movements ), fct_movements[is_exit] = TRUE () )
+	measure Exits = CALCULATE ( COUNTROWS ( fct_movements ), fct_movements[is_exit] = TRUE () )
 		formatString: #,0
 		displayFolder: Mouvements
 		lineageTag: cecceb2f-547b-53f5-aa92-194985e469ee
 
 	/// Sorties de salariés en CDI, toutes causes.
-	measure 'Exits CDI' =
-			CALCULATE ( COUNTROWS ( fct_movements ), fct_movements[is_cdi_exit] = TRUE () )
+	measure 'Exits CDI' = CALCULATE ( COUNTROWS ( fct_movements ), fct_movements[is_cdi_exit] = TRUE () )
 		formatString: #,0
 		displayFolder: Mouvements
 		lineageTag: 338fc384-e060-5e0e-8eff-140beb5669a6
 
 	/// Démissions de salariés en CDI.
-	measure 'Resignations CDI' =
-			CALCULATE ( COUNTROWS ( fct_movements ), fct_movements[is_cdi_exit] = TRUE (), fct_movements[is_resignation] = TRUE () )
+	measure 'Resignations CDI' = CALCULATE ( COUNTROWS ( fct_movements ), fct_movements[is_cdi_exit] = TRUE (), fct_movements[is_resignation] = TRUE () )
 		formatString: #,0
 		displayFolder: Mouvements
 		lineageTag: 6e448645-031b-5bc7-a29d-f39fd3de5dfd
@@ -86,16 +82,20 @@ table fct_movements
 
 		annotation SummarizationSetBy = User
 
+		annotation UnderlyingDateTimeDataType = Date
+
 	/// First day of the event month (relationship key to dim_date)
 	column month_start
 		dataType: dateTime
-		formatString: yyyy-mm-dd
 		isHidden
+		formatString: yyyy-mm-dd
 		lineageTag: 0936e9ae-bafd-5156-8d37-a0cf7a61985a
 		summarizeBy: none
 		sourceColumn: month_start
 
 		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
 
 	/// Personnel number
 	column employee_id
@@ -219,10 +219,11 @@ table fct_movements
 	partition fct_movements = m
 		mode: import
 		source =
-			let
-			    Source = LoadMart("fct_movements"),
-			    Typed = Table.TransformColumnTypes(Source, {{"movement_id", type text}, {"event_date", type date}, {"month_start", type date}, {"employee_id", type text}, {"movement_type", type text}, {"action_key", type text}, {"org_unit_id", type text}, {"site_code", type text}, {"employee_group_code", type text}, {"employee_subgroup_code", type text}, {"is_entry", type logical}, {"is_exit", type logical}, {"is_cdi_exit", type logical}, {"is_resignation", type logical}, {"headcount_delta", Int64.Type}}, "en-US")
-			in
-			    Typed
+				let
+				    Source = LoadMart("fct_movements"),
+				    Typed = Table.TransformColumnTypes(Source, {{"movement_id", type text}, {"event_date", type date}, {"month_start", type date}, {"employee_id", type text}, {"movement_type", type text}, {"action_key", type text}, {"org_unit_id", type text}, {"site_code", type text}, {"employee_group_code", type text}, {"employee_subgroup_code", type text}, {"is_entry", type logical}, {"is_exit", type logical}, {"is_cdi_exit", type logical}, {"is_resignation", type logical}, {"headcount_delta", Int64.Type}}, "en-US")
+				in
+				    Typed
 
 	annotation PBI_ResultType = Table
+

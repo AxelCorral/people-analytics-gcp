@@ -33,10 +33,11 @@ table dim_contract_type
 	partition dim_contract_type = m
 		mode: import
 		source =
-			let
-			    Source = LoadMart("dim_contract_type"),
-			    Typed = Table.TransformColumnTypes(Source, {{"employee_group_code", type text}, {"contract_type", type text}, {"contract_category", type text}}, "en-US")
-			in
-			    Typed
+				let
+				    Source = LoadMart("dim_contract_type"),
+				    Typed = Table.TransformColumnTypes(Source, {{"employee_group_code", type text}, {"contract_type", type text}, {"contract_category", type text}}, "en-US")
+				in
+				    Typed
 
 	annotation PBI_ResultType = Table
+

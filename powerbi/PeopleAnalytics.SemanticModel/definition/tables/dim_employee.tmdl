@@ -49,6 +49,8 @@ table dim_employee
 
 		annotation SummarizationSetBy = User
 
+		annotation UnderlyingDateTimeDataType = Date
+
 	/// ISO 3166-1 alpha-2
 	column nationality_code
 		dataType: string
@@ -67,6 +69,8 @@ table dim_employee
 		sourceColumn: first_hire_date
 
 		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
 
 	/// Department at the extraction date
 	column current_org_unit_id
@@ -136,10 +140,11 @@ table dim_employee
 	partition dim_employee = m
 		mode: import
 		source =
-			let
-			    Source = LoadMart("dim_employee"),
-			    Typed = Table.TransformColumnTypes(Source, {{"employee_id", type text}, {"display_name", type text}, {"gender_code", type text}, {"gender_label", type text}, {"birth_date", type date}, {"nationality_code", type text}, {"first_hire_date", type date}, {"current_org_unit_id", type text}, {"current_site_code", type text}, {"current_employee_group_code", type text}, {"current_employee_subgroup_code", type text}, {"is_active_at_extraction", type logical}, {"org_unit_ids_history", type text}, {"site_codes_history", type text}}, "en-US")
-			in
-			    Typed
+				let
+				    Source = LoadMart("dim_employee"),
+				    Typed = Table.TransformColumnTypes(Source, {{"employee_id", type text}, {"display_name", type text}, {"gender_code", type text}, {"gender_label", type text}, {"birth_date", type date}, {"nationality_code", type text}, {"first_hire_date", type date}, {"current_org_unit_id", type text}, {"current_site_code", type text}, {"current_employee_group_code", type text}, {"current_employee_subgroup_code", type text}, {"is_active_at_extraction", type logical}, {"org_unit_ids_history", type text}, {"site_codes_history", type text}}, "en-US")
+				in
+				    Typed
 
 	annotation PBI_ResultType = Table
+

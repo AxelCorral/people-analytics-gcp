@@ -51,10 +51,11 @@ table dim_absence_type
 	partition dim_absence_type = m
 		mode: import
 		source =
-			let
-			    Source = LoadMart("dim_absence_type"),
-			    Typed = Table.TransformColumnTypes(Source, {{"absence_type_code", type text}, {"absence_type_label", type text}, {"absence_category", type text}, {"counts_in_absenteeism", type logical}, {"absence_scope", type text}}, "en-US")
-			in
-			    Typed
+				let
+				    Source = LoadMart("dim_absence_type"),
+				    Typed = Table.TransformColumnTypes(Source, {{"absence_type_code", type text}, {"absence_type_label", type text}, {"absence_category", type text}, {"counts_in_absenteeism", type logical}, {"absence_scope", type text}}, "en-US")
+				in
+				    Typed
 
 	annotation PBI_ResultType = Table
+

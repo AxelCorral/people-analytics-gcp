@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
   "name": "916aad830a1551c1b24a",
   "position": {
     "x": 10,
@@ -64,7 +64,6 @@
         }
       }
     },
-    "drillFilterOtherVisuals": true,
     "visualContainerObjects": {
       "title": [
         {
@@ -86,6 +85,53 @@
           }
         }
       ]
-    }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "617a7d682c1031a48a49",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_org_unit"
+              }
+            },
+            "Property": "site_name"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "9ee175fcb2692466e2c7",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_org_unit"
+              }
+            },
+            "Property": "department_name"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "46c64ce4b97a36247707",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fct_headcount_monthly"
+              }
+            },
+            "Property": "Visible Headcount EoP"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
   }
 }

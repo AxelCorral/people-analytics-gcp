@@ -34,10 +34,11 @@ table dim_level
 	partition dim_level = m
 		mode: import
 		source =
-			let
-			    Source = LoadMart("dim_level"),
-			    Typed = Table.TransformColumnTypes(Source, {{"employee_subgroup_code", type text}, {"level_label", type text}, {"level_rank", Int64.Type}}, "en-US")
-			in
-			    Typed
+				let
+				    Source = LoadMart("dim_level"),
+				    Typed = Table.TransformColumnTypes(Source, {{"employee_subgroup_code", type text}, {"level_label", type text}, {"level_rank", Int64.Type}}, "en-US")
+				in
+				    Typed
 
 	annotation PBI_ResultType = Table
+

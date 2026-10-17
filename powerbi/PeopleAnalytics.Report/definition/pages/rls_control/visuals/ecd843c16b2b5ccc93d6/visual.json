@@ -1,12 +1,12 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
   "name": "ecd843c16b2b5ccc93d6",
   "position": {
-    "x": 645,
-    "y": 300,
+    "x": 644.86322188449856,
+    "y": 313.19148936170217,
     "z": 9000,
-    "height": 410,
-    "width": 625,
+    "height": 396.838905775076,
+    "width": 625.41033434650456,
     "tabOrder": 9000
   },
   "visual": {
@@ -79,7 +79,6 @@
         }
       }
     },
-    "drillFilterOtherVisuals": true,
     "visualContainerObjects": {
       "title": [
         {
@@ -101,6 +100,67 @@
           }
         }
       ]
-    }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "452f447ff79f7a8a7194",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "sec_user_scope"
+              }
+            },
+            "Property": "user_upn"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "a4e6944f29884e3f677f",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "sec_user_scope"
+              }
+            },
+            "Property": "role_label"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "02f710a81b1a4007421d",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "sec_user_scope"
+              }
+            },
+            "Property": "scope_type"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "3cbb1187a8a60a9f4cce",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "sec_user_scope"
+              }
+            },
+            "Property": "scope_value"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
   }
 }

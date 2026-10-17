@@ -1,12 +1,12 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
   "name": "1916fdb695485afd87ae",
   "position": {
-    "x": 10,
-    "y": 80,
+    "x": 9.72644376899696,
+    "y": 79.756838905775084,
     "z": 1000,
-    "height": 100,
-    "width": 413,
+    "height": 100.18237082066869,
+    "width": 276.23100303951367,
     "tabOrder": 1000
   },
   "visual": {
@@ -34,6 +34,52 @@
         }
       }
     },
+    "objects": {
+      "categoryLabels": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "12D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "labels": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "25D"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
     "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "7c30a1fad50ca98d10ac",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fct_headcount_monthly"
+              }
+            },
+            "Property": "Current User"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
   }
 }

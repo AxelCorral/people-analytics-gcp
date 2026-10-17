@@ -4,11 +4,15 @@ expression DataSource = "Local" meta [IsParameterQuery = true, List = {"Local", 
 
 	annotation PBI_ResultType = Text
 
+	annotation PBI_NavigationStepName = Navigation
+
 /// Chemin absolu du dossier data/sample du dépôt cloné (à adapter sur un autre poste).
 expression SampleFolder = "D:\Project_claude_code\people-analytics-gcp\data\sample" meta [IsParameterQuery = true, Type = "Text", IsParameterQueryRequired = true]
 	lineageTag: 4f5502fe-75cc-5d4a-b52f-ac07a93615f6
 
 	annotation PBI_ResultType = Text
+
+	annotation PBI_NavigationStepName = Navigation
 
 /// Projet GCP (BillingProject du connecteur).
 expression BigQueryProject = "people-analytics-ac26" meta [IsParameterQuery = true, Type = "Text", IsParameterQueryRequired = true]
@@ -16,11 +20,15 @@ expression BigQueryProject = "people-analytics-ac26" meta [IsParameterQuery = tr
 
 	annotation PBI_ResultType = Text
 
+	annotation PBI_NavigationStepName = Navigation
+
 /// Dataset des marts.
 expression BigQueryDataset = "hr_marts" meta [IsParameterQuery = true, Type = "Text", IsParameterQueryRequired = true]
 	lineageTag: 7f0debe5-ff40-5aca-94e5-ea6af8929ea3
 
 	annotation PBI_ResultType = Text
+
+	annotation PBI_NavigationStepName = Navigation
 
 /// Charge une table des marts depuis BigQuery ou depuis les CSV, selon DataSource.
 expression LoadMart =
@@ -41,3 +49,4 @@ expression LoadMart =
 	lineageTag: 12bc8440-7403-5a4e-981a-40a162d80d0d
 
 	annotation PBI_ResultType = Function
+

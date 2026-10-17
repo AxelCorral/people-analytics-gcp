@@ -78,10 +78,11 @@ table dim_action_type
 	partition dim_action_type = m
 		mode: import
 		source =
-			let
-			    Source = LoadMart("dim_action_type"),
-			    Typed = Table.TransformColumnTypes(Source, {{"action_key", type text}, {"action_type_code", type text}, {"action_type_label", type text}, {"action_category", type text}, {"action_reason_code", type text}, {"action_reason_label", type text}, {"exit_category", type text}, {"exit_category_label", type text}}, "en-US")
-			in
-			    Typed
+				let
+				    Source = LoadMart("dim_action_type"),
+				    Typed = Table.TransformColumnTypes(Source, {{"action_key", type text}, {"action_type_code", type text}, {"action_type_label", type text}, {"action_category", type text}, {"action_reason_code", type text}, {"action_reason_label", type text}, {"exit_category", type text}, {"exit_category_label", type text}}, "en-US")
+				in
+				    Typed
 
 	annotation PBI_ResultType = Table
+

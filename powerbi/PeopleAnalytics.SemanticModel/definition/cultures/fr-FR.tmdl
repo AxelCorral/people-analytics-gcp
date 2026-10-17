@@ -1,0 +1,1079 @@
+cultureInfo fr-FR
+
+	linguisticMetadata =
+			{
+			  "Version": "2.0.0",
+			  "Language": "en-US",
+			  "Entities": {
+			    "fct_movements.total_exit_rate_12m_": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_movements",
+			          "ConceptualProperty": "Total Exit Rate 12M %"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Sorties totales 12 mois (CDD compris)": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Sorties totales 12 mois (CDD et alternants compris)": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_movements.resignation_rate_12m_": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_movements",
+			          "ConceptualProperty": "Resignation Rate 12M %"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Taux de démission 12 mois": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_movements.turnover_cdi_12m_": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_movements",
+			          "ConceptualProperty": "Turnover CDI 12M %"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Turnover CDI 12 mois": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_movements.exits": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_movements",
+			          "ConceptualProperty": "Exits"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Sorties du mois": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Sorties": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_movements.hires": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_movements",
+			          "ConceptualProperty": "Hires"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Entrées du mois": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Entrées": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_movements.exits_cdi": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_movements",
+			          "ConceptualProperty": "Exits CDI"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Sorties CDI du mois": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dim_org_unit.department_name": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "dim_org_unit",
+			          "ConceptualProperty": "department_name"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Département": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dim_org_unit.site_name": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "dim_org_unit",
+			          "ConceptualProperty": "site_name"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Site": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_absence_monthly.total_absence_incl__leave_12m_": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_absence_monthly",
+			          "ConceptualProperty": "Total Absence incl. Leave 12M %"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Absences totales, congés inclus, 12 mois": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_absence_monthly.absenteeism_12m_": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_absence_monthly",
+			          "ConceptualProperty": "Absenteeism 12M %"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Absentéisme 12 mois": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_absence_monthly.absenteeism_": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_absence_monthly",
+			          "ConceptualProperty": "Absenteeism %"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Absentéisme du mois": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Absentéisme": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_absence_monthly.absence_hours_all_incl__leave": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_absence_monthly",
+			          "ConceptualProperty": "Absence Hours (all incl. leave)"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Heures d'absence": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_absence_monthly.total_absence_incl__leave_": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_absence_monthly",
+			          "ConceptualProperty": "Total Absence incl. Leave %"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Absences totales, congés inclus (mois)": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_headcount_monthly.female_share_": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_headcount_monthly",
+			          "ConceptualProperty": "Female Share %"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Part des femmes": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_headcount_monthly.avg_tenure_years": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_headcount_monthly",
+			          "ConceptualProperty": "Avg Tenure (years)"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Ancienneté moyenne (ans)": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Ancienneté (ans)": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_headcount_monthly.headcount_eop": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_headcount_monthly",
+			          "ConceptualProperty": "Headcount EoP"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Effectif fin de mois": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Effectif": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_headcount_monthly.headcount_min_12m": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_headcount_monthly",
+			          "ConceptualProperty": "Headcount Min 12M"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Effectif min 12 mois": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_headcount_monthly.headcount_max_12m": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_headcount_monthly",
+			          "ConceptualProperty": "Headcount Max 12M"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Effectif max 12 mois": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_headcount_monthly.fte_eop": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_headcount_monthly",
+			          "ConceptualProperty": "FTE EoP"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "ETP fin de mois": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_headcount_monthly.parttime_share_": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_headcount_monthly",
+			          "ConceptualProperty": "Part-Time Share %"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Part de temps partiel": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_headcount_monthly.avg_headcount_cdi_12m": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_headcount_monthly",
+			          "ConceptualProperty": "Avg Headcount CDI 12M"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Effectif moyen CDI 12 mois": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_headcount_monthly.headcount_eop_masked__5": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_headcount_monthly",
+			          "ConceptualProperty": "Headcount EoP (masked < 5)"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Effectif (masqué < 5)": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_headcount_monthly.age_band": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_headcount_monthly",
+			          "ConceptualProperty": "age_band"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Tranche d'âge": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_headcount_monthly.headcount_eop_women": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_headcount_monthly",
+			          "ConceptualProperty": "Headcount EoP Women"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Femmes": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_headcount_monthly.headcount_eop_men_negative": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_headcount_monthly",
+			          "ConceptualProperty": "Headcount EoP Men (negative)"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Hommes": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_headcount_monthly.avg_age": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_headcount_monthly",
+			          "ConceptualProperty": "Avg Age"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Âge": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_headcount_monthly.visible_headcount_eop": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_headcount_monthly",
+			          "ConceptualProperty": "Visible Headcount EoP"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Effectif visible": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_headcount_monthly.current_user": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_headcount_monthly",
+			          "ConceptualProperty": "Current User"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Utilisateur (USERPRINCIPALNAME)": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_headcount_monthly.visible_sites": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_headcount_monthly",
+			          "ConceptualProperty": "Visible Sites"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Sites visibles": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_headcount_monthly.visible_employees": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_headcount_monthly",
+			          "ConceptualProperty": "Visible Employees"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Salariés visibles": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_headcount_monthly.rls_status": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_headcount_monthly",
+			          "ConceptualProperty": "RLS Status"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Rôle": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_headcount_monthly.visible_scope": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_headcount_monthly",
+			          "ConceptualProperty": "Visible Scope"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Périmètre lu dans sec_user_scope": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fct_headcount_monthly.visible_departments": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fct_headcount_monthly",
+			          "ConceptualProperty": "Visible Departments"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Départements visibles": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dim_date.month_start": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "dim_date",
+			          "ConceptualProperty": "month_start"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Mois": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dim_date.month_label": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "dim_date",
+			          "ConceptualProperty": "month_label"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Mois": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dim_date.year": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "dim_date",
+			          "ConceptualProperty": "year"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Année": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dim_date.month_short_fr": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "dim_date",
+			          "ConceptualProperty": "month_short_fr"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Mois": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dim_absence_type.absence_type_label": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "dim_absence_type",
+			          "ConceptualProperty": "absence_type_label"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Type d'absence": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dim_absence_type.absence_scope": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "dim_absence_type",
+			          "ConceptualProperty": "absence_scope"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Périmètre": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dim_action_type.exit_category_label": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "dim_action_type",
+			          "ConceptualProperty": "exit_category_label"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Motif": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dim_level.level_label": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "dim_level",
+			          "ConceptualProperty": "level_label"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Niveau": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dim_employee.gender_label": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "dim_employee",
+			          "ConceptualProperty": "gender_label"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Sexe": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dim_employee.display_name": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "dim_employee",
+			          "ConceptualProperty": "display_name"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Salarié": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dim_contract_type.contract_type": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "dim_contract_type",
+			          "ConceptualProperty": "contract_type"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Contrat": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "sec_user_scope.user_upn": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "sec_user_scope",
+			          "ConceptualProperty": "user_upn"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Utilisateur": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "sec_user_scope.role_label": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "sec_user_scope",
+			          "ConceptualProperty": "role_label"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Profil": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "sec_user_scope.scope_type": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "sec_user_scope",
+			          "ConceptualProperty": "scope_type"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Type": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "sec_user_scope.scope_value": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "sec_user_scope",
+			          "ConceptualProperty": "scope_value"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Valeur": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    }
+			  }
+			}
+		contentType: json
+

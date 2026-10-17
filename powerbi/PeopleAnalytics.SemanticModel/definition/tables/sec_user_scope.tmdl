@@ -46,10 +46,11 @@ table sec_user_scope
 	partition sec_user_scope = m
 		mode: import
 		source =
-			let
-			    Source = LoadMart("sec_user_scope"),
-			    Typed = Table.TransformColumnTypes(Source, {{"user_upn", type text}, {"scope_type", type text}, {"scope_value", type text}, {"role_label", type text}}, "en-US")
-			in
-			    Typed
+				let
+				    Source = LoadMart("sec_user_scope"),
+				    Typed = Table.TransformColumnTypes(Source, {{"user_upn", type text}, {"scope_type", type text}, {"scope_value", type text}, {"role_label", type text}}, "en-US")
+				in
+				    Typed
 
 	annotation PBI_ResultType = Table
+

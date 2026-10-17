@@ -69,10 +69,11 @@ table dim_org_unit
 	partition dim_org_unit = m
 		mode: import
 		source =
-			let
-			    Source = LoadMart("dim_org_unit"),
-			    Typed = Table.TransformColumnTypes(Source, {{"org_unit_id", type text}, {"department_code", type text}, {"department_name", type text}, {"site_code", type text}, {"site_name", type text}, {"site_org_unit_id", type text}, {"head_employee_id", type text}}, "en-US")
-			in
-			    Typed
+				let
+				    Source = LoadMart("dim_org_unit"),
+				    Typed = Table.TransformColumnTypes(Source, {{"org_unit_id", type text}, {"department_code", type text}, {"department_name", type text}, {"site_code", type text}, {"site_name", type text}, {"site_org_unit_id", type text}, {"head_employee_id", type text}}, "en-US")
+				in
+				    Typed
 
 	annotation PBI_ResultType = Table
+

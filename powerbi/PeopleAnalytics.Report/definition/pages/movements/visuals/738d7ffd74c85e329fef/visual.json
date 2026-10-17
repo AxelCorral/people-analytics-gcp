@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
   "name": "738d7ffd74c85e329fef",
   "position": {
     "x": 645,
@@ -28,6 +28,7 @@
               },
               "queryRef": "dim_action_type.exit_category_label",
               "nativeQueryRef": "exit_category_label",
+              "active": true,
               "displayName": "Motif"
             }
           ]
@@ -53,7 +54,6 @@
         }
       }
     },
-    "drillFilterOtherVisuals": true,
     "visualContainerObjects": {
       "title": [
         {
@@ -75,6 +75,7 @@
           }
         }
       ]
-    }
+    },
+    "drillFilterOtherVisuals": true
   }
 }

@@ -1,18 +1,20 @@
 /// Date dimension, from the start of the reporting window to the extraction date (no future date).
 table dim_date
-	dataCategory: Time
 	lineageTag: f380957e-e57c-5bca-96bc-67f97d7d5923
+	dataCategory: Time
 
 	/// Day (key)
 	column date
 		dataType: dateTime
-		formatString: yyyy-mm-dd
 		isKey
+		formatString: yyyy-mm-dd
 		lineageTag: dd53e420-1227-53c8-a919-fd3be5b2f1d7
 		summarizeBy: none
 		sourceColumn: date
 
 		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
 
 	/// Year
 	column year
@@ -52,6 +54,8 @@ table dim_date
 
 		annotation SummarizationSetBy = User
 
+		annotation UnderlyingDateTimeDataType = Date
+
 	/// Last day of the month
 	column month_end
 		dataType: dateTime
@@ -61,6 +65,8 @@ table dim_date
 		sourceColumn: month_end
 
 		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
 
 	/// YYYY-MM
 	column year_month
@@ -131,10 +137,11 @@ table dim_date
 	partition dim_date = m
 		mode: import
 		source =
-			let
-			    Source = LoadMart("dim_date"),
-			    Typed = Table.TransformColumnTypes(Source, {{"date", type date}, {"year", Int64.Type}, {"quarter", Int64.Type}, {"month", Int64.Type}, {"month_start", type date}, {"month_end", type date}, {"year_month", type text}, {"month_label", type text}, {"month_short_fr", type text}, {"is_month_end", type logical}, {"is_working_day", type logical}, {"is_public_holiday", type logical}, {"holiday_name", type text}}, "en-US")
-			in
-			    Typed
+				let
+				    Source = LoadMart("dim_date"),
+				    Typed = Table.TransformColumnTypes(Source, {{"date", type date}, {"year", Int64.Type}, {"quarter", Int64.Type}, {"month", Int64.Type}, {"month_start", type date}, {"month_end", type date}, {"year_month", type text}, {"month_label", type text}, {"month_short_fr", type text}, {"is_month_end", type logical}, {"is_working_day", type logical}, {"is_public_holiday", type logical}, {"holiday_name", type text}}, "en-US")
+				in
+				    Typed
 
 	annotation PBI_ResultType = Table
+
